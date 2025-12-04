@@ -1,0 +1,12 @@
+{
+  "name": "Jorbex - African Job Market Platform",
+  "short_name": "Jorbex",
+  "description": "Mobile-first job-matching platform for the Nigerian job market",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0066FF",
+  "orientation": "portrait",
+  "icons": []
+}
+

@@ -1,0 +1,451 @@
+{
+  "nav": {
+    "how_it_works": "How It Works",
+    "sign_in": "Sign In",
+    "get_started": "Get Started",
+    "dashboard": "Dashboard",
+    "sign_out": "Sign Out"
+  },
+  "hero": {
+    "get_hired": "Get Hired",
+    "find_talents": "Find Talents",
+    "for_candidates": "For Candidates",
+    "for_employers": "For Employers",
+    "find_dream_job": "Find Your Dream Job",
+    "hire_top_talent": "Hire Top Talent",
+    "candidate_description": "Join verified professionals landing their perfect roles",
+    "employer_description": "Access pre-vetted candidates and build your dream team",
+    "get_started": "Get Started",
+    "start_hiring": "Start Hiring",
+    "start_here": "Start Here",
+    "ecosystem_badge": "Africa's Employment Ecosystem"
+  },
+  "mission": {
+    "title_part1": "Your Career,",
+    "title_part2": "Our Mission",
+    "description": "Connecting verified talent with visionary employers through skill-based matching",
+    "im_candidate": "I'm a Candidate",
+    "im_employer": "I'm an Employer"
+  },
+  "how_it_works": {
+    "title": "How It Works",
+    "subtitle": "Simple steps to connect talent with opportunity",
+    "for_candidates": "For Candidates",
+    "for_employers": "For Employers",
+    "candidate_step1_title": "Sign Up & Test",
+    "candidate_step1_desc": "Create your account and complete our 10-question aptitude test. Score 70%+ to unlock your profile.",
+    "candidate_step2_title": "Build Profile",
+    "candidate_step2_desc": "Showcase your top 5 skills, work experience, and professional references to stand out.",
+    "candidate_step3_title": "Get Hired",
+    "candidate_step3_desc": "Receive custom assessments from employers and land your dream job with verified skills.",
+    "employer_step1_title": "Free Trial",
+    "employer_step1_desc": "Start with 30 days free access. No credit card required. Explore our talent database.",
+    "employer_step2_title": "Search Talent",
+    "employer_step2_desc": "Use advanced filters to find pre-vetted candidates by skills, experience, and test scores.",
+    "employer_step3_title": "Assess & Hire",
+    "employer_step3_desc": "Create custom tests, evaluate results instantly, and hire with confidence."
+  },
+  "login": {
+    "welcome_back": "Welcome Back",
+    "sign_in_description": "Sign in to your Jorbex account",
+    "i_am_a": "I am a...",
+    "candidate": "Candidate",
+    "employer": "Employer",
+    "email": "Email",
+    "password": "Password",
+    "sign_in": "Sign In",
+    "dont_have_account": "Don't have an account?",
+    "sign_up": "Sign up",
+    "error_invalid": "Invalid email or password. Please check your credentials and try again.",
+    "error_generic": "An error occurred. Please try again."
+  },
+  "features": {
+    "title_part1": "Why Choose",
+    "title_part2": "Jorbex",
+    "subtitle": "The most advanced job matching platform in Nigeria",
+    "verified_skills_title": "Verified Skills",
+    "verified_skills_desc": "Every candidate passes rigorous aptitude tests. No more resume guesswork—only proven talent.",
+    "lightning_fast_title": "Lightning Fast",
+    "lightning_fast_desc": "Find qualified candidates in minutes, not weeks. Advanced AI-powered matching algorithms.",
+    "affordable_title": "Affordable",
+    "affordable_desc": "30-day free trial, then competitive local pricing. Unlimited access to premium talent pool.",
+    "data_driven_title": "Data-Driven",
+    "data_driven_desc": "Make informed hiring decisions with detailed analytics, test scores, and performance metrics.",
+    "custom_tests_title": "Custom Tests",
+    "custom_tests_desc": "Create role-specific assessments with automated scoring. Test exactly what matters for your role.",
+    "support_title": "24/7 Support",
+    "support_desc": "Round-the-clock customer support to help you succeed. We're here whenever you need us."
+  },
+  "signup": {
+    "title": "Create Account",
+    "candidateSubtitle": "Start your job search journey",
+    "employerSubtitle": "Find the best talent",
+    "userTypeLabel": "I am a...",
+    "candidate": "Candidate",
+    "employer": "Employer",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "John Doe",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "phone": "Phone Number",
+    "phonePlaceholder": "+234 800 000 0000",
+    "companyName": "Company Name",
+    "companyNamePlaceholder": "Acme Inc.",
+    "expertiseArea": "Expertise Area",
+    "selectExpertise": "Select expertise",
+    "expertise": {
+      "finance": "Finance",
+      "it": "IT",
+      "marketing": "Marketing",
+      "sales": "Sales",
+      "hr": "HR",
+      "operations": "Operations",
+      "other": "Other"
+    },
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "createAccount": "Create Account",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "errors": {
+      "passwordMismatch": "Passwords do not match",
+      "passwordLength": "Password must be at least 6 characters",
+      "signupFailed": "Signup failed. Please try again.",
+      "generic": "An error occurred. Please try again."
+    }
+  },
+  "subscription": {
+    "title_part1": "Simple, Transparent",
+    "title_part2": "Pricing",
+    "subtitle": "Free for candidates. Affordable for employers.",
+    "select_currency": "Select your currency:",
+    "for_candidates": "For Candidates",
+    "free": "FREE",
+    "always_free": "Always free, forever",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "per_month": "/month",
+    "per_year": "/year",
+    "trial_included": "30-day free trial included",
+    "save_percent": "Save 17%",
+    "monthly_equivalent": "/month (Save",
+    "get_started_free": "Get Started Free",
+    "subscribe_monthly": "Subscribe Monthly",
+    "subscribe_yearly": "Subscribe Yearly",
+    "start_free_trial": "Start Free Trial",
+    "processing": "Processing...",
+    "candidate_features": {
+      "profile": "Create professional profile",
+      "tests": "Take aptitude tests",
+      "discovered": "Get discovered by employers",
+      "opportunities": "Receive job opportunities",
+      "no_fees": "No hidden fees"
+    },
+    "monthly_features": {
+      "unlimited_search": "Unlimited candidate searches",
+      "advanced_filters": "Advanced search filters",
+      "custom_assessments": "Create custom assessments",
+      "priority_support": "Priority support",
+      "cancel_anytime": "Cancel anytime"
+    },
+    "yearly_features": {
+      "everything": "Everything in Monthly",
+      "two_months_free": "2 months free",
+      "priority_support": "Priority support",
+      "advanced_analytics": "Advanced analytics",
+      "cancel_anytime": "Cancel anytime"
+    },
+    "why_choose": "Why Choose Jorbex?",
+    "verified_skills": "Verified Skills",
+    "verified_skills_desc": "All candidates pass rigorous aptitude tests with 70%+ scores",
+    "lightning_fast": "Lightning Fast",
+    "lightning_fast_desc": "Find qualified candidates in minutes with AI-powered matching",
+    "affordable": "Affordable",
+    "affordable_desc": "Competitive pricing for unlimited access to premium talent across Africa",
+    "faq_title": "Frequently Asked Questions",
+    "faq": {
+      "trial_q": "How does the free trial work?",
+      "trial_a": "Sign up and get 30 days of full access to our platform with no credit card required. After the trial, you can choose to subscribe at competitive local pricing or cancel anytime.",
+      "cancel_q": "Can I cancel my subscription?",
+      "cancel_a": "Yes! You can cancel your subscription at any time. There are no long-term contracts or cancellation fees.",
+      "payment_q": "What payment methods do you accept?",
+      "payment_a": "We accept all major payment methods through Paystack, including cards, bank transfers, and mobile money.",
+      "candidates_q": "How many candidates can I contact?",
+      "candidates_a": "With a Premium subscription, you have unlimited access to search and contact candidates. There are no limits on the number of searches or assessments you can create.",
+      "refunds_q": "Do you offer refunds?",
+      "refunds_a": "We don't offer refunds for partial months, but you can cancel at any time to avoid future charges. Try our 30-day free trial to ensure Jorbex is right for you."
+    }
+  },
+  "terms": {
+    "title": "Terms & Conditions",
+    "last_updated": "Last updated",
+    "section1": {
+      "title": "1. Acceptance of Terms",
+      "content": "By accessing and using Jorbex, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to these terms, please do not use our services."
+    },
+    "section2": {
+      "title": "2. User Accounts",
+      "intro": "When you create an account with us, you must provide accurate, complete, and current information. Failure to do so constitutes a breach of the Terms.",
+      "item1": "You are responsible for safeguarding your account password",
+      "item2": "You must not share your account credentials with third parties",
+      "item3": "You must notify us immediately of any unauthorized access",
+      "item4": "You are responsible for all activities under your account"
+    },
+    "section3": {
+      "title": "3. For Candidates",
+      "intro": "As a candidate on Jorbex, you agree to:",
+      "item1": "Provide truthful and accurate information in your profile",
+      "item2": "Complete the aptitude test honestly without external assistance",
+      "item3": "Maintain a minimum score of 70% to keep your profile active",
+      "item4": "Update your profile information regularly",
+      "item5": "Respond professionally to employer inquiries"
+    },
+    "section4": {
+      "title": "4. For Employers",
+      "intro": "As an employer on Jorbex, you agree to:",
+      "item1": "Comply with all applicable employment laws in Nigeria and Africa",
+      "item2": "Use candidate information solely for recruitment purposes",
+      "item3": "Not discriminate based on protected characteristics",
+      "item4": "Pay subscription fees as agreed after 30-day trial",
+      "item5": "Conduct fair and transparent hiring processes"
+    },
+    "section5": {
+      "title": "5. Subscription and Payment",
+      "intro": "Employers receive a 30-day free trial. After the trial period:",
+      "item1": "Monthly subscription fees apply based on your currency",
+      "item2": "Payments are processed through Paystack",
+      "item3": "Subscriptions auto-renew unless cancelled",
+      "item4": "No refunds for partial months",
+      "item5": "We reserve the right to modify pricing with 30 days notice"
+    },
+    "section6": {
+      "title": "6. Intellectual Property",
+      "content": "The Jorbex platform, including all content, features, and functionality, is owned by Jorbex and protected by international copyright, trademark, and other intellectual property laws."
+    },
+    "section7": {
+      "title": "7. Prohibited Activities",
+      "intro": "You may not:",
+      "item1": "Use the platform for any illegal purpose",
+      "item2": "Harass, abuse, or harm other users",
+      "item3": "Impersonate another person or entity",
+      "item4": "Scrape or collect data without permission",
+      "item5": "Attempt to gain unauthorized access to the platform",
+      "item6": "Post false, misleading, or fraudulent information"
+    },
+    "section8": {
+      "title": "8. Termination",
+      "content": "We reserve the right to suspend or terminate your account at any time for violations of these Terms, fraudulent activity, or any other reason we deem necessary to protect our platform and users."
+    },
+    "section9": {
+      "title": "9. Limitation of Liability",
+      "content": "Jorbex shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the service."
+    },
+    "section10": {
+      "title": "10. Governing Law",
+      "content": "These Terms shall be governed by and construed in accordance with the laws of the Federal Republic of Nigeria, without regard to its conflict of law provisions."
+    },
+    "section11": {
+      "title": "11. Contact Us",
+      "intro": "If you have any questions about these Terms, please contact us at:",
+      "email": "Email",
+      "address": "Address"
+    }
+  },
+  "footer": {
+    "description": "Connecting qualified Nigerian talent with employers through verified skills and measurable aptitude.",
+    "for_candidates": "For Candidates",
+    "for_employers": "For Employers",
+    "legal_resources": "Legal & Resources",
+    "sign_up": "Sign Up",
+    "take_test": "Take Aptitude Test",
+    "subscription": "Subscription",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "employment_law": "Employment Law",
+    "resources": "Resources",
+    "rights_reserved": "All rights reserved",
+    "empowering": "Empowering African talent and employers"
+  },
+  "candidate_profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your professional information",
+    "save_changes": "Save Changes",
+    "loading": "Loading your profile...",
+    "profile_completeness": "Profile Completeness",
+    "complete_profile": "Complete your profile to increase your chances of being hired",
+    "overview": "Overview",
+    "work": "Work",
+    "skills": "Skills",
+    "work_history": "Work History",
+    "references": "References",
+    "personal_statement": "Personal Statement",
+    "add_skill": "Add Skill",
+    "add_work": "Add Work Experience",
+    "add_reference": "Add Reference",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "verified": "Verified",
+    "test_passed": "Test Passed",
+    "success": "Profile updated successfully!",
+    "error": "Failed to update profile",
+    "confirm_delete": "Are you sure you want to delete this?",
+    "basic_info": "Basic Information",
+    "full_name": "Full Name",
+    "phone_number": "Phone Number",
+    "expertise": "Expertise",
+    "personal_statement_title": "Personal Statement",
+    "personal_statement_desc": "Tell employers about yourself",
+    "characters": "characters",
+    "top_skills": "Top Skills",
+    "add_up_to_5": "Add up to 5 skills",
+    "skills_count": "{{count}}/5",
+    "personal_statement_placeholder": "Write a brief statement about your professional background, skills, and career goals...",
+    "email": "Email",
+    "phone": "Phone",
+    "aptitude_score": "Aptitude Score",
+    "profile_strength": "Profile Strength",
+    "completeness": "Completeness",
+    "verified_talent": "Verified Talent",
+    "not_set": "Not set",
+    "save_all_changes": "Save All Changes",
+    "work_experience": "Work Experience",
+    "professional_history": "Your professional history",
+    "add_experience": "Add Experience",
+    "company": "Company",
+    "position": "Position",
+    "start_date": "Start Date",
+    "end_date": "End Date",
+    "current_work": "I currently work here",
+    "description": "Description",
+    "responsibilities_placeholder": "Describe your responsibilities and achievements...",
+    "no_work_experience": "No work experience added yet",
+    "present": "Present",
+    "professional_references": "Professional References",
+    "optional_recommended": "Optional but recommended",
+    "full_name_ref": "Full Name",
+    "relationship": "Relationship",
+    "relationship_placeholder": "e.g., Former Manager",
+    "no_references": "No references added yet",
+    "add_ref": "Add Reference",
+    "edit_ref": "Edit Reference",
+    "edit_work": "Edit Work Experience",
+    "add_work_exp": "Add Work Experience"
+  },
+  "resources": {
+    "title": "Employment Resources for Africa",
+    "subtitle": "Tools, guides, and information to help you succeed in your career or hiring journey",
+    "job_seekers": {
+      "title": "For Job Seekers",
+      "item1": "Resume writing tips and templates",
+      "item2": "Interview preparation guides",
+      "item3": "Skills development resources",
+      "item4": "Career planning tools"
+    },
+    "employers": {
+      "title": "For Employers",
+      "item1": "Hiring best practices guide",
+      "item2": "Interview question templates",
+      "item3": "Employment contract templates",
+      "item4": "Compliance checklists"
+    },
+    "help": {
+      "title": "Need More Help?",
+      "description": "Can't find what you're looking for? Our team is here to help.",
+      "contact": "Contact Support",
+      "learn_more": "Learn More"
+    }
+  },
+  "employment_law": {
+    "title": "Employment Law in Africa",
+    "subtitle": "A comprehensive guide to employment regulations across African nations",
+    "overview": {
+      "title": "Overview",
+      "content": "Employment law in Africa varies by country but shares common principles rooted in international labor standards, constitutional rights, and local legislation. This guide provides key information for employers and employees operating across the continent."
+    },
+    "note": "Note: This page contains detailed legal information specific to each country. The content below is provided in English for reference. For legal matters, please consult with a qualified employment lawyer in your jurisdiction.",
+    "disclaimer": {
+      "title": "Disclaimer",
+      "content": "This information is provided for general guidance only and does not constitute legal advice. Employment laws are subject to change and vary by jurisdiction. For specific legal matters, consult with a qualified employment lawyer in your country."
+    },
+    "assistance": {
+      "title": "Need Legal Assistance?",
+      "intro": "For employment law questions or concerns, contact:",
+      "email": "Email",
+      "note": "We can connect you with employment law experts in your region."
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "last_updated": "Last updated",
+    "section1": {
+      "title": "1. Introduction",
+      "content": "Jorbex (\"we,\" \"our,\" or \"us\") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform."
+    },
+    "section2": {
+      "title": "2. Information We Collect",
+      "candidates_title": "For Candidates:",
+      "candidates": ["Personal information (name, email, phone number, location)", "Professional information (skills, work experience, education)", "Aptitude test results and scores", "References and contact information", "Profile photo (optional)"],
+      "employers_title": "For Employers:",
+      "employers": ["Company information (name, industry, size)", "Contact person details", "Payment information (processed securely through Paystack)", "Search and hiring activity"],
+      "auto_title": "Automatically Collected:",
+      "auto": ["IP address and device information", "Browser type and version", "Usage data and analytics", "Cookies and similar tracking technologies"]
+    },
+    "section3": {
+      "title": "3. How We Use Your Information",
+      "intro": "We use the collected information for:",
+      "items": ["Providing and maintaining our services", "Matching candidates with employers", "Processing payments and subscriptions", "Sending notifications and updates", "Improving our platform and user experience", "Preventing fraud and ensuring security", "Complying with legal obligations", "Analytics and performance monitoring"]
+    },
+    "section4": {
+      "title": "4. Information Sharing",
+      "intro": "We share your information only in the following circumstances:",
+      "employers": "With Employers:",
+      "employers_desc": "Candidate profiles are visible to subscribed employers",
+      "providers": "Service Providers:",
+      "providers_desc": "Payment processors (Paystack), hosting services, analytics",
+      "legal": "Legal Requirements:",
+      "legal_desc": "When required by law or to protect our rights",
+      "business": "Business Transfers:",
+      "business_desc": "In case of merger, acquisition, or sale of assets",
+      "no_sell": "We do NOT sell your personal information to third parties."
+    },
+    "section5": {
+      "title": "5. Data Security",
+      "intro": "We implement appropriate security measures to protect your information:",
+      "items": ["Encryption of data in transit and at rest", "Secure authentication with NextAuth.js", "Regular security audits and updates", "Access controls and monitoring", "Secure payment processing through Paystack"]
+    },
+    "section6": {
+      "title": "6. Your Rights",
+      "intro": "Under Nigerian Data Protection Regulation (NDPR) and other applicable laws, you have the right to:",
+      "items": ["Access your personal data", "Correct inaccurate information", "Request deletion of your data", "Object to processing of your data", "Data portability", "Withdraw consent at any time"]
+    },
+    "section7": {
+      "title": "7. Data Retention",
+      "content": "We retain your information for as long as your account is active or as needed to provide services. After account deletion, we may retain certain information for legal compliance, dispute resolution, and fraud prevention purposes."
+    },
+    "section8": {
+      "title": "8. Cookies",
+      "content": "We use cookies and similar technologies to enhance your experience, analyze usage, and provide personalized content. You can control cookies through your browser settings."
+    },
+    "section9": {
+      "title": "9. Children's Privacy",
+      "content": "Our services are not intended for individuals under 18 years of age. We do not knowingly collect personal information from children."
+    },
+    "section10": {
+      "title": "10. International Data Transfers",
+      "content": "Your information may be transferred to and processed in countries outside Nigeria. We ensure appropriate safeguards are in place to protect your data in accordance with this Privacy Policy."
+    },
+    "section11": {
+      "title": "11. Changes to This Policy",
+      "content": "We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the \"Last updated\" date."
+    },
+    "section12": {
+      "title": "12. Contact Us",
+      "intro": "If you have questions about this Privacy Policy or wish to exercise your rights, contact us at:",
+      "email": "Email",
+      "dpo": "Data Protection Officer",
+      "address": "Address"
+    }
+  }
+}

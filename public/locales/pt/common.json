@@ -1,0 +1,465 @@
+{
+  "nav": {
+    "how_it_works": "Como Funciona",
+    "sign_in": "Entrar",
+    "get_started": "Começar",
+    "dashboard": "Painel",
+    "sign_out": "Sair"
+  },
+  "hero": {
+    "get_hired": "Seja Contratado",
+    "find_talents": "Encontre Talentos",
+    "for_candidates": "Para Candidatos",
+    "for_employers": "Para Empregadores",
+    "find_dream_job": "Encontre o Emprego dos Seus Sonhos",
+    "hire_top_talent": "Contrate os Melhores Talentos",
+    "candidate_description": "Junte-se a profissionais verificados que conseguem suas funções perfeitas",
+    "employer_description": "Acesse candidatos pré-verificados e construa a equipe dos seus sonhos",
+    "get_started": "Começar",
+    "start_hiring": "Começar a Contratar",
+    "start_here": "Comece Aqui",
+    "ecosystem_badge": "Ecossistema de Emprego da África"
+  },
+  "mission": {
+    "title_part1": "Sua Carreira,",
+    "title_part2": "Nossa Missão",
+    "description": "Conectando talentos verificados com empregadores visionários através de correspondência baseada em habilidades",
+    "im_candidate": "Sou um Candidato",
+    "im_employer": "Sou um Empregador"
+  },
+  "how_it_works": {
+    "title": "Como Funciona",
+    "subtitle": "Passos simples para conectar talentos com oportunidades",
+    "for_candidates": "Para Candidatos",
+    "for_employers": "Para Empregadores",
+    "candidate_step1_title": "Inscrever-se & Testar",
+    "candidate_step1_desc": "Crie sua conta e complete nosso teste de aptidão de 10 perguntas. Obtenha 70%+ para desbloquear seu perfil.",
+    "candidate_step2_title": "Construir Perfil",
+    "candidate_step2_desc": "Mostre suas 5 principais habilidades, experiência profissional e referências profissionais para se destacar.",
+    "candidate_step3_title": "Ser Contratado",
+    "candidate_step3_desc": "Receba avaliações personalizadas de empregadores e consiga o emprego dos seus sonhos com habilidades verificadas.",
+    "employer_step1_title": "Teste Gratuito",
+    "employer_step1_desc": "Comece com 30 dias de acesso gratuito. Não é necessário cartão de crédito. Explore nosso banco de talentos.",
+    "employer_step2_title": "Buscar Talentos",
+    "employer_step2_desc": "Use filtros avançados para encontrar candidatos pré-verificados por habilidades, experiência e pontuações de teste.",
+    "employer_step3_title": "Avaliar & Contratar",
+    "employer_step3_desc": "Crie testes personalizados, avalie resultados instantaneamente e contrate com confiança."
+  },
+  "login": {
+    "welcome_back": "Bem-vindo de Volta",
+    "sign_in_description": "Entre na sua conta Jorbex",
+    "i_am_a": "Eu sou um...",
+    "candidate": "Candidato",
+    "employer": "Empregador",
+    "email": "Email",
+    "password": "Senha",
+    "sign_in": "Entrar",
+    "dont_have_account": "Não tem uma conta?",
+    "sign_up": "Inscrever-se",
+    "error_invalid": "Email ou senha inválidos. Verifique suas credenciais e tente novamente.",
+    "error_generic": "Ocorreu um erro. Por favor, tente novamente."
+  },
+  "login_duplicate": {
+    "welcome_back": "Bem-vindo de Volta",
+    "sign_in_description": "Entre na sua conta HireMe",
+    "i_am_a": "Eu sou um...",
+    "candidate": "Candidato",
+    "employer": "Empregador",
+    "email": "Email",
+    "password": "Senha",
+    "sign_in": "Entrar",
+    "dont_have_account": "Não tem uma conta?",
+    "sign_up": "Inscrever-se",
+    "error_invalid": "Email ou senha inválidos. Verifique suas credenciais e tente novamente.",
+    "error_generic": "Ocorreu um erro. Por favor, tente novamente."
+  },
+  "features": {
+    "title_part1": "Por Que Escolher",
+    "title_part2": "Jorbex",
+    "subtitle": "A plataforma de correspondência de empregos mais avançada da Nigéria",
+    "verified_skills_title": "Habilidades Verificadas",
+    "verified_skills_desc": "Cada candidato passa por testes de aptidão rigorosos. Chega de adivinhação de currículo—apenas talentos comprovados.",
+    "lightning_fast_title": "Super Rápido",
+    "lightning_fast_desc": "Encontre candidatos qualificados em minutos, não semanas. Algoritmos de correspondência avançados com IA.",
+    "affordable_title": "Acessível",
+    "affordable_desc": "Teste gratuito de 30 dias, depois preços locais competitivos. Acesso ilimitado ao pool de talentos premium.",
+    "data_driven_title": "Orientado por Dados",
+    "data_driven_desc": "Tome decisões de contratação informadas com análises detalhadas, pontuações de testes e métricas de desempenho.",
+    "custom_tests_title": "Testes Personalizados",
+    "custom_tests_desc": "Crie avaliações específicas para funções com pontuação automatizada. Teste exatamente o que importa para sua função.",
+    "support_title": "Suporte 24/7",
+    "support_desc": "Suporte ao cliente 24 horas para ajudá-lo a ter sucesso. Estamos aqui sempre que você precisar."
+  },
+  "signup": {
+    "title": "Criar Conta",
+    "candidateSubtitle": "Comece sua jornada de busca de emprego",
+    "employerSubtitle": "Encontre os melhores talentos",
+    "userTypeLabel": "Eu sou um...",
+    "candidate": "Candidato",
+    "employer": "Empregador",
+    "fullName": "Nome Completo",
+    "fullNamePlaceholder": "João Silva",
+    "email": "Email",
+    "emailPlaceholder": "voce@exemplo.com",
+    "phone": "Número de Telefone",
+    "phonePlaceholder": "+234 800 000 0000",
+    "companyName": "Nome da Empresa",
+    "companyNamePlaceholder": "Acme Inc.",
+    "expertiseArea": "Área de Especialização",
+    "selectExpertise": "Selecione a especialização",
+    "expertise": {
+      "finance": "Finanças",
+      "it": "TI",
+      "marketing": "Marketing",
+      "sales": "Vendas",
+      "hr": "RH",
+      "operations": "Operações",
+      "other": "Outro"
+    },
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "createAccount": "Criar Conta",
+    "haveAccount": "Já tem uma conta?",
+    "signIn": "Entrar",
+    "errors": {
+      "passwordMismatch": "As senhas não correspondem",
+      "passwordLength": "A senha deve ter pelo menos 6 caracteres",
+      "signupFailed": "Falha no cadastro. Por favor, tente novamente.",
+      "generic": "Ocorreu um erro. Por favor, tente novamente."
+    }
+  },
+  "subscription": {
+    "title_part1": "Preços Simples e",
+    "title_part2": "Transparentes",
+    "subtitle": "Grátis para candidatos. Acessível para empregadores.",
+    "select_currency": "Selecione sua moeda:",
+    "for_candidates": "Para Candidatos",
+    "free": "GRÁTIS",
+    "always_free": "Sempre grátis, para sempre",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "per_month": "/mês",
+    "per_year": "/ano",
+    "trial_included": "Teste gratuito de 30 dias incluído",
+    "save_percent": "Economize 17%",
+    "monthly_equivalent": "/mês (Economize",
+    "get_started_free": "Começar Gratuitamente",
+    "subscribe_monthly": "Assinar Mensalmente",
+    "subscribe_yearly": "Assinar Anualmente",
+    "start_free_trial": "Iniciar Teste Gratuito",
+    "processing": "Processando...",
+    "candidate_features": {
+      "profile": "Criar perfil profissional",
+      "tests": "Fazer testes de aptidão",
+      "discovered": "Ser descoberto por empregadores",
+      "opportunities": "Receber oportunidades de emprego",
+      "no_fees": "Sem taxas ocultas"
+    },
+    "monthly_features": {
+      "unlimited_search": "Buscas ilimitadas de candidatos",
+      "advanced_filters": "Filtros de busca avançados",
+      "custom_assessments": "Criar avaliações personalizadas",
+      "priority_support": "Suporte prioritário",
+      "cancel_anytime": "Cancelar a qualquer momento"
+    },
+    "yearly_features": {
+      "everything": "Tudo no Mensal",
+      "two_months_free": "2 meses grátis",
+      "priority_support": "Suporte prioritário",
+      "advanced_analytics": "Análises avançadas",
+      "cancel_anytime": "Cancelar a qualquer momento"
+    },
+    "why_choose": "Por Que Escolher Jorbex?",
+    "verified_skills": "Habilidades Verificadas",
+    "verified_skills_desc": "Todos os candidatos passam por testes de aptidão rigorosos com pontuações de 70%+",
+    "lightning_fast": "Super Rápido",
+    "lightning_fast_desc": "Encontre candidatos qualificados em minutos com correspondência alimentada por IA",
+    "affordable": "Acessível",
+    "affordable_desc": "Preços competitivos para acesso ilimitado a talentos premium em toda a África",
+    "faq_title": "Perguntas Frequentes",
+    "faq": {
+      "trial_q": "Como funciona o teste gratuito?",
+      "trial_a": "Inscreva-se e obtenha 30 dias de acesso completo à nossa plataforma sem necessidade de cartão de crédito. Após o teste, você pode escolher assinar com preços locais competitivos ou cancelar a qualquer momento.",
+      "cancel_q": "Posso cancelar minha assinatura?",
+      "cancel_a": "Sim! Você pode cancelar sua assinatura a qualquer momento. Não há contratos de longo prazo ou taxas de cancelamento.",
+      "payment_q": "Quais métodos de pagamento vocês aceitam?",
+      "payment_a": "Aceitamos todos os principais métodos de pagamento através do Paystack, incluindo cartões, transferências bancárias e dinheiro móvel.",
+      "candidates_q": "Quantos candidatos posso contatar?",
+      "candidates_a": "Com uma assinatura Premium, você tem acesso ilimitado para pesquisar e contatar candidatos. Não há limites no número de pesquisas ou avaliações que você pode criar.",
+      "refunds_q": "Vocês oferecem reembolsos?",
+      "refunds_a": "Não oferecemos reembolsos para meses parciais, mas você pode cancelar a qualquer momento para evitar cobranças futuras. Experimente nosso teste gratuito de 30 dias para garantir que o Jorbex é adequado para você."
+    }
+  },
+  "terms": {
+    "title": "Termos e Condições",
+    "last_updated": "Última atualização",
+    "section1": {
+      "title": "1. Aceitação dos Termos",
+      "content": "Ao acessar e usar o Jorbex, você aceita e concorda em estar vinculado aos termos e disposições deste acordo. Se você não concordar com estes termos, por favor não use nossos serviços."
+    },
+    "section2": {
+      "title": "2. Contas de Usuário",
+      "intro": "Ao criar uma conta conosco, você deve fornecer informações precisas, completas e atuais. O não cumprimento constitui uma violação dos Termos.",
+      "item1": "Você é responsável por proteger a senha da sua conta",
+      "item2": "Você não deve compartilhar suas credenciais de conta com terceiros",
+      "item3": "Você deve nos notificar imediatamente sobre qualquer acesso não autorizado",
+      "item4": "Você é responsável por todas as atividades em sua conta"
+    },
+    "section3": {
+      "title": "3. Para Candidatos",
+      "intro": "Como candidato no Jorbex, você concorda em:",
+      "item1": "Fornecer informações verdadeiras e precisas em seu perfil",
+      "item2": "Completar o teste de aptidão honestamente sem assistência externa",
+      "item3": "Manter uma pontuação mínima de 70% para manter seu perfil ativo",
+      "item4": "Atualizar as informações do seu perfil regularmente",
+      "item5": "Responder profissionalmente às consultas dos empregadores"
+    },
+    "section4": {
+      "title": "4. Para Empregadores",
+      "intro": "Como empregador no Jorbex, você concorda em:",
+      "item1": "Cumprir todas as leis trabalhistas aplicáveis na Nigéria e África",
+      "item2": "Usar informações de candidatos apenas para fins de recrutamento",
+      "item3": "Não discriminar com base em características protegidas",
+      "item4": "Pagar taxas de assinatura conforme acordado após teste de 30 dias",
+      "item5": "Conduzir processos de contratação justos e transparentes"
+    },
+    "section5": {
+      "title": "5. Assinatura e Pagamento",
+      "intro": "Os empregadores recebem um teste gratuito de 30 dias. Após o período de teste:",
+      "item1": "Taxas de assinatura mensal se aplicam com base em sua moeda",
+      "item2": "Os pagamentos são processados através do Paystack",
+      "item3": "As assinaturas renovam automaticamente a menos que canceladas",
+      "item4": "Sem reembolsos para meses parciais",
+      "item5": "Reservamo-nos o direito de modificar preços com aviso de 30 dias"
+    },
+    "section6": {
+      "title": "6. Propriedade Intelectual",
+      "content": "A plataforma Jorbex, incluindo todo o conteúdo, recursos e funcionalidades, é de propriedade da Jorbex e protegida por leis internacionais de direitos autorais, marcas registradas e outras leis de propriedade intelectual."
+    },
+    "section7": {
+      "title": "7. Atividades Proibidas",
+      "intro": "Você não pode:",
+      "item1": "Usar a plataforma para qualquer propósito ilegal",
+      "item2": "Assediar, abusar ou prejudicar outros usuários",
+      "item3": "Personificar outra pessoa ou entidade",
+      "item4": "Extrair ou coletar dados sem permissão",
+      "item5": "Tentar obter acesso não autorizado à plataforma",
+      "item6": "Publicar informações falsas, enganosas ou fraudulentas"
+    },
+    "section8": {
+      "title": "8. Rescisão",
+      "content": "Reservamo-nos o direito de suspender ou encerrar sua conta a qualquer momento por violações destes Termos, atividade fraudulenta ou qualquer outro motivo que consideremos necessário para proteger nossa plataforma e usuários."
+    },
+    "section9": {
+      "title": "9. Limitação de Responsabilidade",
+      "content": "A Jorbex não será responsável por quaisquer danos indiretos, incidentais, especiais, consequenciais ou punitivos resultantes do seu uso ou incapacidade de usar o serviço."
+    },
+    "section10": {
+      "title": "10. Lei Aplicável",
+      "content": "Estes Termos serão regidos e interpretados de acordo com as leis da República Federal da Nigéria, sem considerar suas disposições sobre conflitos de leis."
+    },
+    "section11": {
+      "title": "11. Entre em Contato",
+      "intro": "Se você tiver alguma dúvida sobre estes Termos, entre em contato conosco em:",
+      "email": "Email",
+      "address": "Endereço"
+    }
+  },
+  "footer": {
+    "description": "Conectando talentos nigerianos qualificados com empregadores através de habilidades verificadas e aptidão mensurável.",
+    "for_candidates": "Para Candidatos",
+    "for_employers": "Para Empregadores",
+    "legal_resources": "Legal e Recursos",
+    "sign_up": "Inscrever-se",
+    "take_test": "Fazer Teste de Aptidão",
+    "subscription": "Assinatura",
+    "terms": "Termos e Condições",
+    "privacy": "Política de Privacidade",
+    "employment_law": "Lei do Trabalho",
+    "resources": "Recursos",
+    "rights_reserved": "Todos os direitos reservados",
+    "empowering": "Capacitando talentos e empregadores africanos"
+  },
+  "candidate_profile": {
+    "title": "Meu Perfil",
+    "subtitle": "Gerencie suas informações profissionais",
+    "save_changes": "Salvar Alterações",
+    "loading": "Carregando seu perfil...",
+    "profile_completeness": "Completude do Perfil",
+    "complete_profile": "Complete seu perfil para aumentar suas chances de ser contratado",
+    "overview": "Visão Geral",
+    "work": "Trabalho",
+    "skills": "Habilidades",
+    "work_history": "Histórico de Trabalho",
+    "references": "Referências",
+    "personal_statement": "Declaração Pessoal",
+    "add_skill": "Adicionar Habilidade",
+    "add_work": "Adicionar Experiência",
+    "add_reference": "Adicionar Referência",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "verified": "Verificado",
+    "test_passed": "Teste Aprovado",
+    "success": "Perfil atualizado com sucesso!",
+    "error": "Falha ao atualizar perfil",
+    "confirm_delete": "Tem certeza de que deseja excluir isto?",
+    "basic_info": "Informações Básicas",
+    "full_name": "Nome Completo",
+    "phone_number": "Número de Telefone",
+    "expertise": "Especialização",
+    "personal_statement_title": "Declaração Pessoal",
+    "personal_statement_desc": "Conte aos empregadores sobre você",
+    "characters": "caracteres",
+    "top_skills": "Principais Habilidades",
+    "add_up_to_5": "Adicione até 5 habilidades",
+    "skills_count": "{{count}}/5",
+    "personal_statement_placeholder": "Escreva uma breve declaração sobre sua formação profissional, habilidades e objetivos de carreira...",
+    "email": "Email",
+    "phone": "Telefone",
+    "aptitude_score": "Pontuação de Aptidão",
+    "profile_strength": "Força do Perfil",
+    "completeness": "Completude",
+    "verified_talent": "Talento Verificado",
+    "not_set": "Não definido",
+    "save_all_changes": "Salvar Todas as Alterações",
+    "work_experience": "Experiência Profissional",
+    "professional_history": "Seu histórico profissional",
+    "add_experience": "Adicionar Experiência",
+    "company": "Empresa",
+    "position": "Cargo",
+    "start_date": "Data de Início",
+    "end_date": "Data de Término",
+    "current_work": "Trabalho aqui atualmente",
+    "description": "Descrição",
+    "responsibilities_placeholder": "Descreva suas responsabilidades e conquistas...",
+    "no_work_experience": "Nenhuma experiência de trabalho adicionada",
+    "present": "Presente",
+    "professional_references": "Referências Profissionais",
+    "optional_recommended": "Opcional, mas recomendado",
+    "full_name_ref": "Nome Completo",
+    "relationship": "Relacionamento",
+    "relationship_placeholder": "ex: Gerente anterior",
+    "no_references": "Nenhuma referência adicionada",
+    "add_ref": "Adicionar Referência",
+    "edit_ref": "Editar Referência",
+    "edit_work": "Editar Experiência",
+    "add_work_exp": "Adicionar Experiência"
+  },
+  "resources": {
+    "title": "Recursos de Emprego para África",
+    "subtitle": "Ferramentas, guias e informações para ajudá-lo a ter sucesso em sua carreira ou jornada de contratação",
+    "job_seekers": {
+      "title": "Para Candidatos a Emprego",
+      "item1": "Dicas e modelos de redação de currículo",
+      "item2": "Guias de preparação para entrevistas",
+      "item3": "Recursos de desenvolvimento de habilidades",
+      "item4": "Ferramentas de planejamento de carreira"
+    },
+    "employers": {
+      "title": "Para Empregadores",
+      "item1": "Guia de melhores práticas de contratação",
+      "item2": "Modelos de perguntas de entrevista",
+      "item3": "Modelos de contratos de trabalho",
+      "item4": "Listas de verificação de conformidade"
+    },
+    "help": {
+      "title": "Precisa de Mais Ajuda?",
+      "description": "Não consegue encontrar o que procura? Nossa equipe está aqui para ajudar.",
+      "contact": "Contatar Suporte",
+      "learn_more": "Saiba Mais"
+    }
+  },
+  "employment_law": {
+    "title": "Lei do Trabalho na África",
+    "subtitle": "Um guia abrangente sobre regulamentações trabalhistas em nações africanas",
+    "overview": {
+      "title": "Visão Geral",
+      "content": "A lei do trabalho na África varia por país, mas compartilha princípios comuns enraizados em padrões internacionais de trabalho, direitos constitucionais e legislação local. Este guia fornece informações essenciais para empregadores e funcionários operando em todo o continente."
+    },
+    "note": "Nota: Esta página contém informações jurídicas detalhadas específicas de cada país. O conteúdo abaixo é fornecido em inglês para referência. Para questões legais, consulte um advogado trabalhista qualificado em sua jurisdição.",
+    "disclaimer": {
+      "title": "Isenção de Responsabilidade",
+      "content": "Estas informações são fornecidas apenas para orientação geral e não constituem aconselhamento jurídico. As leis trabalhistas estão sujeitas a alterações e variam por jurisdição. Para questões legais específicas, consulte um advogado trabalhista qualificado em seu país."
+    },
+    "assistance": {
+      "title": "Precisa de Assistência Jurídica?",
+      "intro": "Para perguntas ou preocupações sobre lei do trabalho, entre em contato:",
+      "email": "Email",
+      "note": "Podemos conectá-lo com especialistas em lei do trabalho em sua região."
+    }
+  },
+  "privacy": {
+    "title": "Política de Privacidade",
+    "last_updated": "Última atualização",
+    "section1": {
+      "title": "1. Introdução",
+      "content": "A Jorbex (\"nós\", \"nosso\" ou \"nos\") está comprometida em proteger sua privacidade. Esta Política de Privacidade explica como coletamos, usamos, divulgamos e protegemos suas informações quando você usa nossa plataforma."
+    },
+    "section2": {
+      "title": "2. Informações que Coletamos",
+      "candidates_title": "Para Candidatos:",
+      "candidates": ["Informações pessoais (nome, email, número de telefone, localização)", "Informações profissionais (habilidades, experiência profissional, educação)", "Resultados e pontuações de testes de aptidão", "Referências e informações de contato", "Foto de perfil (opcional)"],
+      "employers_title": "Para Empregadores:",
+      "employers": ["Informações da empresa (nome, setor, tamanho)", "Detalhes da pessoa de contato", "Informações de pagamento (processadas com segurança através do Paystack)", "Atividade de busca e contratação"],
+      "auto_title": "Coletadas Automaticamente:",
+      "auto": ["Endereço IP e informações do dispositivo", "Tipo e versão do navegador", "Dados de uso e análises", "Cookies e tecnologias de rastreamento similares"]
+    },
+    "section3": {
+      "title": "3. Como Usamos Suas Informações",
+      "intro": "Usamos as informações coletadas para:",
+      "items": ["Fornecer e manter nossos serviços", "Combinar candidatos com empregadores", "Processar pagamentos e assinaturas", "Enviar notificações e atualizações", "Melhorar nossa plataforma e experiência do usuário", "Prevenir fraudes e garantir segurança", "Cumprir obrigações legais", "Análises e monitoramento de desempenho"]
+    },
+    "section4": {
+      "title": "4. Compartilhamento de Informações",
+      "intro": "Compartilhamos suas informações apenas nas seguintes circunstâncias:",
+      "employers": "Com Empregadores:",
+      "employers_desc": "Perfis de candidatos são visíveis para empregadores assinantes",
+      "providers": "Provedores de Serviços:",
+      "providers_desc": "Processadores de pagamento (Paystack), serviços de hospedagem, análises",
+      "legal": "Requisitos Legais:",
+      "legal_desc": "Quando exigido por lei ou para proteger nossos direitos",
+      "business": "Transferências Comerciais:",
+      "business_desc": "Em caso de fusão, aquisição ou venda de ativos",
+      "no_sell": "NÃO vendemos suas informações pessoais a terceiros."
+    },
+    "section5": {
+      "title": "5. Segurança de Dados",
+      "intro": "Implementamos medidas de segurança apropriadas para proteger suas informações:",
+      "items": ["Criptografia de dados em trânsito e em repouso", "Autenticação segura com NextAuth.js", "Auditorias e atualizações de segurança regulares", "Controles de acesso e monitoramento", "Processamento seguro de pagamentos através do Paystack"]
+    },
+    "section6": {
+      "title": "6. Seus Direitos",
+      "intro": "Sob o Regulamento Nigeriano de Proteção de Dados (NDPR) e outras leis aplicáveis, você tem o direito de:",
+      "items": ["Acessar seus dados pessoais", "Corrigir informações imprecisas", "Solicitar exclusão de seus dados", "Objetar ao processamento de seus dados", "Portabilidade de dados", "Retirar consentimento a qualquer momento"]
+    },
+    "section7": {
+      "title": "7. Retenção de Dados",
+      "content": "Retemos suas informações enquanto sua conta estiver ativa ou conforme necessário para fornecer serviços. Após a exclusão da conta, podemos reter certas informações para conformidade legal, resolução de disputas e prevenção de fraudes."
+    },
+    "section8": {
+      "title": "8. Cookies",
+      "content": "Usamos cookies e tecnologias similares para melhorar sua experiência, analisar o uso e fornecer conteúdo personalizado. Você pode controlar os cookies através das configurações do seu navegador."
+    },
+    "section9": {
+      "title": "9. Privacidade de Crianças",
+      "content": "Nossos serviços não são destinados a indivíduos menores de 18 anos. Não coletamos intencionalmente informações pessoais de crianças."
+    },
+    "section10": {
+      "title": "10. Transferências Internacionais de Dados",
+      "content": "Suas informações podem ser transferidas e processadas em países fora da Nigéria. Garantimos que salvaguardas apropriadas estejam em vigor para proteger seus dados de acordo com esta Política de Privacidade."
+    },
+    "section11": {
+      "title": "11. Alterações a Esta Política",
+      "content": "Podemos atualizar esta Política de Privacidade de tempos em tempos. Notificaremos você sobre quaisquer alterações publicando a nova Política de Privacidade nesta página e atualizando a data de \"Última atualização\"."
+    },
+    "section12": {
+      "title": "12. Entre em Contato",
+      "intro": "Se você tiver dúvidas sobre esta Política de Privacidade ou desejar exercer seus direitos, entre em contato conosco em:",
+      "email": "Email",
+      "dpo": "Encarregado de Proteção de Dados",
+      "address": "Endereço"
+    }
+  }
+}
