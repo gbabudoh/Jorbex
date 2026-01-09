@@ -4,6 +4,11 @@
     "sign_in": "Se Connecter",
     "get_started": "Commencer",
     "dashboard": "Tableau de Bord",
+    "search": "Recherche",
+    "tests": "Tests",
+    "profile": "Profil",
+    "messages": "Messages",
+    "interviews": "Entretiens",
     "sign_out": "Se Déconnecter"
   },
   "hero": {

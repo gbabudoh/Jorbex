@@ -4,6 +4,11 @@
     "sign_in": "تسجيل الدخول",
     "get_started": "ابدأ الآن",
     "dashboard": "لوحة التحكم",
+    "search": "بحث",
+    "tests": "اختبارات",
+    "profile": "الملف الشخصي",
+    "messages": "الرسائل",
+    "interviews": "المقابلات",
     "sign_out": "تسجيل الخروج"
   },
   "hero": {

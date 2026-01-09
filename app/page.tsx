@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { useLanguage } from '@/lib/LanguageContext';
+import Image from 'next/image';
 
 export default function Home() {
   const { t } = useLanguage();
@@ -36,9 +37,11 @@ export default function Home() {
                   </svg>
                   {t('hero.get_hired')}
                 </div>
-                <img 
+                <Image 
                   src="/candidate.png" 
                   alt="Job Seekers" 
+                  width={600}
+                  height={600}
                   className="relative w-full h-full object-contain transform group-hover:scale-105 transition-all duration-500"
                 />
                 {/* Start Here Badge */}
@@ -63,7 +66,7 @@ export default function Home() {
                   <Button 
                     variant="primary" 
                     size="md" 
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-semibold"
+                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-semibold cursor-pointer"
                   >
                     {t('hero.get_started')}
                     <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,9 +87,11 @@ export default function Home() {
                   </svg>
                   {t('hero.find_talents')}
                 </div>
-                <img 
+                <Image 
                   src="/employer.png" 
                   alt="Employers" 
+                  width={600}
+                  height={600}
                   className="relative w-full h-full object-contain transform group-hover:scale-105 transition-all duration-500"
                 />
                 {/* Start Here Badge */}
@@ -111,7 +116,7 @@ export default function Home() {
                   <Button 
                     variant="primary" 
                     size="md" 
-                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-semibold"
+                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-semibold cursor-pointer"
                   >
                     {t('hero.start_hiring')}
                     <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,8 +128,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Badge - Centered between images */}
-          <div className="flex justify-center -mt-56 mb-56 animate-fade-in">
+          {/* Badge - Responsive placement */}
+          <div className="flex justify-center md:-mt-56 md:mb-56 my-12 animate-fade-in">
             <div className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white rounded-full shadow-lg font-semibold text-xs border border-white/20 backdrop-blur-sm">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -147,7 +152,7 @@ export default function Home() {
       <section className="py-24 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 animate-fade-in max-w-5xl mx-auto">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight font-poppins">
+            <h1 className="text-3xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight font-poppins px-4">
               <span className="text-gray-900 dark:text-white">{t('mission.title_part1')}</span>
               <br />
               <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
@@ -155,7 +160,7 @@ export default function Home() {
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-2xl text-gray-600 dark:text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed px-4">
               {t('mission.description')}
             </p>
 
@@ -165,7 +170,7 @@ export default function Home() {
                 <Button 
                   variant="primary" 
                   size="lg" 
-                  className="w-full sm:w-auto min-w-[220px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg font-bold px-10 py-7"
+                  className="w-full sm:w-auto min-w-[220px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg font-bold px-10 py-7 cursor-pointer"
                 >
                   {t('mission.im_candidate')}
                   <svg className="ml-2 w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,7 +182,7 @@ export default function Home() {
                 <Button 
                   variant="primary" 
                   size="lg" 
-                  className="w-full sm:w-auto min-w-[220px] bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg font-bold px-10 py-7"
+                  className="w-full sm:w-auto min-w-[220px] bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg font-bold px-10 py-7 cursor-pointer"
                 >
                   {t('mission.im_employer')}
                   <svg className="ml-2 w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,11 +206,11 @@ export default function Home() {
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-20 animate-fade-in">
-            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="text-center mb-12 md:mb-20 animate-fade-in px-4">
+            <h2 className="text-3xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
               {t('how_it_works.title')}
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               {t('how_it_works.subtitle')}
             </p>
           </div>

@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useLanguage } from '@/lib/LanguageContext';
+import { Notification } from '@/components/ui/Notification';
 
 // Icon Components
 const EditIcon = () => (
@@ -53,14 +53,42 @@ const AwardIcon = () => (
   </svg>
 );
 
+interface WorkExperience {
+  company: string;
+  position: string;
+  startDate: string;
+  endDate?: string;
+  description: string;
+  isCurrent: boolean;
+}
+
+interface Reference {
+  name: string;
+  email: string;
+  phone: string;
+  relationship: string;
+}
+
+interface ProfileData {
+  name: string;
+  email: string;
+  expertise: string;
+  onboardingTestPassed?: boolean;
+  onboardingTestScore?: number;
+  personalStatement?: string;
+  skills?: string[];
+  workHistory?: WorkExperience[];
+  references?: Reference[];
+}
+
 export default function ProfilePage() {
-  const router = useRouter();
   const { data: session } = useSession();
   const { t } = useLanguage();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [notification, setNotification] = useState<{ isOpen: boolean; message: string; type: 'success' | 'error' | 'info' } | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -68,8 +96,8 @@ export default function ProfilePage() {
     expertise: '',
     personalStatement: '',
     skills: [] as string[],
-    workHistory: [] as any[],
-    references: [] as any[],
+    workHistory: [] as WorkExperience[],
+    references: [] as Reference[],
   });
   
   const [newSkill, setNewSkill] = useState('');
@@ -78,7 +106,7 @@ export default function ProfilePage() {
   const [editingWorkIndex, setEditingWorkIndex] = useState<number | null>(null);
   const [editingRefIndex, setEditingRefIndex] = useState<number | null>(null);
   
-  const [workForm, setWorkForm] = useState({
+  const [workForm, setWorkForm] = useState<WorkExperience>({
     company: '',
     position: '',
     startDate: '',
@@ -87,7 +115,7 @@ export default function ProfilePage() {
     isCurrent: false,
   });
   
-  const [refForm, setRefForm] = useState({
+  const [refForm, setRefForm] = useState<Reference>({
     name: '',
     email: '',
     phone: '',
@@ -114,8 +142,8 @@ export default function ProfilePage() {
           references: data.references || [],
         });
       }
-    } catch (error) {
-      console.error('Failed to fetch profile:', error);
+    } catch {
+      // Failed to fetch profile
     } finally {
       setIsLoading(false);
     }
@@ -132,13 +160,13 @@ export default function ProfilePage() {
 
       if (response.ok) {
         await fetchProfile();
-        alert(t('candidate_profile.success'));
+        setNotification({ isOpen: true, message: t('candidate_profile.success'), type: 'success' });
       } else {
         const data = await response.json();
-        alert(data.error || t('candidate_profile.error'));
+        setNotification({ isOpen: true, message: data.error || t('candidate_profile.error'), type: 'error' });
       }
-    } catch (error) {
-      alert(t('candidate_profile.error'));
+    } catch {
+      setNotification({ isOpen: true, message: t('candidate_profile.error'), type: 'error' });
     } finally {
       setIsSaving(false);
     }
@@ -169,6 +197,7 @@ export default function ProfilePage() {
       startDate: workForm.startDate,
       endDate: workForm.isCurrent ? undefined : workForm.endDate,
       description: workForm.description,
+      isCurrent: workForm.isCurrent,
     };
 
     if (editingWorkIndex !== null) {
@@ -225,7 +254,7 @@ export default function ProfilePage() {
   };
 
   const handleEditReference = (index: number) => {
-    setRefForm(formData.references[index]);
+    setRefForm(formData.references[index] as Reference);
     setEditingRefIndex(index);
     setShowRefForm(true);
   };
@@ -261,18 +290,18 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/30">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-4 md:py-8 max-w-7xl">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-2 md:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('candidate_profile.title')}</h1>
-            <p className="text-gray-600 dark:text-gray-400">{t('candidate_profile.subtitle')}</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1 md:mb-2">{t('candidate_profile.title')}</h1>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">{t('candidate_profile.subtitle')}</p>
           </div>
           <Button
             variant="primary"
             onClick={handleSaveProfile}
             isLoading={isSaving}
-            className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg"
+            className="hidden md:flex bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg items-center"
           >
             <SaveIcon />
             <span className="ml-2">{t('candidate_profile.save_all_changes')}</span>
@@ -285,28 +314,32 @@ export default function ProfilePage() {
             {/* Profile Card */}
             <Card className="border-0 shadow-xl overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0066FF]/20 to-[#00D9A5]/20 rounded-full blur-2xl -mr-16 -mt-16" />
-              <CardContent className="relative p-6 text-center">
-                <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-4">
-                  {profile?.name?.charAt(0).toUpperCase() || 'U'}
+              <CardContent className="relative p-4 md:p-6 text-center">
+                <div className="flex items-center md:flex-col gap-4 md:gap-0">
+                  <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-lg mb-0 md:mb-4 shrink-0">
+                    {profile?.name?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <div className="text-left md:text-center flex-1">
+                    <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-0 md:mb-1">{profile?.name}</h2>
+                    <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-2 md:mb-4">{profile?.expertise}</p>
+                    
+                    {profile?.onboardingTestPassed && (
+                      <Badge variant="success" className="mb-0 md:mb-4 text-[10px] md:text-xs">
+                        <AwardIcon />
+                        <span className="ml-1">{t('candidate_profile.verified_talent')}</span>
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{profile?.name}</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{profile?.expertise}</p>
-                
-                {profile?.onboardingTestPassed && (
-                  <Badge variant="success" className="mb-4">
-                    <AwardIcon />
-                    <span className="ml-1">{t('candidate_profile.verified_talent')}</span>
-                  </Badge>
-                )}
 
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2 text-sm text-left">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.email')}</span>
-                    <span className="font-medium truncate ml-2">{profile?.email}</span>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2 text-[13px] md:text-sm text-left">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-gray-600 dark:text-gray-400 shrink-0">{t('candidate_profile.email')}</span>
+                    <span className="font-medium truncate text-right">{profile?.email}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.phone')}</span>
-                    <span className="font-medium">{formData.phone || t('candidate_profile.not_set')}</span>
+                    <span className="font-medium text-right">{formData.phone || t('candidate_profile.not_set')}</span>
                   </div>
                 </div>
               </CardContent>
@@ -409,40 +442,42 @@ export default function ProfilePage() {
           {/* Main Content Area */}
           <div className="lg:col-span-2 space-y-6">
             {/* Tabs */}
-            <Card className="border-0 shadow-lg">
-              <CardContent className="p-2">
-                <div className="flex gap-2">
-                  {['overview', 'work', 'references'].map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all ${
-                        activeTab === tab
-                          ? 'bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white shadow-lg'
-                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                      }`}
-                    >
-                      {t(`candidate_profile.${tab}`)}
-                    </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="sticky top-[64px] z-30 -mx-2 px-2 py-2 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 md:relative md:top-0 md:mx-0 md:px-0 md:py-0 md:bg-transparent md:border-b-0">
+              <Card className="border-0 shadow-lg md:shadow-md">
+                <CardContent className="p-1 md:p-2">
+                  <div className="flex gap-1 md:gap-2">
+                    {['overview', 'work', 'references'].map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`flex-1 min-w-0 px-1 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl text-[11px] sm:text-[12px] md:text-sm font-bold transition-all whitespace-nowrap ${
+                          activeTab === tab
+                            ? 'bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white shadow-md'
+                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                        }`}
+                      >
+                        {t(`candidate_profile.${tab}`)}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <>
                 {/* Basic Info */}
                 <Card className="border-0 shadow-lg">
-                  <CardHeader>
+                  <CardHeader className="p-3 md:p-6 pb-1 md:pb-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
                         <UserIcon />
                       </div>
-                      <CardTitle>{t('candidate_profile.basic_info')}</CardTitle>
+                      <CardTitle className="text-lg md:text-xl">{t('candidate_profile.basic_info')}</CardTitle>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="p-4 md:p-6 space-y-4">
                     <Input
                       label={t('candidate_profile.full_name')}
                       value={formData.name}
@@ -476,7 +511,7 @@ export default function ProfilePage() {
 
                 {/* Personal Statement */}
                 <Card className="border-0 shadow-lg">
-                  <CardHeader>
+                  <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -484,12 +519,12 @@ export default function ProfilePage() {
                         </svg>
                       </div>
                       <div>
-                        <CardTitle>{t('candidate_profile.personal_statement_title')}</CardTitle>
-                        <CardDescription>{t('candidate_profile.personal_statement_desc')}</CardDescription>
+                        <CardTitle className="text-base md:text-lg">{t('candidate_profile.personal_statement_title')}</CardTitle>
+                        <CardDescription className="text-[11px] md:text-sm">{t('candidate_profile.personal_statement_desc')}</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
                     <Textarea
                       placeholder={t('candidate_profile.personal_statement_placeholder')}
                       value={formData.personalStatement}
@@ -502,7 +537,7 @@ export default function ProfilePage() {
 
                 {/* Skills */}
                 <Card className="border-0 shadow-lg">
-                  <CardHeader>
+                  <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
@@ -511,14 +546,14 @@ export default function ProfilePage() {
                           </svg>
                         </div>
                         <div>
-                          <CardTitle>{t('candidate_profile.top_skills')}</CardTitle>
-                          <CardDescription>{t('candidate_profile.add_up_to_5')}</CardDescription>
+                          <CardTitle className="text-base md:text-lg">{t('candidate_profile.top_skills')}</CardTitle>
+                          <CardDescription className="text-[11px] md:text-sm">{t('candidate_profile.add_up_to_5')}</CardDescription>
                         </div>
                       </div>
-                      <Badge variant="default">{formData.skills.length}/5</Badge>
+                      <Badge variant="default" className="text-[10px]">{formData.skills.length}/5</Badge>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="p-3 md:p-6 pt-0 md:pt-0 space-y-4">
                     <div className="flex gap-2">
                       <Input
                         placeholder="e.g., Python, React, Excel"
@@ -564,20 +599,21 @@ export default function ProfilePage() {
             {/* Work History Tab */}
             {activeTab === 'work' && (
               <Card className="border-0 shadow-lg">
-                <CardHeader>
+                <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
                         <BriefcaseIcon />
                       </div>
                       <div>
-                        <CardTitle>{t('candidate_profile.work_experience')}</CardTitle>
-                        <CardDescription>{t('candidate_profile.professional_history')}</CardDescription>
+                        <CardTitle className="text-base md:text-lg">{t('candidate_profile.work_experience')}</CardTitle>
+                        <CardDescription className="text-[11px] md:text-sm">{t('candidate_profile.professional_history')}</CardDescription>
                       </div>
                     </div>
                     <Button
                       variant="primary"
                       size="sm"
+                      className="px-2 py-1 h-8 text-[11px]"
                       onClick={() => {
                         setShowWorkForm(true);
                         setEditingWorkIndex(null);
@@ -585,11 +621,11 @@ export default function ProfilePage() {
                       }}
                     >
                       <PlusIcon />
-                      <span className="ml-2">{t('candidate_profile.add_experience')}</span>
+                      <span className="ml-1">{t('candidate_profile.add_ref')}</span>
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
                   {showWorkForm && (
                     <div className="mb-6 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-2xl border border-blue-200 dark:border-blue-800 space-y-4">
                       <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
@@ -700,7 +736,7 @@ export default function ProfilePage() {
             {/* References Tab */}
             {activeTab === 'references' && (
               <Card className="border-0 shadow-lg">
-                <CardHeader>
+                <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
@@ -709,13 +745,14 @@ export default function ProfilePage() {
                         </svg>
                       </div>
                       <div>
-                        <CardTitle>{t('candidate_profile.professional_references')}</CardTitle>
-                        <CardDescription>{t('candidate_profile.optional_recommended')}</CardDescription>
+                        <CardTitle className="text-base md:text-lg">{t('candidate_profile.professional_references')}</CardTitle>
+                        <CardDescription className="text-[11px] md:text-sm">{t('candidate_profile.optional_recommended')}</CardDescription>
                       </div>
                     </div>
                     <Button
                       variant="primary"
                       size="sm"
+                      className="px-2 py-1 h-8 text-[11px]"
                       onClick={() => {
                         setShowRefForm(true);
                         setEditingRefIndex(null);
@@ -723,11 +760,11 @@ export default function ProfilePage() {
                       }}
                     >
                       <PlusIcon />
-                      <span className="ml-2">{t('candidate_profile.add_ref')}</span>
+                      <span className="ml-1">{t('candidate_profile.add_ref')}</span>
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
                   {showRefForm && (
                     <div className="mb-6 p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-2xl border border-green-200 dark:border-green-800 space-y-4">
                       <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
@@ -838,6 +875,12 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      <Notification
+        isOpen={!!notification}
+        message={notification?.message || ''}
+        type={notification?.type}
+        onClose={() => setNotification(null)}
+      />
     </div>
   );
 }

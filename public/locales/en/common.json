@@ -4,7 +4,13 @@
     "sign_in": "Sign In",
     "get_started": "Get Started",
     "dashboard": "Dashboard",
-    "sign_out": "Sign Out"
+    "search": "Search",
+    "tests": "Tests",
+    "profile": "Profile",
+    "messages": "Messages",
+    "interviews": "Interviews",
+    "sign_out": "Sign Out",
+    "back_to_home": "Home"
   },
   "hero": {
     "get_hired": "Get Hired",

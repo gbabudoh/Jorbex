@@ -127,7 +127,7 @@ export default function TermsPage() {
                 {t('terms.section11.intro')}
               </p>
               <p className="mt-4 font-semibold">
-                {t('terms.section11.email')}: legal@hireme.ng<br />
+                {t('terms.section11.email')}: legal@jorbex.com<br />
                 {t('terms.section11.address')}: Lagos, Nigeria
               </p>
             </section>

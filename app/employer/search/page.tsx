@@ -6,6 +6,17 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { useRouter } from 'next/navigation';
+ 
+interface Candidate {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  expertise: string;
+  skills: string[];
+  onboardingTestScore?: number;
+  createdAt: string;
+}
 
 // Icon Components
 const SearchIcon = () => (
@@ -46,7 +57,7 @@ const ClockIcon = () => (
 
 export default function SearchPage() {
   const router = useRouter();
-  const [candidates, setCandidates] = useState<any[]>([]);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -72,13 +83,12 @@ export default function SearchPage() {
       const response = await fetch(`/api/v1/candidates/search?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
-        const candidatesList = data.candidates || [];
+        const candidatesList: Candidate[] = data.candidates || [];
         setCandidates(candidatesList);
         
-        // Calculate stats
         if (candidatesList.length > 0) {
-          const avgScore = candidatesList.reduce((sum: number, c: any) => sum + (c.onboardingTestScore || 0), 0) / candidatesList.length;
-          const allSkills = candidatesList.flatMap((c: any) => c.skills || []);
+          const avgScore = candidatesList.reduce((sum: number, c: Candidate) => sum + (c.onboardingTestScore || 0), 0) / candidatesList.length;
+          const allSkills = candidatesList.flatMap((c: Candidate) => c.skills || []);
           const skillCounts: Record<string, number> = {};
           allSkills.forEach((skill: string) => {
             skillCounts[skill] = (skillCounts[skill] || 0) + 1;
@@ -106,6 +116,7 @@ export default function SearchPage() {
 
   useEffect(() => {
     handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getScoreColor = (score: number) => {
@@ -125,60 +136,64 @@ export default function SearchPage() {
         </div>
 
         {/* Stats Dashboard */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
           <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-cyan-600 text-white overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16" />
-            <CardContent className="relative p-6">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-12 -mt-12" />
+            <CardContent className="relative p-4 md:p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                   <UsersIcon />
                 </div>
-                <TrendingIcon />
+                <div className="hidden xs:block">
+                  <TrendingIcon />
+                </div>
               </div>
-              <p className="text-3xl font-bold mb-1">{stats.total}</p>
-              <p className="text-blue-100 text-sm">Total Candidates</p>
+              <p className="text-2xl md:text-3xl font-bold mb-1">{stats.total}</p>
+              <p className="text-blue-100 text-[10px] md:text-sm uppercase tracking-wider font-semibold">Total Candidates</p>
             </CardContent>
           </Card>
-
+ 
           <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16" />
-            <CardContent className="relative p-6">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-12 -mt-12" />
+            <CardContent className="relative p-4 md:p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                   <AwardIcon />
                 </div>
-                <TrendingIcon />
+                <div className="hidden xs:block">
+                  <TrendingIcon />
+                </div>
               </div>
-              <p className="text-3xl font-bold mb-1">{stats.avgScore}%</p>
-              <p className="text-green-100 text-sm">Avg Test Score</p>
+              <p className="text-2xl md:text-3xl font-bold mb-1">{stats.avgScore}%</p>
+              <p className="text-green-100 text-[10px] md:text-sm uppercase tracking-wider font-semibold">Avg Test Score</p>
             </CardContent>
           </Card>
-
+ 
           <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16" />
-            <CardContent className="relative p-6">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-12 -mt-12" />
+            <CardContent className="relative p-4 md:p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
               </div>
-              <p className="text-2xl font-bold mb-1 truncate">{stats.topSkills[0] || 'N/A'}</p>
-              <p className="text-purple-100 text-sm">Top Skill</p>
+              <p className="text-lg md:text-2xl font-bold mb-1 truncate">{stats.topSkills[0] || 'N/A'}</p>
+              <p className="text-purple-100 text-[10px] md:text-sm uppercase tracking-wider font-semibold">Top Skill</p>
             </CardContent>
           </Card>
-
+ 
           <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-500 to-red-600 text-white overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-16 -mt-16" />
-            <CardContent className="relative p-6">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-12 -mt-12" />
+            <CardContent className="relative p-4 md:p-6">
               <div className="flex items-center justify-between mb-2">
-                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <div className="w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
                   <ClockIcon />
                 </div>
               </div>
-              <p className="text-3xl font-bold mb-1">{candidates.filter(c => new Date(c.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</p>
-              <p className="text-orange-100 text-sm">New This Week</p>
+              <p className="text-2xl md:text-3xl font-bold mb-1">{candidates.filter(c => new Date(c.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</p>
+              <p className="text-orange-100 text-[10px] md:text-sm uppercase tracking-wider font-semibold">New This Week</p>
             </CardContent>
           </Card>
         </div>
@@ -312,95 +327,74 @@ export default function SearchPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+          <div className={viewMode === 'grid' ? 'grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6' : 'space-y-4'}>
             {candidates.map((candidate) => (
               viewMode === 'grid' ? (
                 // Grid View
-                <Card key={candidate._id} className="border-0 shadow-lg hover:shadow-2xl transition-all duration-300 group cursor-pointer overflow-hidden" onClick={() => router.push(`/employer/candidates/${candidate._id}`)}>
+                <Card key={candidate._id} className="border-0 shadow-lg md:shadow-xl hover:shadow-2xl transition-all duration-300 group cursor-pointer overflow-hidden rounded-2xl" onClick={() => router.push(`/employer/candidates/${candidate._id}`)}>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0066FF]/10 to-[#00D9A5]/10 rounded-full blur-2xl -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <CardContent className="relative p-6">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-2xl font-bold shadow-lg flex-shrink-0">
+                  <CardContent className="relative p-2.5 md:p-6">
+                    <div className="flex flex-col xs:flex-row items-center xs:items-start gap-2 md:gap-4 mb-2 md:mb-4">
+                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-lg md:rounded-xl bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-lg md:text-2xl font-bold shadow-lg flex-shrink-0">
                         {candidate.name.charAt(0).toUpperCase()}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between mb-1">
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white truncate">{candidate.name}</h3>
-                          <Badge variant="success" className="ml-2 flex-shrink-0">
-                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                            Verified
-                          </Badge>
+                      <div className="flex-1 min-w-0 text-center xs:text-left">
+                        <div className="flex flex-col mb-1">
+                          <h3 className="font-bold text-sm md:text-lg text-gray-900 dark:text-white truncate group-hover:text-[#0066FF] transition-colors leading-tight">{candidate.name}</h3>
+                          <p className="text-[10px] md:text-sm text-gray-600 dark:text-gray-400 truncate">{candidate.expertise}</p>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{candidate.expertise}</p>
+                        <Badge variant="success" className="text-[8px] md:text-[10px] px-1 md:px-1.5 py-0">
+                          Verified
+                        </Badge>
                       </div>
                     </div>
-
-                    {/* Score Bar */}
+ 
+                    {/* Score (Compact for Mobile) */}
                     {candidate.onboardingTestScore && (
-                      <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Aptitude Score</span>
-                          <span className={`text-lg font-bold px-2 py-0.5 rounded-lg ${getScoreColor(candidate.onboardingTestScore)}`}>
+                      <div className="mb-2 md:mb-4">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[8px] md:text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Aptitude</span>
+                          <span className={`text-[10px] md:text-sm font-bold px-1.5 md:px-2 py-0.5 rounded-md md:rounded-lg ${getScoreColor(candidate.onboardingTestScore)}`}>
                             {candidate.onboardingTestScore}%
                           </span>
                         </div>
-                        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div className="h-1 md:h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                           <div 
-                            className="h-full bg-gradient-to-r from-[#0066FF] to-[#00D9A5] transition-all duration-1000"
+                            className="h-full bg-gradient-to-r from-[#0066FF] to-[#00D9A5] transition-all duration-1000 shadow-[0_0_8px_rgba(0,102,255,0.4)]"
                             style={{ width: `${candidate.onboardingTestScore}%` }}
                           />
                         </div>
                       </div>
                     )}
-
-                    {/* Skills */}
+ 
+                    {/* Skills (Compact for Mobile) */}
                     {candidate.skills && candidate.skills.length > 0 && (
-                      <div className="mb-4">
-                        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Top Skills</p>
-                        <div className="flex flex-wrap gap-2">
-                          {candidate.skills.slice(0, 3).map((skill: string) => (
-                            <span key={skill} className="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300">
+                      <div className="mb-3">
+                        <div className="flex flex-wrap gap-1">
+                          {candidate.skills.slice(0, 2).map((skill: string) => (
+                            <span key={skill} className="px-1.5 py-0.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-[8px] md:text-[10px] font-semibold text-gray-700 dark:text-gray-300">
                               {skill}
                             </span>
                           ))}
-                          {candidate.skills.length > 3 && (
-                            <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs font-medium text-gray-500 dark:text-gray-400">
-                              +{candidate.skills.length - 3}
+                          {candidate.skills.length > 2 && (
+                            <span className="px-1.5 py-0.5 bg-blue-50/50 dark:bg-blue-900/10 rounded text-[8px] md:text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                              +{candidate.skills.length - 2}
                             </span>
                           )}
                         </div>
                       </div>
                     )}
-
-                    {/* Contact Info */}
-                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        <span className="truncate">{candidate.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
-                        <span>{candidate.phone}</span>
-                      </div>
-                    </div>
-
+ 
                     <Button
                       variant="primary"
-                      size="sm"
-                      className="w-full mt-4 bg-gradient-to-r from-[#0066FF] to-[#0052CC] group-hover:shadow-lg transition-all"
+                      className="w-full h-8 md:h-11 rounded-lg md:rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] group-hover:shadow-lg transition-all text-[10px] md:text-sm font-bold"
                       onClick={(e) => {
                         e.stopPropagation();
                         router.push(`/employer/candidates/${candidate._id}`);
                       }}
                     >
-                      View Full Profile
-                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      Profile
+                      <svg className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </Button>
@@ -408,64 +402,72 @@ export default function SearchPage() {
                 </Card>
               ) : (
                 // List View
-                <Card key={candidate._id} className="border-0 shadow-lg hover:shadow-xl transition-all group cursor-pointer" onClick={() => router.push(`/employer/candidates/${candidate._id}`)}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-6">
-                      <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-2xl font-bold shadow-lg flex-shrink-0">
-                        {candidate.name.charAt(0).toUpperCase()}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-1">{candidate.name}</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{candidate.expertise}</p>
-                          </div>
-                          <div className="flex items-center gap-3 flex-shrink-0">
-                            {candidate.onboardingTestScore && (
-                              <div className="text-center">
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Score</p>
-                                <span className={`text-2xl font-bold px-3 py-1 rounded-lg ${getScoreColor(candidate.onboardingTestScore)}`}>
-                                  {candidate.onboardingTestScore}%
-                                </span>
-                              </div>
-                            )}
-                            <Badge variant="success">Verified</Badge>
-                          </div>
+                <Card key={candidate._id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden rounded-2xl" onClick={() => router.push(`/employer/candidates/${candidate._id}`)}>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0066FF]/5 to-[#00D9A5]/5 rounded-full blur-2xl -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <CardContent className="p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
+                      {/* Avatar and Basic Info */}
+                      <div className="flex items-center gap-4 w-full md:w-auto">
+                        <div className="w-12 h-12 md:w-20 md:h-20 rounded-xl bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-xl md:text-3xl font-bold shadow-lg flex-shrink-0">
+                          {candidate.name.charAt(0).toUpperCase()}
                         </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                          <div>
-                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Skills</p>
-                            <div className="flex flex-wrap gap-1">
-                              {candidate.skills?.slice(0, 3).map((skill: string) => (
-                                <span key={skill} className="px-2 py-1 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 rounded text-xs">
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Email</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 truncate">{candidate.email}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Phone</p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">{candidate.phone}</p>
-                          </div>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-lg md:text-xl text-gray-900 dark:text-white truncate group-hover:text-[#0066FF] transition-colors mb-0.5">{candidate.name}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">{candidate.expertise}</p>
                         </div>
                       </div>
 
+                      {/* Info Grid */}
+                      <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                        {/* Score Section */}
+                        <div className="space-y-1.5">
+                          <p className="text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400">Score</p>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-lg font-black px-2 py-0.5 rounded-lg ${getScoreColor(candidate.onboardingTestScore || 0)}`}>
+                              {candidate.onboardingTestScore}%
+                            </span>
+                            <Badge variant="success" className="text-[8px] uppercase font-bold tracking-tighter">Verified</Badge>
+                          </div>
+                        </div>
+
+                        {/* Skills Section */}
+                        <div className="space-y-1.5">
+                          <p className="text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400">Skills</p>
+                          <div className="flex flex-wrap gap-1">
+                            {candidate.skills?.slice(0, 3).map((skill: string) => (
+                              <span key={skill} className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded text-[10px] font-semibold text-gray-700 dark:text-gray-200">
+                                {skill}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Email Section */}
+                        <div className="space-y-1.5">
+                          <p className="text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400">Email</p>
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{candidate.email}</p>
+                        </div>
+
+                        {/* Phone Section */}
+                        <div className="space-y-1.5">
+                          <p className="text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400">Phone</p>
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{candidate.phone}</p>
+                        </div>
+                      </div>
+
+                      {/* Action Button */}
                       <Button
                         variant="primary"
-                        size="sm"
-                        className="flex-shrink-0"
+                        className="w-full md:w-auto px-8 h-12 md:h-14 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all font-bold text-base md:text-sm flex-shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push(`/employer/candidates/${candidate._id}`);
                         }}
                       >
                         View Profile
+                        <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
                       </Button>
                     </div>
                   </CardContent>

@@ -24,7 +24,6 @@ export default function SubscriptionPage() {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
-  const [fetchingData, setFetchingData] = useState(false);
   const [currency, setCurrency] = useState<CurrencyConfig>(getCurrency('NG'));
   const [selectedCurrency, setSelectedCurrency] = useState<string>('NGN');
 
@@ -39,7 +38,6 @@ export default function SubscriptionPage() {
 
   useEffect(() => {
     if (session?.user?.userType === 'employer') {
-      setFetchingData(true);
       fetchSubscriptionData();
     }
   }, [session, status, router]);
@@ -53,8 +51,6 @@ export default function SubscriptionPage() {
       }
     } catch (error) {
       console.error('Failed to fetch subscription data:', error);
-    } finally {
-      setFetchingData(false);
     }
   };
 
@@ -118,10 +114,10 @@ export default function SubscriptionPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 px-4">
               Subscription Management
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 px-4">
               Manage your HireMe subscription
             </p>
           </div>
@@ -297,10 +293,10 @@ export default function SubscriptionPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 px-4">
             {t('subscription.title_part1')} <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{t('subscription.title_part2')}</span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6 px-4">
             {t('subscription.subtitle')}
           </p>
           
@@ -389,6 +385,11 @@ export default function SubscriptionPage() {
 
           {/* Employers - Monthly */}
           <Card className="relative border-2 border-gray-200 dark:border-gray-800 hover:shadow-2xl transition-all">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+              <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-gray-200 dark:border-gray-700">
+                For Employers Only
+              </span>
+            </div>
             <CardContent className="p-8">
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('subscription.monthly')}</h2>
@@ -448,12 +449,15 @@ export default function SubscriptionPage() {
 
           {/* Yearly Card */}
           <Card className="relative border-2 border-emerald-500 dark:border-emerald-600 hover:shadow-2xl transition-all">
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1">
+              <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-gray-200 dark:border-gray-700">
+                For Employers Only
+              </span>
               <span className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
                 {t('subscription.save_percent')}
               </span>
             </div>
-            <CardContent className="p-8">
+            <CardContent className="p-8 pt-12">
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('subscription.yearly')}</h2>
                 <div className="flex items-baseline justify-center gap-2 mb-2">
@@ -516,7 +520,7 @@ export default function SubscriptionPage() {
 
         {/* Features Section */}
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 md:p-12 mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white text-center mb-8 px-4">
             {t('subscription.why_choose')}
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -559,8 +563,8 @@ export default function SubscriptionPage() {
         </div>
 
         {/* FAQ Section */}
-        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 md:p-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-8">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 md:p-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white text-center mb-8 px-4">
             {t('subscription.faq_title')}
           </h2>
           <div className="space-y-6 max-w-3xl mx-auto">

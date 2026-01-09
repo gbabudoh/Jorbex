@@ -30,6 +30,10 @@ export const metadata: Metadata = {
   title: "HireMe - African Job Market Platform",
   description: "Mobile-first job-matching platform connecting qualified African talent with employers",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -53,7 +57,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.png" />
       </head>
       <body
         className={`${inter.variable} ${poppins.variable} ${spaceGrotesk.variable} antialiased min-h-screen flex flex-col font-inter`}

@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/LanguageContext';
+import Image from 'next/image';
 
 export const Footer: React.FC = () => {
   const { t } = useLanguage();
@@ -12,10 +13,13 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-[#0066FF] to-[#00D9A5] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">J</span>
-              </div>
-              <span className="text-xl font-bold gradient-text">Jorbex</span>
+              <Image
+                src="/logo.png"
+                alt="Jorbex"
+                width={100}
+                height={32}
+                className="h-8 w-auto"
+              />
             </div>
             <p className="text-gray-600 dark:text-gray-400 text-sm">
               {t('footer.description')}

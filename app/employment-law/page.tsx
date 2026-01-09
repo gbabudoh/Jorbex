@@ -3,7 +3,7 @@
 import { useLanguage } from '@/lib/LanguageContext';
 
 export default function EmploymentLawPage() {
-  const { t, translations } = useLanguage();
+  const { t, locale } = useLanguage();
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
@@ -23,7 +23,7 @@ export default function EmploymentLawPage() {
               </p>
             </section>
 
-            {translations?.locale !== 'en' && (
+            {locale !== 'en' && (
               <section className="bg-yellow-50 dark:bg-yellow-950/30 p-6 rounded-lg border border-yellow-200 dark:border-yellow-800 mb-8">
                 <p className="leading-relaxed text-gray-800 dark:text-gray-200">
                   <strong>📋 {t('employment_law.note')}</strong>
@@ -37,7 +37,7 @@ export default function EmploymentLawPage() {
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">Key Legislation:</h3>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>Labour Act (Cap L1 LFN 2004)</li>
-                <li>Employees' Compensation Act 2010</li>
+                <li>Employees&apos; Compensation Act 2010</li>
                 <li>National Minimum Wage Act 2019</li>
                 <li>Pension Reform Act 2014</li>
                 <li>National Health Insurance Scheme Act</li>
@@ -120,7 +120,7 @@ export default function EmploymentLawPage() {
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">Key Legislation:</h3>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>Labour Act 2003 (Act 651)</li>
-                <li>Workmen's Compensation Law 1987</li>
+                <li>Workmen&apos;s Compensation Law 1987</li>
                 <li>National Pensions Act 2008</li>
               </ul>
 
@@ -203,7 +203,7 @@ export default function EmploymentLawPage() {
                 <li>International Labour Organization (ILO) - African Regional Office</li>
                 <li>National Labour Ministries and Departments</li>
                 <li>Trade Union Congresses</li>
-                <li>Employers' Associations</li>
+                <li>Employers&apos; Associations</li>
                 <li>Legal Aid Organizations</li>
               </ul>
             </section>
@@ -221,7 +221,7 @@ export default function EmploymentLawPage() {
                 {t('employment_law.assistance.intro')}
               </p>
               <p className="mt-4 font-semibold">
-                {t('employment_law.assistance.email')}: legal@hireme.ng<br />
+                {t('employment_law.assistance.email')}: legal@jorbex.com<br />
                 {t('employment_law.assistance.note')}
               </p>
             </section>

@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import SendTestModal from '@/components/shared/SendTestModal';
+import ContactModal from '@/components/shared/ContactModal';
+import ScheduleModal from '@/components/shared/ScheduleModal';
 
 interface WorkHistory {
   company: string;
@@ -81,9 +84,13 @@ export default function CandidateDetailPage() {
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
   useEffect(() => {
     fetchCandidate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidateId]);
 
   const fetchCandidate = async () => {
@@ -97,8 +104,9 @@ export default function CandidateDetailPage() {
 
       const data = await response.json();
       setCandidate(data.candidate);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -134,40 +142,37 @@ export default function CandidateDetailPage() {
     return 'text-orange-600 dark:text-orange-400';
   };
 
-  const getScoreGradient = (score: number) => {
-    if (score >= 90) return 'from-green-500 to-emerald-600';
-    if (score >= 80) return 'from-blue-500 to-cyan-600';
-    if (score >= 70) return 'from-yellow-500 to-orange-600';
-    return 'from-orange-500 to-red-600';
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/30">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Top Navigation */}
-        <div className="mb-8 flex items-center justify-between">
+        {/* Top Navigation - Desktop only or refined for mobile */}
+        <div className="mb-4 md:mb-8 flex items-center justify-between">
           <Button
             variant="outline"
-            className="hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all"
+            className="h-9 px-3 md:h-10 md:px-4 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all text-sm"
             onClick={() => router.push('/employer/search')}
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Search
+            <span className="hidden xs:inline">Back to Search</span>
+            <span className="xs:hidden">Back</span>
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" className="hover:bg-white/80 dark:hover:bg-gray-800/80">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <Button variant="outline" className="h-9 px-3 md:h-10 md:px-4 hover:bg-white/80 dark:hover:bg-gray-800/80 text-sm">
+              <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
-              Share Profile
+              <span className="hidden xs:inline">Share Profile</span>
+              <span className="xs:hidden">Share</span>
             </Button>
-            <Button variant="primary" className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <Button variant="primary" className="h-9 px-3 md:h-10 md:px-4 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all text-sm">
+              <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
               </svg>
-              Save Candidate
+              <span className="hidden xs:inline">Save Candidate</span>
+              <span className="xs:hidden">Save</span>
             </Button>
           </div>
         </div>
@@ -176,66 +181,66 @@ export default function CandidateDetailPage() {
           {/* Left Column - Main Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Hero Card with Profile */}
-            <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-white via-blue-50/30 to-white dark:from-gray-900 dark:via-blue-950/20 dark:to-gray-900">
+            <Card className="overflow-hidden border-0 shadow-lg md:shadow-xl bg-gradient-to-br from-white via-blue-50/30 to-white dark:from-gray-900 dark:via-blue-950/20 dark:to-gray-900">
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#0066FF]/10 to-[#00D9A5]/10 rounded-full blur-3xl -mr-32 -mt-32" />
-              <CardContent className="relative pt-8">
-                <div className="flex items-start gap-6">
+              <CardContent className="relative pt-6 md:pt-8">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 text-center md:text-left">
                   {/* Avatar */}
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-lg">
                       {candidate.name.charAt(0).toUpperCase()}
                     </div>
                     {candidate.onboardingTestPassed && (
-                      <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-900">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 w-7 h-7 md:w-8 md:h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg border-2 md:border-4 border-white dark:border-gray-900">
+                        <svg className="w-4 h-4 md:w-5 md:h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
                       </div>
                     )}
                   </div>
-
+ 
                   {/* Name and Title */}
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1 w-full">
+                    <div className="flex flex-col md:flex-row items-center md:items-start justify-between mb-4">
                       <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{candidate.name}</h1>
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <Badge variant="default" className="text-sm px-3 py-1">
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">{candidate.name}</h1>
+                        <div className="flex items-center justify-center md:justify-start gap-2 md:gap-3 flex-wrap">
+                          <Badge variant="default" className="text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1">
                             <BriefcaseIcon />
                             <span className="ml-1">{candidate.expertise}</span>
                           </Badge>
                           {candidate.onboardingTestPassed && (
-                            <Badge variant="success" className="text-sm px-3 py-1">
+                            <Badge variant="success" className="text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1">
                               <AwardIcon />
                               <span className="ml-1">Verified Talent</span>
                             </Badge>
                           )}
-                          <Badge variant="info" className="text-sm px-3 py-1">
+                          <Badge variant="info" className="text-xs md:text-sm px-2 md:px-3 py-0.5 md:py-1">
                             <CalendarIcon />
                             <span className="ml-1">Joined {new Date(candidate.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
                           </Badge>
                         </div>
                       </div>
                     </div>
-
+ 
                     {/* Contact Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                      <div className="flex items-center gap-3 p-3 bg-white/60 dark:bg-gray-800/60 rounded-xl backdrop-blur-sm">
-                        <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mt-6">
+                      <div className="flex items-center gap-3 p-2.5 md:p-3 bg-white/60 dark:bg-gray-800/60 rounded-xl backdrop-blur-sm border border-white/20 dark:border-gray-700/30 text-left">
+                        <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                           <MailIcon />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
-                          <p className="font-medium text-sm truncate">{candidate.email}</p>
+                          <p className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-medium">Email</p>
+                          <p className="font-semibold text-xs md:text-sm truncate">{candidate.email}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-white/60 dark:bg-gray-800/60 rounded-xl backdrop-blur-sm">
-                        <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400">
+                      <div className="flex items-center gap-3 p-2.5 md:p-3 bg-white/60 dark:bg-gray-800/60 rounded-xl backdrop-blur-sm border border-white/20 dark:border-gray-700/30 text-left">
+                        <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400">
                           <PhoneIcon />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
-                          <p className="font-medium text-sm">{candidate.phone}</p>
+                          <p className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-medium">Phone</p>
+                          <p className="font-semibold text-xs md:text-sm">{candidate.phone}</p>
                         </div>
                       </div>
                     </div>
@@ -281,7 +286,7 @@ export default function CandidateDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-3">
-                    {candidate.skills.map((skill, index) => (
+                    {candidate.skills.map((skill) => (
                       <div
                         key={skill}
                         className="group px-4 py-2.5 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800 hover:shadow-md hover:scale-105 transition-all cursor-default"
@@ -310,25 +315,25 @@ export default function CandidateDetailPage() {
                     {/* Timeline Line */}
                     <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-200 via-blue-300 to-transparent dark:from-blue-800 dark:via-blue-700" />
                     
-                    <div className="space-y-8">
+                    <div className="space-y-4 md:space-y-8">
                       {candidate.workHistory.map((work, index) => (
-                        <div key={index} className="relative pl-12">
+                        <div key={index} className="relative pl-8 md:pl-12">
                           {/* Timeline Dot */}
-                          <div className="absolute left-0 top-1 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
-                            <div className="w-3 h-3 rounded-full bg-white" />
+                          <div className="absolute left-0 top-1 w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                            <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-white" />
                           </div>
                           
-                          <div className="bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all">
-                            <div className="flex items-start justify-between mb-3">
+                          <div className="bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50 p-4 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all">
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
                               <div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{work.position}</h3>
-                                <p className="text-[#0066FF] dark:text-[#4DA3FF] font-semibold">{work.company}</p>
+                                <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white leading-tight">{work.position}</h3>
+                                <p className="text-[#0066FF] dark:text-[#4DA3FF] font-semibold text-sm md:text-base">{work.company}</p>
                               </div>
-                              <Badge variant="default" className="whitespace-nowrap">
+                              <Badge variant="default" className="whitespace-nowrap w-fit text-[10px] md:text-xs">
                                 {new Date(work.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} - {work.endDate ? new Date(work.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Present'}
                               </Badge>
                             </div>
-                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{work.description}</p>
+                            <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 leading-relaxed">{work.description}</p>
                           </div>
                         </div>
                       ))}
@@ -394,9 +399,21 @@ export default function CandidateDetailPage() {
                 <CardContent className="relative p-6">
                   <div className="text-center mb-6">
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Aptitude Score</p>
-                    <div className="relative inline-block">
-                      <svg className="w-32 h-32 transform -rotate-90">
-                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="8" fill="none" className="text-gray-200 dark:text-gray-700" />
+                    <div className="relative inline-block scale-90 md:scale-100">
+                      <svg className="w-28 h-28 md:w-32 md:h-32 transform -rotate-90">
+                        <circle cx="56" cy="56" r="48" stroke="currentColor" strokeWidth="6" fill="none" className="block md:hidden text-gray-200 dark:text-gray-700" />
+                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="8" fill="none" className="hidden md:block text-gray-200 dark:text-gray-700" />
+                        <circle
+                          cx="56"
+                          cy="56"
+                          r="48"
+                          stroke="url(#gradient)"
+                          strokeWidth="6"
+                          fill="none"
+                          strokeDasharray={`${(candidate.onboardingTestScore / 100) * 301.59} 301.59`}
+                          className="block md:hidden transition-all duration-1000"
+                          strokeLinecap="round"
+                        />
                         <circle
                           cx="64"
                           cy="64"
@@ -405,7 +422,7 @@ export default function CandidateDetailPage() {
                           strokeWidth="8"
                           fill="none"
                           strokeDasharray={`${(candidate.onboardingTestScore / 100) * 351.86} 351.86`}
-                          className="transition-all duration-1000"
+                          className="hidden md:block transition-all duration-1000"
                           strokeLinecap="round"
                         />
                         <defs>
@@ -416,7 +433,7 @@ export default function CandidateDetailPage() {
                         </defs>
                       </svg>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className={`text-4xl font-bold ${getScoreColor(candidate.onboardingTestScore)}`}>
+                        <span className={`text-3xl md:text-4xl font-bold ${getScoreColor(candidate.onboardingTestScore)}`}>
                           {candidate.onboardingTestScore}%
                         </span>
                       </div>
@@ -450,19 +467,31 @@ export default function CandidateDetailPage() {
             {/* Action Buttons */}
             <Card className="border-0 shadow-lg">
               <CardContent className="p-6 space-y-3">
-                <Button variant="primary" className="w-full bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-xl transition-all">
+                <Button 
+                  variant="primary" 
+                  className="w-full bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-xl transition-all"
+                  onClick={() => setIsTestModalOpen(true)}
+                >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                   </svg>
                   Send Custom Test
                 </Button>
-                <Button variant="outline" className="w-full hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all">
+                <Button 
+                  variant="outline" 
+                  className="w-full hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all"
+                  onClick={() => setIsContactModalOpen(true)}
+                >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   Contact Candidate
                 </Button>
-                <Button variant="outline" className="w-full hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all">
+                <Button 
+                  variant="outline" 
+                  className="w-full hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all"
+                  onClick={() => setIsScheduleModalOpen(true)}
+                >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -550,6 +579,74 @@ export default function CandidateDetailPage() {
           </div>
         </div>
       </div>
+ 
+      {/* Mobile Sticky Action Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 p-4 z-50 flex gap-3 safe-area-bottom">
+        <Button 
+          variant="outline" 
+          className="flex-1 h-12 rounded-xl group hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all"
+          onClick={() => setIsContactModalOpen(true)}
+        >
+          <div className="flex flex-col items-center">
+            <svg className="w-5 h-5 mb-0.5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span className="text-[10px] font-bold uppercase tracking-wider">Contact</span>
+          </div>
+        </Button>
+        <Button 
+          variant="primary" 
+          className="flex-[2] h-12 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all"
+          onClick={() => setIsTestModalOpen(true)}
+        >
+          <div className="flex flex-col items-center">
+            <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            <span className="text-[10px] font-bold uppercase tracking-wider">Send Test</span>
+          </div>
+        </Button>
+        <Button 
+          variant="outline" 
+          className="flex-1 h-12 rounded-xl group hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all"
+          onClick={() => setIsScheduleModalOpen(true)}
+        >
+          <div className="flex flex-col items-center">
+            <svg className="w-5 h-5 mb-0.5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span className="text-[10px] font-bold uppercase tracking-wider">Meet</span>
+          </div>
+        </Button>
+      </div>
+ 
+      {/* Spacer for bottom bar on mobile */}
+      <div className="h-24 md:hidden" />
+
+      {/* Send Test Modal */}
+      <SendTestModal 
+        isOpen={isTestModalOpen}
+        onClose={() => setIsTestModalOpen(false)}
+        candidateId={candidateId}
+        candidateName={candidate.name}
+      />
+
+      {/* Schedule Modal */}
+      <ScheduleModal 
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        candidateId={candidateId}
+        candidateName={candidate.name}
+      />
+
+      {/* Contact Modal */}
+      <ContactModal 
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+        candidateId={candidateId}
+        candidateName={candidate.name}
+        candidateRole={candidate.expertise}
+      />
     </div>
   );
 }
