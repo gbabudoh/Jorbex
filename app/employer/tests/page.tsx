@@ -54,7 +54,7 @@ export default function TestsPage() {
         </div>
         <div className="hidden sm:block">
           <Link href="/employer/tests/create">
-            <Button variant="primary" className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all">
+            <Button variant="primary" className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all cursor-pointer">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
@@ -69,7 +69,7 @@ export default function TestsPage() {
           <CardContent className="py-12 text-center">
             <p className="text-gray-600 dark:text-gray-400 mb-4">No tests created yet.</p>
             <Link href="/employer/tests/create">
-              <Button variant="primary">Create Your First Test</Button>
+              <Button variant="primary" className="cursor-pointer">Create Your First Test</Button>
             </Link>
           </CardContent>
         </Card>
@@ -101,7 +101,7 @@ export default function TestsPage() {
                   </div>
                 </div>
                 <Link href={`/employer/tests/${test._id}`}>
-                  <Button variant="outline" size="sm" className="w-full h-10 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all font-semibold">
+                  <Button variant="outline" size="sm" className="w-full h-10 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all font-semibold cursor-pointer">
                     Manage Test
                     <svg className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -119,7 +119,7 @@ export default function TestsPage() {
         <Link href="/employer/tests/create">
           <Button 
             variant="primary" 
-            className="w-14 h-14 rounded-full shadow-2xl bg-gradient-to-br from-[#0066FF] to-[#0052CC] p-0 flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+            className="w-14 h-14 rounded-full shadow-2xl bg-gradient-to-br from-[#0066FF] to-[#0052CC] p-0 flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer"
           >
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 6v12m6-6H6" />

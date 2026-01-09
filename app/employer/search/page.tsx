@@ -213,7 +213,7 @@ export default function SearchPage() {
                 variant="outline" 
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
-                className="hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                className="hover:bg-blue-50 dark:hover:bg-blue-950/30 cursor-pointer"
               >
                 <FilterIcon />
                 <span className="ml-2">{showFilters ? 'Hide' : 'Show'} Filters</span>
@@ -257,7 +257,7 @@ export default function SearchPage() {
                     variant="primary" 
                     onClick={handleSearch} 
                     isLoading={isLoading} 
-                    className="w-full bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg"
+                    className="w-full bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg cursor-pointer"
                   >
                     <SearchIcon />
                     <span className="ml-2">Search</span>
@@ -282,6 +282,7 @@ export default function SearchPage() {
             <Button
               variant={viewMode === 'grid' ? 'primary' : 'outline'}
               size="sm"
+              className="cursor-pointer"
               onClick={() => setViewMode('grid')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -291,6 +292,7 @@ export default function SearchPage() {
             <Button
               variant={viewMode === 'list' ? 'primary' : 'outline'}
               size="sm"
+              className="cursor-pointer"
               onClick={() => setViewMode('list')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,7 +320,7 @@ export default function SearchPage() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No candidates found</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">Try adjusting your search filters to find more candidates</p>
-              <Button variant="outline" onClick={() => {
+              <Button variant="outline" className="cursor-pointer" onClick={() => {
                 setFilters({ expertise: '', skill: '', minScore: '' });
                 handleSearch();
               }}>
@@ -387,7 +389,7 @@ export default function SearchPage() {
  
                     <Button
                       variant="primary"
-                      className="w-full h-8 md:h-11 rounded-lg md:rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] group-hover:shadow-lg transition-all text-[10px] md:text-sm font-bold"
+                      className="w-full h-8 md:h-11 rounded-lg md:rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] group-hover:shadow-lg transition-all text-[10px] md:text-sm font-bold cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
                         router.push(`/employer/candidates/${candidate._id}`);
@@ -458,7 +460,7 @@ export default function SearchPage() {
                       {/* Action Button */}
                       <Button
                         variant="primary"
-                        className="w-full md:w-auto px-8 h-12 md:h-14 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all font-bold text-base md:text-sm flex-shrink-0"
+                        className="w-full md:w-auto px-8 h-12 md:h-14 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all font-bold text-base md:text-sm flex-shrink-0 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push(`/employer/candidates/${candidate._id}`);
