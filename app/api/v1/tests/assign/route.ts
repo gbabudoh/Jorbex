@@ -47,6 +47,7 @@ export async function POST(request: Request) {
       testType: 'employer_custom',
       employerId: originalTest.employerId,
       candidateId: candidateId,
+      originalTestId: originalTest._id,
       questions: originalTest.questions,
       passingScore: originalTest.passingScore,
       timeLimit: originalTest.timeLimit,

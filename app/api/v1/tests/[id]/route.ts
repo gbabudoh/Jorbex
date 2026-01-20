@@ -7,7 +7,7 @@ import TestResult from '@/models/TestResult';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,10 +19,11 @@ export async function GET(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     await dbConnect();
 
     if (session.user.userType === 'candidate') {
+      console.log('Candidate accessing test:', { testId: id, candidateId: session.user.id });
       // Find the test assigned to candidate
       const test = await AptitudeTest.findOne({
         _id: id,
@@ -59,8 +60,18 @@ export async function GET(
       });
 
       if (!test) {
+        // Double check if it exists at all but belongs to someone else
+        const existsAtAll = await AptitudeTest.findById(id);
+        console.log('Test search result:', { found: !!test, existsAtAll: !!existsAtAll });
+        
+        if (existsAtAll) {
+          return NextResponse.json(
+            { error: `Test belongs to another employer (ID: ${id})` },
+            { status: 403 }
+          );
+        }
         return NextResponse.json(
-          { error: 'Test not found' },
+          { error: `Test truly not found in DB (ID: ${id})` },
           { status: 404 }
         );
       }
@@ -81,7 +92,7 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -90,7 +101,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     await dbConnect();
 
@@ -113,7 +124,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -122,7 +133,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     await dbConnect();
 
     const result = await AptitudeTest.deleteOne({ _id: id, employerId: session.user.id });

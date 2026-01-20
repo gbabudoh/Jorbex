@@ -15,11 +15,12 @@ interface Test {
 interface SendTestModalProps {
   isOpen: boolean;
   onClose: () => void;
-  candidateId: string;
-  candidateName: string;
+  candidateId?: string;
+  candidateName?: string;
+  selectedCandidates?: { id: string; name: string }[];
 }
 
-export default function SendTestModal({ isOpen, onClose, candidateId, candidateName }: SendTestModalProps) {
+export default function SendTestModal({ isOpen, onClose, candidateId, candidateName, selectedCandidates }: SendTestModalProps) {
   const [tests, setTests] = useState<Test[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
@@ -58,26 +59,40 @@ export default function SendTestModal({ isOpen, onClose, candidateId, candidateN
 
     setIsAssigning(true);
     setError('');
-    try {
-      const response = await fetch('/api/v1/tests/assign', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          candidateId,
-          testId: selectedTestId,
-        }),
-      });
+    
+    // Determine target candidates
+    const targets = selectedCandidates && selectedCandidates.length > 0
+      ? selectedCandidates.map(c => c.id)
+      : candidateId ? [candidateId] : [];
 
-      if (response.ok) {
+    if (targets.length === 0) {
+      setError('No candidates selected.');
+      setIsAssigning(false);
+      return;
+    }
+
+    try {
+      // For bulk, we'll send multiple requests for now as our API is designed for single assignment
+      // Alternatively, we could update the API to handle bulk
+      const results = await Promise.all(
+        targets.map(id => 
+          fetch('/api/v1/tests/assign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ candidateId: id, testId: selectedTestId }),
+          })
+        )
+      );
+
+      const allOk = results.every(res => res.ok);
+      
+      if (allOk) {
         setSuccess(true);
         setTimeout(() => {
           onClose();
         }, 2000);
       } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to send test');
+        setError('Some tests failed to send. Please check your connection.');
       }
     } catch (err) {
       console.error('Error sending test:', err);
@@ -105,7 +120,14 @@ export default function SendTestModal({ isOpen, onClose, candidateId, candidateN
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Send Test</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Assign an assessment to <span className="text-[#0066FF] font-semibold">{candidateName}</span></p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Assign an assessment to 
+                <span className="text-[#0066FF] font-semibold ml-1">
+                  {selectedCandidates && selectedCandidates.length > 0 
+                    ? `${selectedCandidates.length} selected candidates` 
+                    : candidateName}
+                </span>
+              </p>
             </div>
             <button 
               onClick={onClose}

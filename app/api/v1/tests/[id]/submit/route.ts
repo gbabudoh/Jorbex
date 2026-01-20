@@ -7,9 +7,11 @@ import TestResult from '@/models/TestResult';
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    const testId = id;
     const session = await getServerSession(authOptions);
     
     if (!session || session.user?.userType !== 'candidate') {
@@ -18,8 +20,6 @@ export async function POST(
         { status: 401 }
       );
     }
-
-    const testId = params.id;
     const { answers } = await request.json();
 
     if (!answers) {
@@ -74,9 +74,16 @@ export async function POST(
     const newResult = new TestResult({
       testId,
       candidateId: session.user.id,
+      employerId: test.employerId,
       score,
       passed,
-      answers,
+      passingScore: test.passingScore || 70,
+      answers: Object.entries(answers).map(([qId, val]) => ({
+        questionId: qId,
+        selectedAnswer: val as string,
+        isCorrect: test.questions.find((q: { _id?: string; id?: string; correctAnswer: string }) => q._id?.toString() === qId || q.id === qId)?.correctAnswer === val
+      })),
+      completedAt: new Date(),
     });
 
     await newResult.save();

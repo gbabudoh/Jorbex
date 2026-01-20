@@ -14,6 +14,7 @@ export interface IAptitudeTest extends Document {
   expertise?: string; // For onboarding tests
   employerId?: mongoose.Types.ObjectId; // For employer custom tests
   candidateId?: mongoose.Types.ObjectId; // If test is assigned to specific candidate
+  originalTestId?: mongoose.Types.ObjectId; // Pointer to the template if this is an assigned test
   questions: IQuestion[];
   passingScore: number; // Default 70%
   timeLimit?: number; // In minutes
@@ -71,6 +72,10 @@ const AptitudeTestSchema = new Schema<IAptitudeTest>(
     candidateId: {
       type: Schema.Types.ObjectId,
       ref: 'Candidate',
+    },
+    originalTestId: {
+      type: Schema.Types.ObjectId,
+      ref: 'AptitudeTest',
     },
     questions: {
       type: [QuestionSchema],

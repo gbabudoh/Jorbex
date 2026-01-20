@@ -32,16 +32,25 @@ export default function EditTestPage() {
   const [test, setTest] = useState<TestData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (testId) {
       fetch(`/api/v1/tests/${testId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.test) setTest(data.test);
+        .then(async res => {
+          const data = await res.json();
+          if (res.ok) {
+            setTest(data.test);
+          } else {
+            setError(data.error || 'Failed to load test');
+          }
           setIsLoading(false);
         })
-        .catch(() => setIsLoading(false));
+        .catch(err => {
+          console.error('Fetch error:', err);
+          setError('Network error. Please try again.');
+          setIsLoading(false);
+        });
     }
   }, [testId]);
 
@@ -118,7 +127,17 @@ export default function EditTestPage() {
     );
   }
 
-  if (!test) return <div className="p-8 text-center">Test not found</div>;
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-2">Error</h2>
+        <p className="text-gray-600 mb-6">{error}</p>
+        <Button onClick={() => router.push('/employer/tests')}>Back to Test Builder</Button>
+      </div>
+    );
+  }
+
+  if (!test) return <div className="p-8 text-center text-gray-500 italic">No test data available</div>;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">

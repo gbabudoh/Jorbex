@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/dbConnect';
 import AptitudeTest from '@/models/AptitudeTest';
+import Candidate from '@/models/Candidate';
 
 export async function GET() {
   try {
@@ -20,7 +21,13 @@ export async function GET() {
     const tests = await AptitudeTest.find({
       employerId: session.user?.id,
       testType: 'employer_custom',
-    }).sort({ createdAt: -1 });
+    })
+    .populate({
+      path: 'candidateId',
+      select: 'name',
+      model: Candidate
+    })
+    .sort({ createdAt: -1 });
 
     return NextResponse.json({ tests }, { status: 200 });
   } catch (error: unknown) {

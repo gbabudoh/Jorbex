@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
 
 interface Test {
@@ -13,11 +12,15 @@ interface Test {
   isActive: boolean;
   passingScore: number;
   questions?: unknown[];
+  candidateId?: { _id: string; name: string };
+  originalTestId?: string;
+  createdAt: string;
 }
  
 export default function TestsPage() {
   const [tests, setTests] = useState<Test[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'templates' | 'assigned'>('templates');
 
   useEffect(() => {
     fetchTests();
@@ -37,6 +40,10 @@ export default function TestsPage() {
     }
   };
 
+  const templates = tests.filter(t => !t.candidateId);
+  const assignedTests = tests.filter(t => t.candidateId);
+  const displayTests = activeTab === 'templates' ? templates : assignedTests;
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-12 flex items-center justify-center">
@@ -49,8 +56,8 @@ export default function TestsPage() {
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">Test Builder</h1>
-          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">Create and manage custom aptitude tests</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 italic">Tracking Assessments</h1>
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">Manage templates and track sent assessments</p>
         </div>
         <div className="hidden sm:block">
           <Link href="/employer/tests/create">
@@ -64,50 +71,93 @@ export default function TestsPage() {
         </div>
       </div>
 
-      {tests.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-gray-600 dark:text-gray-400 mb-4">No tests created yet.</p>
-            <Link href="/employer/tests/create">
-              <Button variant="primary" className="cursor-pointer">Create Your First Test</Button>
-            </Link>
+      {/* Custom Tabs */}
+      <div className="flex p-1 bg-gray-100 dark:bg-gray-800/50 rounded-2xl mb-8 w-fit">
+        <button
+          onClick={() => setActiveTab('templates')}
+          className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
+            activeTab === 'templates' 
+              ? 'bg-white dark:bg-gray-700 shadow-sm text-[#0066FF]' 
+              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+          }`}
+        >
+          Templates ({templates.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('assigned')}
+          className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
+            activeTab === 'assigned' 
+              ? 'bg-white dark:bg-gray-700 shadow-sm text-[#0066FF]' 
+              : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+          }`}
+        >
+          Sent Assessments ({assignedTests.length})
+        </button>
+      </div>
+
+      {displayTests.length === 0 ? (
+        <Card className="rounded-3xl border-0 shadow-xl overflow-hidden">
+          <CardContent className="py-20 text-center">
+            <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">
+              {activeTab === 'templates' 
+                ? "You haven't created any test templates yet." 
+                : "No assessments have been sent to candidates yet."}
+            </p>
+            {activeTab === 'templates' && (
+              <Link href="/employer/tests/create">
+                <Button variant="primary" className="h-12 px-8 rounded-xl font-bold bg-[#0066FF]">Create Your First Test</Button>
+              </Link>
+            )}
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {tests.map((test) => (
-            <Card key={test._id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden rounded-2xl">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0066FF]/5 to-[#00D9A5]/5 rounded-full blur-2xl -mr-16 -mt-16 group-hover:bg-[#0066FF]/10 transition-colors" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {displayTests.map((test) => (
+            <Card key={test._id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden rounded-3xl bg-white dark:bg-gray-900">
+              <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${activeTab === 'templates' ? 'from-blue-500 to-cyan-500' : 'from-purple-500 to-indigo-500'}`} />
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between gap-4 mb-2">
-                  <CardTitle className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-[#0066FF] transition-colors">{test.title}</CardTitle>
-                  {test.isActive ? (
-                    <Badge variant="success" className="shadow-sm">Active</Badge>
-                  ) : (
-                    <Badge variant="info" className="opacity-60">Draft</Badge>
-                  )}
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-xl font-bold text-gray-900 dark:text-white truncate group-hover:text-[#0066FF] transition-colors">{test.title}</CardTitle>
+                    {test.candidateId && (
+                      <p className="text-[#8B5CF6] font-bold text-xs uppercase tracking-widest mt-1">
+                        Sent to: {test.candidateId.name}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <CardDescription className="line-clamp-2 text-sm">{test.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700/50">
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Questions</p>
-                    <p className="text-xl font-black text-gray-900 dark:text-white">{test.questions?.length || 0}</p>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50">
+                    <p className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 mb-1">Items</p>
+                    <p className="text-2xl font-black text-gray-900 dark:text-white">{test.questions?.length || 0}</p>
                   </div>
-                  <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700/50">
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 mb-1">Passing</p>
-                    <p className="text-xl font-black text-gray-900 dark:text-white">{test.passingScore}%</p>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50">
+                    <p className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 mb-1">Pass Mark</p>
+                    <p className="text-2xl font-black text-gray-900 dark:text-white">{test.passingScore}%</p>
                   </div>
                 </div>
-                <Link href={`/employer/tests/${test._id}`}>
-                  <Button variant="outline" size="sm" className="w-full h-10 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all font-semibold cursor-pointer">
-                    Manage Test
-                    <svg className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </Button>
-                </Link>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-xs text-gray-400 font-medium italic">
+                    {new Date(test.createdAt).toLocaleDateString('en-GB')}
+                  </span>
+                  <Link href={`/employer/tests/${test._id}`}>
+                    <Button variant="ghost" size="sm" className="rounded-xl font-bold hover:bg-blue-50 dark:hover:bg-blue-950/20 text-[#0066FF]">
+                      Details
+                      <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           ))}

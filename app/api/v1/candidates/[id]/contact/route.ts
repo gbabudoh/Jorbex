@@ -7,9 +7,10 @@ import Candidate from '@/models/Candidate';
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: candidateId } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session || session.user?.userType !== 'employer') {
@@ -27,8 +28,6 @@ export async function POST(
         { status: 400 }
       );
     }
-
-    const candidateId = params.id;
 
     await dbConnect();
 
