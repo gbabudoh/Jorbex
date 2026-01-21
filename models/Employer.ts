@@ -12,6 +12,19 @@ export interface IEmployer extends Document {
   subscriptionEndDate?: Date;
   paystackCustomerCode?: string;
   paystackSubscriptionCode?: string;
+  mattermostTeamId?: string;
+  mattermostChannels?: {
+    jobId: mongoose.Types.ObjectId;
+    channelId: string;
+    channelName: string;
+  }[];
+  notificationPreferences?: {
+    email: boolean;
+    push: boolean;
+    mattermost: boolean;
+    interviewReminders: boolean;
+    applicationUpdates: boolean;
+  };
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -57,6 +70,21 @@ const EmployerSchema = new Schema<IEmployer>(
     subscriptionEndDate: Date,
     paystackCustomerCode: String,
     paystackSubscriptionCode: String,
+    mattermostTeamId: String,
+    mattermostChannels: [
+      {
+        jobId: { type: Schema.Types.ObjectId, ref: 'Job' },
+        channelId: String,
+        channelName: String,
+      },
+    ],
+    notificationPreferences: {
+      email: { type: Boolean, default: true },
+      push: { type: Boolean, default: true },
+      mattermost: { type: Boolean, default: true },
+      interviewReminders: { type: Boolean, default: true },
+      applicationUpdates: { type: Boolean, default: true },
+    },
   },
   {
     timestamps: true,

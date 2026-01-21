@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 
@@ -34,9 +35,11 @@ export default function Home() {
                   </svg>
                   Get Hired
                 </div>
-                <img 
+                <Image 
                   src="/candidate.png" 
                   alt="Job Seekers" 
+                  width={500}
+                  height={500}
                   className="relative w-full h-full object-contain transform group-hover:scale-105 transition-all duration-500"
                 />
               </div>
@@ -76,9 +79,11 @@ export default function Home() {
                   </svg>
                   Find Talents
                 </div>
-                <img 
+                <Image 
                   src="/employer.png" 
                   alt="Employers" 
+                  width={500}
+                  height={500}
                   className="relative w-full h-full object-contain transform group-hover:scale-105 transition-all duration-500"
                 />
               </div>
@@ -115,7 +120,7 @@ export default function Home() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="font-poppins">Africa's Employment Ecosystem</span>
+              <span className="font-poppins">Africa&apos;s Employment Ecosystem</span>
             </div>
           </div>
 
@@ -154,7 +159,7 @@ export default function Home() {
                   size="lg" 
                   className="w-full sm:w-auto min-w-[220px] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg font-bold px-10 py-7"
                 >
-                  I'm a Candidate
+                  I&apos;m a Candidate
                   <svg className="ml-2 w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -166,7 +171,7 @@ export default function Home() {
                   size="lg" 
                   className="w-full sm:w-auto min-w-[220px] bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg font-bold px-10 py-7"
                 >
-                  I'm an Employer
+                  I&apos;m an Employer
                   <svg className="ml-2 w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -336,7 +341,7 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-              Why Choose <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">HireMe</span>?
+              Why Choose <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Jorbex</span>?
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               The most advanced job matching platform in Nigeria
@@ -429,7 +434,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">24/7 Support</h3>
                 <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Round-the-clock customer support to help you succeed. We're here whenever you need us.
+                  Round-the-clock customer support to help you succeed. We&apos;re here whenever you need us.
                 </p>
               </CardContent>
             </Card>

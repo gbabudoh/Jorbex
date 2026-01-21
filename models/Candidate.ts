@@ -24,6 +24,16 @@ export interface ICandidate extends Document {
   }[];
   onboardingTestPassed: boolean;
   onboardingTestScore?: number;
+  ntfyTopic?: string;
+  mattermostUserId?: string;
+  notificationPreferences?: {
+    email: boolean;
+    push: boolean;
+    mattermost: boolean;
+    interviewReminders: boolean;
+    jobAlerts: boolean;
+    applicationUpdates: boolean;
+  };
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -31,6 +41,7 @@ export interface ICandidate extends Document {
 
 const CandidateSchema = new Schema<ICandidate>(
   {
+    // ... (previous fields)
     name: {
       type: String,
       required: [true, 'Name is required'],
@@ -100,6 +111,16 @@ const CandidateSchema = new Schema<ICandidate>(
       type: Number,
       min: 0,
       max: 100,
+    },
+    ntfyTopic: String,
+    mattermostUserId: String,
+    notificationPreferences: {
+      email: { type: Boolean, default: true },
+      push: { type: Boolean, default: true },
+      mattermost: { type: Boolean, default: false },
+      interviewReminders: { type: Boolean, default: true },
+      jobAlerts: { type: Boolean, default: true },
+      applicationUpdates: { type: Boolean, default: true },
     },
   },
   {

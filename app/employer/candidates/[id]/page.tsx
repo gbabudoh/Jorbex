@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import SendTestModal from '@/components/shared/SendTestModal';
 import ContactModal from '@/components/shared/ContactModal';
 import ScheduleModal from '@/components/shared/ScheduleModal';
+import SendOfferModal from '@/components/shared/SendOfferModal';
 
 interface WorkHistory {
   company: string;
@@ -87,6 +88,7 @@ export default function CandidateDetailPage() {
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
 
   useEffect(() => {
     fetchCandidate();
@@ -126,7 +128,7 @@ export default function CandidateDetailPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-red-600 dark:text-red-400 mb-4">{error || 'Candidate not found'}</p>
-            <Button variant="outline" onClick={() => router.push('/employer/search')}>
+            <Button variant="outline" onClick={() => router.push('/employer/search')} className="cursor-pointer">
               Back to Search
             </Button>
           </CardContent>
@@ -150,7 +152,7 @@ export default function CandidateDetailPage() {
         <div className="mb-4 md:mb-8 flex items-center justify-between">
           <Button
             variant="outline"
-            className="h-9 px-3 md:h-10 md:px-4 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all text-sm"
+            className="h-9 px-3 md:h-10 md:px-4 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all text-sm cursor-pointer"
             onClick={() => router.push('/employer/search')}
           >
             <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,14 +162,14 @@ export default function CandidateDetailPage() {
             <span className="xs:hidden">Back</span>
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" className="h-9 px-3 md:h-10 md:px-4 hover:bg-white/80 dark:hover:bg-gray-800/80 text-sm">
+            <Button variant="outline" className="h-9 px-3 md:h-10 md:px-4 hover:bg-white/80 dark:hover:bg-gray-800/80 text-sm cursor-pointer">
               <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
               <span className="hidden xs:inline">Share Profile</span>
               <span className="xs:hidden">Share</span>
             </Button>
-            <Button variant="primary" className="h-9 px-3 md:h-10 md:px-4 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all text-sm">
+            <Button variant="primary" className="h-9 px-3 md:h-10 md:px-4 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all text-sm cursor-pointer">
               <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
               </svg>
@@ -469,7 +471,7 @@ export default function CandidateDetailPage() {
               <CardContent className="p-6 space-y-3">
                 <Button 
                   variant="primary" 
-                  className="w-full bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-xl transition-all"
+                  className="w-full bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-xl transition-all cursor-pointer"
                   onClick={() => setIsTestModalOpen(true)}
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -479,7 +481,7 @@ export default function CandidateDetailPage() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all"
+                  className="w-full hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all cursor-pointer hover:text-gray-700 dark:hover:text-gray-200"
                   onClick={() => setIsContactModalOpen(true)}
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -489,7 +491,7 @@ export default function CandidateDetailPage() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="w-full hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all"
+                  className="w-full hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all cursor-pointer hover:text-gray-700 dark:hover:text-gray-200"
                   onClick={() => setIsScheduleModalOpen(true)}
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -497,11 +499,17 @@ export default function CandidateDetailPage() {
                   </svg>
                   Schedule Interview
                 </Button>
-                <Button variant="outline" className="w-full hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 transition-all">
+                <Button variant="outline" className="w-full hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 transition-all cursor-pointer hover:text-gray-700 dark:hover:text-gray-200">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                   Report Issue
+                </Button>
+                <Button variant="outline" className="w-full hover:bg-green-50 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800 transition-all cursor-pointer hover:text-gray-700 dark:hover:text-gray-200"
+                  onClick={() => setIsOfferModalOpen(true)}
+                >
+                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                   Send Offer
                 </Button>
               </CardContent>
             </Card>
@@ -584,7 +592,7 @@ export default function CandidateDetailPage() {
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 p-4 z-50 flex gap-3 safe-area-bottom">
         <Button 
           variant="outline" 
-          className="flex-1 h-12 rounded-xl group hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all"
+          className="flex-1 h-12 rounded-xl group hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all cursor-pointer"
           onClick={() => setIsContactModalOpen(true)}
         >
           <div className="flex flex-col items-center">
@@ -596,7 +604,7 @@ export default function CandidateDetailPage() {
         </Button>
         <Button 
           variant="primary" 
-          className="flex-[2] h-12 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all"
+          className="flex-[2] h-12 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all cursor-pointer"
           onClick={() => setIsTestModalOpen(true)}
         >
           <div className="flex flex-col items-center">
@@ -608,7 +616,7 @@ export default function CandidateDetailPage() {
         </Button>
         <Button 
           variant="outline" 
-          className="flex-1 h-12 rounded-xl group hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all"
+          className="flex-1 h-12 rounded-xl group hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-all cursor-pointer"
           onClick={() => setIsScheduleModalOpen(true)}
         >
           <div className="flex flex-col items-center">
@@ -646,6 +654,13 @@ export default function CandidateDetailPage() {
         candidateId={candidateId}
         candidateName={candidate.name}
         candidateRole={candidate.expertise}
+      />
+
+      <SendOfferModal
+        isOpen={isOfferModalOpen}
+        onClose={() => setIsOfferModalOpen(false)}
+        candidateId={candidateId}
+        candidateName={candidate.name}
       />
     </div>
   );

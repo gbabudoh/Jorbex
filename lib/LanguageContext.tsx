@@ -4,17 +4,34 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 type Locale = 'en' | 'fr' | 'ar' | 'pt';
 
+type Translations = {
+  [key: string]: string | Translations | string[];
+};
+
 interface LanguageContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: (key: string) => string;
+  translations: Translations;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const VALID_LOCALES: Locale[] = ['en', 'fr', 'ar', 'pt'];
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('en');
-  const [translations, setTranslations] = useState<any>({});
+  // Use lazy initializer to avoid synchronous setState in useEffect
+  const [locale, setLocaleState] = useState<Locale>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('locale') as Locale;
+      if (saved && VALID_LOCALES.includes(saved)) {
+        return saved;
+      }
+    }
+    return 'en';
+  });
+
+  const [translations, setTranslations] = useState<Translations>({});
 
   // Load translations when locale changes
   useEffect(() => {
@@ -22,7 +39,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       try {
         const response = await fetch(`/locales/${locale}/common.json`);
         const data = await response.json();
-        setTranslations(data);
+        setTranslations(data as Translations);
       } catch (error) {
         console.error('Failed to load translations:', error);
       }
@@ -31,18 +48,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     loadTranslations();
   }, [locale]);
 
-  // Load saved locale from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('locale') as Locale;
-    if (saved && ['en', 'fr', 'ar', 'pt'].includes(saved)) {
-      setLocaleState(saved);
-    }
-  }, []);
-
   // Update HTML dir attribute for RTL support
   useEffect(() => {
-    document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
-    document.documentElement.lang = locale;
+    if (typeof document !== 'undefined') {
+      document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = locale;
+    }
   }, [locale]);
 
   const setLocale = (newLocale: Locale) => {
@@ -53,11 +64,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   // Translation function with nested key support
   const t = (key: string): string => {
     const keys = key.split('.');
-    let value: any = translations;
+    let value: Translations | string | string[] = translations;
     
     for (const k of keys) {
-      if (value && typeof value === 'object') {
-        value = value[k];
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        value = (value as Translations)[k];
       } else {
         return key; // Return key if translation not found
       }
@@ -67,7 +78,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <LanguageContext.Provider value={{ locale, setLocale, t }}>
+    <LanguageContext.Provider value={{ locale, setLocale, t, translations }}>
       {children}
     </LanguageContext.Provider>
   );

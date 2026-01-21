@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -11,6 +11,7 @@ interface ScheduleModalProps {
   onClose: () => void;
   candidateId: string;
   candidateName: string;
+  employerId?: string;
 }
 
 export default function ScheduleModal({ 
@@ -18,34 +19,99 @@ export default function ScheduleModal({
   onClose, 
   candidateId, 
   candidateName,
+  employerId
 }: ScheduleModalProps) {
   const [formData, setFormData] = useState({
-    dateTime: '',
+    date: '',
+    time: '',
     type: 'virtual' as 'virtual' | 'physical',
     location: '',
     notes: '',
+    duration: 30,
+    jobId: '',
+    jobTitle: '',
+    manualJob: false,
   });
   const [isScheduling, setIsScheduling] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  
+  // Jobs state
+  const [jobs, setJobs] = useState<{ _id: string; title: string }[]>([]);
+  const [isLoadingJobs, setIsLoadingJobs] = useState(false);
+
+  // Fetch jobs when modal opens
+  useEffect(() => {
+    const fetchJobs = async () => {
+      // Determine effective employerId
+      const eId = employerId && employerId !== 'CURRENT_USER_ID' ? employerId : null;
+      
+      if (!eId) {
+        // console.warn('Cannot fetch jobs: Missing valid employerId');
+        // Default to manual mode if no employerId or error
+        setFormData(prev => ({ ...prev, manualJob: true })); 
+        return;
+      }
+
+      setIsLoadingJobs(true);
+      try {
+        const res = await fetch(`/api/employer/jobs?employerId=${eId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setJobs(data.jobs || []);
+          // Auto-select first job if available
+          if (data.jobs && data.jobs.length > 0) {
+             setFormData(prev => ({ ...prev, jobId: data.jobs[0]._id, manualJob: false }));
+          } else {
+             // No jobs found, switch to manual
+             setFormData(prev => ({ ...prev, manualJob: true }));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch jobs', err);
+        setFormData(prev => ({ ...prev, manualJob: true }));
+      } finally {
+        setIsLoadingJobs(false);
+      }
+    };
+
+    if (isOpen) { 
+       fetchJobs();
+    }
+  }, [isOpen, employerId]);
 
   const handleSchedule = async () => {
-    if (!formData.dateTime || !formData.location) {
-      setError('Please fill in Date/Time and Location');
+    // Validate Job Selection
+    if (!formData.manualJob && !formData.jobId) {
+       setError('Please select a Job Position');
+       return;
+    }
+    if (formData.manualJob && !formData.jobTitle) {
+       setError('Please enter a Job Title');
+       return;
+    }
+
+    if (!formData.date || !formData.time || (formData.type === 'physical' && !formData.location)) {
+      setError('Please fill in Date, Time, Duration, and Location (if physical)');
       return;
     }
 
     setIsScheduling(true);
     setError('');
     try {
-      const response = await fetch('/api/v1/interviews', {
+      // Combine date and time
+      const dateTime = new Date(`${formData.date}T${formData.time}`);
+
+      const response = await fetch('/api/interviews/schedule', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           candidateId,
-          ...formData
+          employerId: employerId || 'CURRENT_USER_ID', // Replace with actual session logic
+          ...formData,
+          dateTime: dateTime.toISOString(),
         }),
       });
 
@@ -53,7 +119,7 @@ export default function ScheduleModal({
         setSuccess(true);
         setTimeout(() => {
           onClose();
-          setFormData({ dateTime: '', type: 'virtual', location: '', notes: '' });
+          setFormData({ date: '', time: '', type: 'virtual', location: '', notes: '', duration: 30, jobId: '', jobTitle: '', manualJob: false });
           setSuccess(false);
         }, 2000);
       } else {
@@ -118,20 +184,76 @@ export default function ScheduleModal({
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Job Selection */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Meeting Date & Time</label>
-                  <Input 
-                    type="datetime-local"
-                    className="rounded-xl"
-                    value={formData.dateTime}
-                    onChange={(e) => setFormData({ ...formData, dateTime: e.target.value })}
-                  />
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Select Job Position</label>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData,  manualJob: !formData.manualJob, jobId: '', jobTitle: '' })}
+                      className="text-xs text-purple-600 dark:text-purple-400 hover:underline"
+                    >
+                      {formData.manualJob ? 'Select from list' : 'Enter manually'}
+                    </button>
+                  </div>
+                  
+                  {formData.manualJob ? (
+                    <Input
+                      placeholder="e.g. Senior Frontend Engineer"
+                      className="rounded-xl w-full text-gray-900 dark:text-gray-100"
+                      value={formData.jobTitle}
+                      onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
+                      required
+                    />
+                  ) : (
+                    <select
+                      className="w-full px-4 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 focus:border-purple-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100"
+                      value={formData.jobId}
+                      onChange={(e) => setFormData({ ...formData, jobId: e.target.value })}
+                      required={!formData.manualJob}
+                    >
+                      <option value="" disabled>-- Select a Job --</option>
+                      {isLoadingJobs ? (
+                        <option disabled>Loading jobs...</option>
+                      ) : jobs.length > 0 ? (
+                        jobs.map(job => (
+                          <option key={job._id} value={job._id}>{job.title}</option>
+                        ))
+                      ) : (
+                        <option disabled>No active jobs found</option>
+                      )}
+                    </select>
+                  )}
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</label>
+                    <Input 
+                      type="date"
+                      className="rounded-xl text-gray-900 dark:text-gray-100"
+                      value={formData.date}
+                      min={new Date().toISOString().split('T')[0]}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Time</label>
+                    <Input 
+                      type="time"
+                      className="rounded-xl text-gray-900 dark:text-gray-100"
+                      value={formData.time}
+                      onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Removed previous duplicate grid start */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Interview Type</label>
                   <select 
-                    className="w-full px-4 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 focus:border-purple-500 outline-none transition-all text-sm"
+                    className="w-full px-4 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 focus:border-purple-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100"
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value as 'virtual' | 'physical' })}
                   >
@@ -142,22 +264,44 @@ export default function ScheduleModal({
               </div>
 
               <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Duration</label>
+                <select 
+                  className="w-full px-4 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 focus:border-purple-500 outline-none transition-all text-sm text-gray-900 dark:text-gray-100"
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: Number(e.target.value) })}
+                >
+                  <option value={15}>15 Minutes</option>
+                  <option value={30}>30 Minutes</option>
+                  <option value={45}>45 Minutes</option>
+                  <option value={60}>1 Hour</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  {formData.type === 'virtual' ? 'Meeting Link' : 'Office Address'}
+                  {formData.type === 'virtual' ? 'Platform' : 'Office Address'}
                 </label>
-                <Input 
-                  placeholder={formData.type === 'virtual' ? 'e.g. Google Meet, Zoom link' : 'e.g. Plot 24, Victoria Island, Lagos'}
-                  className="rounded-xl"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                />
+                {formData.type === 'virtual' ? (
+                   <Input 
+                    value="Jitsi Meet (Auto-generated)"
+                    disabled
+                    className="rounded-xl bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
+                  />
+                ) : (
+                  <Input 
+                    placeholder="e.g. Plot 24, Victoria Island, Lagos"
+                    className="rounded-xl text-gray-900 dark:text-gray-100"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  />
+                )}
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Notes (Optional)</label>
                 <Textarea 
                   placeholder="Additional instructions for the candidate..."
-                  className="min-h-[100px] rounded-xl border-gray-200 dark:border-gray-800 resize-none"
+                  className="min-h-[100px] rounded-xl border-gray-200 dark:border-gray-800 resize-none text-gray-900 dark:text-gray-100"
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 />

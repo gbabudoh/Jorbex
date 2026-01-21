@@ -143,7 +143,7 @@ export default function EditTestPage() {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => router.back()} className="rounded-full w-10 h-10 p-0">
+          <Button variant="ghost" onClick={() => router.back()} className="rounded-full w-10 h-10 p-0 cursor-pointer">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -153,7 +153,7 @@ export default function EditTestPage() {
             <p className="text-gray-500">Modify your assessment details</p>
           </div>
         </div>
-        <Button variant="ghost" onClick={handleDelete} className="text-red-500 hover:bg-red-50">
+        <Button variant="ghost" onClick={handleDelete} className="text-red-500 hover:bg-red-50 cursor-pointer">
           Delete Test
         </Button>
       </div>
@@ -216,7 +216,7 @@ export default function EditTestPage() {
                   variant="ghost" 
                   size="sm" 
                   onClick={() => removeQuestion(qIndex)}
-                  className="text-gray-400 hover:text-red-500"
+                  className="text-gray-400 hover:text-red-500 cursor-pointer"
                   disabled={test.questions.length === 1}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -234,10 +234,10 @@ export default function EditTestPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {q.options.map((option, oIndex) => (
                     <div key={oIndex} className="flex items-center gap-2">
-                       <button
+                        <button
                           type="button"
                           onClick={() => updateQuestion(qIndex, 'correctAnswer', option)}
-                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 cursor-pointer ${
                             q.correctAnswer === option ? 'border-[#00D9A5] bg-[#00D9A5] text-white' : 'border-gray-200'
                           }`}
                         >
@@ -262,14 +262,14 @@ export default function EditTestPage() {
             </Card>
           ))}
 
-          <Button type="button" variant="outline" onClick={addQuestion} className="w-full border-dashed p-8">
+          <Button type="button" variant="outline" onClick={addQuestion} className="w-full border-dashed p-8 cursor-pointer">
             Add Question
           </Button>
         </div>
 
         <div className="flex justify-end gap-4">
-          <Button type="button" variant="ghost" onClick={() => router.back()}>Cancel</Button>
-          <Button type="submit" variant="primary" disabled={isSubmitting}>
+          <Button type="button" variant="ghost" onClick={() => router.back()} className="cursor-pointer">Cancel</Button>
+          <Button type="submit" variant="primary" disabled={isSubmitting} className="cursor-pointer">
             {isSubmitting ? 'Saving...' : 'Update Test'}
           </Button>
         </div>

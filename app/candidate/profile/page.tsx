@@ -301,7 +301,7 @@ export default function ProfilePage() {
             variant="primary"
             onClick={handleSaveProfile}
             isLoading={isSaving}
-            className="hidden md:flex bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg items-center"
+            className="hidden md:flex bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg items-center cursor-pointer"
           >
             <SaveIcon />
             <span className="ml-2">{t('candidate_profile.save_all_changes')}</span>
@@ -450,7 +450,7 @@ export default function ProfilePage() {
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`flex-1 min-w-0 px-1 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl text-[11px] sm:text-[12px] md:text-sm font-bold transition-all whitespace-nowrap ${
+                        className={`flex-1 min-w-0 px-1 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl text-[11px] sm:text-[12px] md:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                           activeTab === tab
                             ? 'bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white shadow-md'
                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -571,6 +571,7 @@ export default function ProfilePage() {
                         variant="primary"
                         onClick={handleAddSkill}
                         disabled={formData.skills.length >= 5 || !newSkill}
+                        className="cursor-pointer"
                       >
                         <PlusIcon />
                       </Button>
@@ -584,7 +585,7 @@ export default function ProfilePage() {
                           <span className="font-medium text-blue-700 dark:text-blue-300">{skill}</span>
                           <button
                             onClick={() => handleRemoveSkill(skill)}
-                            className="text-red-500 hover:text-red-700 transition-colors"
+                            className="text-red-500 hover:text-red-700 transition-colors cursor-pointer"
                           >
                             <TrashIcon />
                           </button>
@@ -674,7 +675,7 @@ export default function ProfilePage() {
                         rows={4}
                       />
                       <div className="flex gap-2">
-                        <Button variant="primary" onClick={handleSaveWork}>
+                        <Button variant="primary" onClick={handleSaveWork} className="cursor-pointer">
                           <SaveIcon />
                           <span className="ml-2">{t('candidate_profile.save')}</span>
                         </Button>
@@ -684,6 +685,7 @@ export default function ProfilePage() {
                             setShowWorkForm(false);
                             setEditingWorkIndex(null);
                           }}
+                          className="cursor-pointer"
                         >
                           {t('candidate_profile.cancel')}
                         </Button>
@@ -716,10 +718,10 @@ export default function ProfilePage() {
                               </p>
                             </div>
                             <div className="flex gap-2">
-                              <Button variant="outline" size="sm" onClick={() => handleEditWork(index)}>
+                              <Button variant="outline" size="sm" onClick={() => handleEditWork(index)} className="cursor-pointer">
                                 <EditIcon />
                               </Button>
-                              <Button variant="outline" size="sm" onClick={() => handleDeleteWork(index)}>
+                              <Button variant="outline" size="sm" onClick={() => handleDeleteWork(index)} className="cursor-pointer">
                                 <TrashIcon />
                               </Button>
                             </div>
@@ -796,7 +798,7 @@ export default function ProfilePage() {
                         />
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="primary" onClick={handleSaveReference}>
+                        <Button variant="primary" onClick={handleSaveReference} className="cursor-pointer">
                           <SaveIcon />
                           <span className="ml-2">{t('candidate_profile.save')}</span>
                         </Button>
@@ -806,6 +808,7 @@ export default function ProfilePage() {
                             setShowRefForm(false);
                             setEditingRefIndex(null);
                           }}
+                          className="cursor-pointer"
                         >
                           {t('candidate_profile.cancel')}
                         </Button>
@@ -841,10 +844,10 @@ export default function ProfilePage() {
                                   <p className="text-sm text-gray-600 dark:text-gray-400">{ref.relationship}</p>
                                 </div>
                                 <div className="flex gap-2">
-                                  <Button variant="outline" size="sm" onClick={() => handleEditReference(index)}>
+                                  <Button variant="outline" size="sm" onClick={() => handleEditReference(index)} className="cursor-pointer">
                                     <EditIcon />
                                   </Button>
-                                  <Button variant="outline" size="sm" onClick={() => handleDeleteReference(index)}>
+                                  <Button variant="outline" size="sm" onClick={() => handleDeleteReference(index)} className="cursor-pointer">
                                     <TrashIcon />
                                   </Button>
                                 </div>

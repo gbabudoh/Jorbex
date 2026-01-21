@@ -3,89 +3,35 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/dbConnect';
 import AptitudeTest from '@/models/AptitudeTest';
-import Candidate from '@/models/Candidate';
+import Employer from '@/models/Employer';
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session || session.user?.userType !== 'employer') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (!session || (session.user as any).userType !== 'employer') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await dbConnect();
 
+    // Verify employer
+    const employer = await Employer.findById(session.user.id);
+    if (!employer) {
+      return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
+    }
+
+    // Find tests created by this employer that are TEMPLATES (no candidate assigned)
     const tests = await AptitudeTest.find({
-      employerId: session.user?.id,
+      employerId: employer._id,
+      candidateId: { $exists: false }, // Only templates
       testType: 'employer_custom',
-    })
-    .populate({
-      path: 'candidateId',
-      select: 'name',
-      model: Candidate
-    })
-    .sort({ createdAt: -1 });
-
-    return NextResponse.json({ tests }, { status: 200 });
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
-  }
-}
-export async function POST(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session || session.user?.userType !== 'employer') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const body = await request.json();
-    const { title, description, questions, passingScore, timeLimit } = body;
-
-    if (!title || !questions || !Array.isArray(questions) || questions.length === 0) {
-      return NextResponse.json(
-        { error: 'Missing required fields: title and at least one question are required' },
-        { status: 400 }
-      );
-    }
-
-    await dbConnect();
-
-    const newTest = new AptitudeTest({
-      title,
-      description,
-      testType: 'employer_custom',
-      employerId: session.user.id,
-      questions,
-      passingScore: passingScore || 70,
-      timeLimit,
       isActive: true,
-    });
+    }).sort({ createdAt: -1 });
 
-    await newTest.save();
-
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Test created successfully',
-      testId: newTest._id 
-    }, { status: 201 });
-
+    return NextResponse.json({ tests });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    console.error('Failed to create test:', error);
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    console.error('Error fetching employer tests:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

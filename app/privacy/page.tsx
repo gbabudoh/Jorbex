@@ -129,8 +129,8 @@ export default function PrivacyPage() {
                 {t('privacy.section12.intro')}
               </p>
               <p className="mt-4 font-semibold">
-                {t('privacy.section12.email')}: privacy@hireme.ng<br />
-                {t('privacy.section12.dpo')}: dpo@hireme.ng<br />
+                {t('privacy.section12.email')}: privacy@jorbex.ng<br />
+                {t('privacy.section12.dpo')}: dpo@jorbex.ng<br />
                 {t('privacy.section12.address')}: Lagos, Nigeria
               </p>
             </section>

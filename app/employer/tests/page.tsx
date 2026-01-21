@@ -75,7 +75,7 @@ export default function TestsPage() {
       <div className="flex p-1 bg-gray-100 dark:bg-gray-800/50 rounded-2xl mb-8 w-fit">
         <button
           onClick={() => setActiveTab('templates')}
-          className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
+          className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
             activeTab === 'templates' 
               ? 'bg-white dark:bg-gray-700 shadow-sm text-[#0066FF]' 
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
@@ -85,7 +85,7 @@ export default function TestsPage() {
         </button>
         <button
           onClick={() => setActiveTab('assigned')}
-          className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
+          className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer ${
             activeTab === 'assigned' 
               ? 'bg-white dark:bg-gray-700 shadow-sm text-[#0066FF]' 
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
@@ -110,7 +110,7 @@ export default function TestsPage() {
             </p>
             {activeTab === 'templates' && (
               <Link href="/employer/tests/create">
-                <Button variant="primary" className="h-12 px-8 rounded-xl font-bold bg-[#0066FF]">Create Your First Test</Button>
+                <Button variant="primary" className="h-12 px-8 rounded-xl font-bold bg-[#0066FF] cursor-pointer">Create Your First Test</Button>
               </Link>
             )}
           </CardContent>
@@ -150,7 +150,7 @@ export default function TestsPage() {
                     {new Date(test.createdAt).toLocaleDateString('en-GB')}
                   </span>
                   <Link href={`/employer/tests/${test._id}`}>
-                    <Button variant="ghost" size="sm" className="rounded-xl font-bold hover:bg-blue-50 dark:hover:bg-blue-950/20 text-[#0066FF]">
+                    <Button variant="ghost" size="sm" className="rounded-xl font-bold hover:bg-blue-50 dark:hover:bg-blue-950/20 text-[#0066FF] cursor-pointer">
                       Details
                       <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />

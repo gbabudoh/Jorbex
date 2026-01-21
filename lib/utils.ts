@@ -13,7 +13,7 @@ export function formatCurrency(amount: number): string {
 }
 
 export function generateReference(): string {
-  return `HIREME-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `JORBEX-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 export function calculateTestScore(answers: Record<string, string>, correctAnswers: Record<string, string>): number {

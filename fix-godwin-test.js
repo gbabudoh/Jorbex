@@ -1,5 +1,5 @@
 // Manual fix script for Godwin's test completion
-// Run with: mongosh hireme fix-godwin-test.js
+// Run with: mongosh jorbex fix-godwin-test.js
 
 const candidateEmail = 'godwin@egobas.com';
 const testScore = 80; // Adjust if you know the actual score

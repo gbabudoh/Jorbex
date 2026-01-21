@@ -29,13 +29,13 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "HireMe - African Job Market Platform",
+  title: "Jorbex | African Job Market Platform",
   description: "Mobile-first job-matching platform connecting qualified African talent with employers",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "HireMe",
+    title: "Jorbex",
   },
 };
 

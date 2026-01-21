@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'ng.hireme.app',
-  appName: 'HireMe',
+  appId: 'ng.jorbex.app',
+  appName: 'Jorbex',
   webDir: 'out',
   server: {
     androidScheme: 'https',

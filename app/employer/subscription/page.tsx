@@ -118,7 +118,7 @@ export default function SubscriptionPage() {
               Subscription Management
             </h1>
             <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 px-4">
-              Manage your HireMe subscription
+              Manage your Jorbex subscription
             </p>
           </div>
 
