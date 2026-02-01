@@ -137,7 +137,7 @@ export default function OnboardingPage() {
       <div className="container mx-auto px-4 py-12">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-800">
           <div className="py-12 text-center">
-            <p className="text-gray-600 dark:text-gray-400">No test available. Please contact support.</p>
+            <p className="text-gray-600 dark:text-gray-400">{t('onboarding.no_test')}</p>
           </div>
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function OnboardingPage() {
       <div className="container mx-auto px-4 py-12">
         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-800">
           <div className="py-12 text-center">
-            <p className="text-gray-600 dark:text-gray-400">Loading question...</p>
+            <p className="text-gray-600 dark:text-gray-400">{t('onboarding.loading_question')}</p>
           </div>
         </div>
       </div>
@@ -167,21 +167,21 @@ export default function OnboardingPage() {
         <CardHeader className="p-4 md:p-6 pb-2 md:pb-4 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
-              <CardTitle className="text-lg md:text-2xl truncate">Logical Aptitude Test</CardTitle>
+              <CardTitle className="text-lg md:text-2xl truncate">{t('onboarding.test_title')}</CardTitle>
               <CardDescription className="text-xs md:text-sm mt-1 line-clamp-1 md:line-clamp-none">
-                {t('onboarding.test_desc') || 'Answer all 10 questions correctly. Score 70% to pass.'}
+                {t('onboarding.test_desc')}
               </CardDescription>
             </div>
             <Badge variant={timeRemaining < 60 ? 'error' : 'info'} className="shrink-0 text-[10px] md:text-xs px-2 py-1 h-fit">
-              <span className="md:inline hidden mr-1">Time:</span> {formatTime(timeRemaining)}
+              <span className="md:inline hidden mr-1">{t('onboarding.time')}:</span> {formatTime(timeRemaining)}
             </Badge>
           </div>
         </CardHeader>
         <CardContent>
           <div className="mb-2 md:mb-4">
             <div className="flex justify-between text-[11px] md:text-sm text-gray-600 dark:text-gray-400 mb-2">
-              <span>{answeredQuestions} / {questions.length} Answered</span>
-              <span>Q{currentQuestion + 1} of {questions.length}</span>
+              <span>{answeredQuestions} / {questions.length} {t('onboarding.answered')}</span>
+              <span>{t('onboarding.question')} {currentQuestion + 1} {t('onboarding.question_of')} {questions.length}</span>
             </div>
             <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-1.5 md:h-2">
               <div
@@ -231,7 +231,7 @@ export default function OnboardingPage() {
               onClick={handlePrevious}
               disabled={currentQuestion === 0}
             >
-              Previous
+              {t('onboarding.previous')}
             </Button>
 
             {currentQuestion === questions.length - 1 ? (
@@ -241,7 +241,7 @@ export default function OnboardingPage() {
                 disabled={!allAnswered || isSubmitting}
                 isLoading={isSubmitting}
               >
-                Submit Test
+                {t('onboarding.submit_test')}
               </Button>
             ) : (
               <Button
@@ -250,7 +250,7 @@ export default function OnboardingPage() {
                 disabled={!answers[question.id]}
                 className="cursor-pointer"
               >
-                Next
+                {t('onboarding.next')}
               </Button>
             )}
           </div>
@@ -266,7 +266,7 @@ export default function OnboardingPage() {
             disabled={currentQuestion === 0}
             className="flex-1 h-12 rounded-xl font-bold"
           >
-            Back
+            {t('onboarding.back')}
           </Button>
 
           {currentQuestion === questions.length - 1 ? (
@@ -277,7 +277,7 @@ export default function OnboardingPage() {
               isLoading={isSubmitting}
               className="flex-[2] h-12 rounded-xl font-bold bg-gradient-to-r from-[#0066FF] to-[#0052CC]"
             >
-              Submit Test
+              {t('onboarding.submit_test')}
             </Button>
           ) : (
             <Button
@@ -286,7 +286,7 @@ export default function OnboardingPage() {
               disabled={!answers[question.id]}
               className="flex-[2] h-12 rounded-xl font-bold bg-gradient-to-r from-[#0066FF] to-[#0052CC] cursor-pointer"
             >
-              Next Question
+              {t('onboarding.next_question')}
             </Button>
           )}
         </div>

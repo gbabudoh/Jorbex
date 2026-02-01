@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface Question {
   _id: string; // From custom tests
@@ -25,6 +26,7 @@ export default function TakeTestPage() {
   const router = useRouter();
   const params = useParams();
   const testId = params.id as string;
+  const { t } = useLanguage();
   
   const [test, setTest] = useState<TestData | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -90,10 +92,10 @@ export default function TakeTestPage() {
             <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h2 className="text-xl font-bold mb-2">Error Loading Test</h2>
+            <h2 className="text-xl font-bold mb-2">{t('candidate_tests.error_loading')}</h2>
             <p className="text-gray-600 mb-6">{error}</p>
             <Button variant="primary" onClick={() => router.push('/candidate/tests')}>
-              Back to Tests
+              {t('candidate_tests.back_to_tests')}
             </Button>
           </CardContent>
         </Card>
@@ -114,7 +116,7 @@ export default function TakeTestPage() {
         <Card className="mb-6 border-0 shadow-xl bg-white dark:bg-gray-900">
           <CardHeader className="p-6 md:p-8 flex flex-row items-center justify-between">
             <div className="min-w-0">
-              <Badge variant="info" className="mb-2 bg-blue-50 text-blue-600 dark:bg-blue-900/20">Official Assessment</Badge>
+              <Badge variant="info" className="mb-2 bg-blue-50 text-blue-600 dark:bg-blue-900/20">{t('candidate_tests.official_assessment')}</Badge>
               <CardTitle className="text-2xl font-black text-gray-900 dark:text-white leading-tight">
                 {test.title}
               </CardTitle>
@@ -125,8 +127,8 @@ export default function TakeTestPage() {
           </CardHeader>
           <CardContent className="px-6 md:px-8 pb-6">
             <div className="flex items-center justify-between text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">
-              <span>Progress: {answeredCount} / {questions.length} answered</span>
-              <span>Question {currentQuestion + 1} of {questions.length}</span>
+              <span>{t('candidate_tests.progress')}: {answeredCount} / {questions.length} {t('candidate_tests.answered')}</span>
+              <span>{t('onboarding.question')} {currentQuestion + 1} {t('onboarding.question_of')} {questions.length}</span>
             </div>
             <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3 overflow-hidden">
               <div 
@@ -177,7 +179,7 @@ export default function TakeTestPage() {
                 disabled={currentQuestion === 0}
                 className="font-bold h-12"
               >
-                Previous
+                {t('onboarding.previous')}
               </Button>
 
               {currentQuestion === questions.length - 1 ? (
@@ -188,7 +190,7 @@ export default function TakeTestPage() {
                   isLoading={isSubmitting}
                   className="h-12 px-10 font-black text-lg shadow-xl shadow-blue-500/20 rounded-xl"
                 >
-                  Submit Assessment
+                  {t('candidate_tests.submit')}
                 </Button>
               ) : (
                 <Button
@@ -197,7 +199,7 @@ export default function TakeTestPage() {
                   disabled={!answers[qId]}
                   className="h-12 px-10 font-bold shadow-lg rounded-xl"
                 >
-                  Next Question
+                  {t('onboarding.next_question')}
                 </Button>
               )}
             </div>

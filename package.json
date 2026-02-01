@@ -25,6 +25,7 @@
     "dotenv": "^17.2.3",
     "framer-motion": "^12.23.25",
     "konsta": "^5.0.6",
+    "mobileui": "^2.0.4",
     "mongodb": "^7.0.0",
     "mongoose": "^8.20.0",
     "next": "16.0.3",

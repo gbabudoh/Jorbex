@@ -47,9 +47,9 @@ export default function CandidateApplicationsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'Applied': return <Badge variant="info">Applied</Badge>;
-      case 'Shortlisted': return <Badge variant="success">Shortlisted</Badge>;
-      case 'Rejected': return <Badge variant="error">Rejected</Badge>;
+      case 'Applied': return <Badge variant="info">{t('candidate_applications.status_applied')}</Badge>;
+      case 'Shortlisted': return <Badge variant="success">{t('candidate_applications.status_shortlisted')}</Badge>;
+      case 'Rejected': return <Badge variant="error">{t('candidate_applications.status_rejected')}</Badge>;
       default: return <Badge variant="default">{status}</Badge>;
     }
   };

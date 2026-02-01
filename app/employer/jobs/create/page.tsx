@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function CreateJobPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
