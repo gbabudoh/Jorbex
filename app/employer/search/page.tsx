@@ -442,19 +442,19 @@ export default function SearchPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8' : 'space-y-6'}>
+          <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-stretch' : 'space-y-6'}>
             {candidates.map((candidate) => (
               viewMode === 'grid' ? (
                 // Redesigned Grid View
                 <div
                   key={candidate._id}
-                  className="group relative hover:-translate-y-2 transition-transform duration-200"
+                  className="group relative hover:-translate-y-2 transition-transform duration-200 h-full"
                 >
                   <Card 
-                    className="relative border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-blue-500/30 transition-all duration-200 cursor-pointer"
+                    className="relative h-full flex flex-col border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-blue-500/30 transition-all duration-200 cursor-pointer"
                     onClick={() => router.push(`/employer/candidates/${candidate._id}`)}
                   >
-                    <div className="p-8">
+                    <div className="p-8 flex flex-col flex-1">
                       {/* Avatar and Info Header */}
                       <div className="flex items-start justify-between mb-8">
                         <div className="flex items-center gap-4">
@@ -491,36 +491,37 @@ export default function SearchPage() {
                       </div>
 
                       {/* Aptitude Score Section */}
-                      {candidate.onboardingTestScore && (
-                        <div className="mb-8 p-5 rounded-3xl bg-slate-50/50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('talent_search.aptitude_master')}</span>
-                            <span className={`text-lg font-black ${getScoreColor(candidate.onboardingTestScore).split(' ')[0]}`}>
-                              {candidate.onboardingTestScore}%
-                            </span>
-                          </div>
-                          <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full relative shadow-[0_0_10px_rgba(37,99,235,0.4)] transition-all duration-300"
-                              style={{ width: `${candidate.onboardingTestScore}%` }}
-                            />
-                          </div>
+                      <div className="mb-8 p-5 rounded-3xl bg-slate-50/50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('talent_search.aptitude_master')}</span>
+                          <span className={`text-lg font-black ${getScoreColor(candidate.onboardingTestScore || 0).split(' ')[0]}`}>
+                            {candidate.onboardingTestScore || 0}%
+                          </span>
                         </div>
-                      )}
+                        <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full relative shadow-[0_0_10px_rgba(37,99,235,0.4)] transition-all duration-300"
+                            style={{ width: `${candidate.onboardingTestScore || 0}%` }}
+                          />
+                        </div>
+                      </div>
 
                       {/* Core Skills Tags */}
-                      <div className="flex flex-wrap gap-2 mb-8">
+                      <div className="flex flex-wrap gap-2 mb-8 min-h-[72px]">
                         {candidate.skills?.slice(0, 3).map((skill) => (
-                          <span key={skill} className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-[10px] font-black text-slate-600 dark:text-slate-300 shadow-sm">
+                          <span key={skill} className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-[10px] font-black text-slate-600 dark:text-slate-300 shadow-sm h-fit">
                             {skill}
                           </span>
                         ))}
                         {(candidate.skills?.length || 0) > 3 && (
-                          <span className="px-3 py-1.5 rounded-xl bg-blue-600/5 text-blue-600 dark:text-blue-400 text-[10px] font-black border border-blue-600/10">
+                          <span className="px-3 py-1.5 rounded-xl bg-blue-600/5 text-blue-600 dark:text-blue-400 text-[10px] font-black border border-blue-600/10 h-fit">
                             +{(candidate.skills?.length || 0) - 3}
                           </span>
                         )}
                       </div>
+
+                      {/* Spacer to push button to bottom */}
+                      <div className="flex-1" />
 
                       <Button
                         className="w-full h-14 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 group-hover:shadow-2xl shadow-slate-900/10 gap-2 cursor-pointer"

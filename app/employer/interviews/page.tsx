@@ -179,7 +179,8 @@ function StatCard({ label, value, color }: { label: string; value: number; color
 function InterviewCard({ interview, isUpcoming }: { interview: Interview; isUpcoming: boolean }) {
   const { t } = useLanguage();
   const date = new Date(interview.dateTime);
-  const isVirtual = interview.type === 'virtual';
+  // Check type field, or fallback to checking if location indicates virtual
+  const isVirtual = interview.type === 'virtual' || interview.location?.toLowerCase().includes('video interview');
   const positionTitle = interview.jobId?.title || interview.jobTitle || t('interviews.general_interview') || 'General Interview';
 
   const statusConfig: Record<string, { variant: 'success' | 'error' | 'warning' | 'info'; label: string }> = {
@@ -248,21 +249,33 @@ function InterviewCard({ interview, isUpcoming }: { interview: Interview; isUpco
         {/* Actions */}
         {isUpcoming && interview.status !== 'cancelled' && (
           <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
-            {isVirtual && interview.meetingUrl ? (
-              <a
-                href={interview.meetingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center w-full px-4 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl hover:shadow-lg transition-all cursor-pointer"
-              >
-                {t('interviews.join_meeting') || 'Join Meeting'}
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
+            {isVirtual ? (
+              interview.meetingUrl && interview.meetingUrl.trim() !== '' ? (
+                <a
+                  href={interview.meetingUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-full px-4 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl hover:shadow-lg transition-all cursor-pointer"
+                >
+                  {t('interviews.join_meeting') || 'Join Meeting'}
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              ) : (
+                <Link
+                  href={`/interview/${interview._id}`}
+                  className="inline-flex items-center justify-center w-full px-4 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl hover:shadow-lg transition-all cursor-pointer"
+                >
+                  {t('interviews.start_interview') || 'Start Interview'}
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </Link>
+              )
             ) : (
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(interview.location)}`}
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(interview.location || '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center w-full px-4 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl hover:shadow-lg transition-all cursor-pointer"

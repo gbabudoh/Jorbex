@@ -59,8 +59,8 @@ export default function CreateJobPage() {
           </svg>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white italic">Create New Opportunity</h1>
-          <p className="text-slate-500">Post a new job listing to attract verified professionals</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white italic">{t('jobs.create_page.page_title')}</h1>
+          <p className="text-slate-500">{t('jobs.create_page.page_subtitle')}</p>
         </div>
       </div>
 
@@ -68,47 +68,47 @@ export default function CreateJobPage() {
         <Card className="border-0 shadow-xl overflow-hidden rounded-[2.5rem]">
           <div className="h-2.5 w-full bg-gradient-to-r from-blue-600 to-indigo-600" />
           <CardHeader className="p-8 md:p-10">
-            <CardTitle className="text-2xl font-bold">Job Details</CardTitle>
+            <CardTitle className="text-2xl font-bold">{t('jobs.create_page.job_details')}</CardTitle>
           </CardHeader>
           <CardContent className="px-8 md:px-10 pb-10 space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Job Title</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{t('jobs.create_page.job_title')}</label>
                 <Input 
-                  placeholder="e.g., Senior Frontend Engineer" 
+                  placeholder={t('jobs.create_page.job_title_placeholder')} 
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="h-14 rounded-2xl border-slate-200 focus:ring-blue-600"
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Job Type</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{t('jobs.create_page.job_type')}</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                   className="w-full h-14 px-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:border-blue-600 outline-none transition-all font-bold"
                 >
-                  <option value="Full-time">Full-time</option>
-                  <option value="Part-time">Part-time</option>
-                  <option value="Contract">Contract</option>
-                  <option value="Remote">Remote</option>
-                  <option value="Internship">Internship</option>
+                  <option value="Full-time">{t('jobs.create_page.full_time')}</option>
+                  <option value="Part-time">{t('jobs.create_page.part_time')}</option>
+                  <option value="Contract">{t('jobs.create_page.contract')}</option>
+                  <option value="Remote">{t('jobs.create_page.remote')}</option>
+                  <option value="Internship">{t('jobs.create_page.internship')}</option>
                 </select>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Location</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{t('jobs.create_page.location')}</label>
                 <Input 
-                  placeholder="e.g., Lagos, Nigeria or Remote" 
+                  placeholder={t('jobs.create_page.location_placeholder')} 
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   className="h-14 rounded-2xl border-slate-200"
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Currency</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{t('jobs.create_page.currency')}</label>
                 <select
                   value={formData.salary.currency}
                   onChange={(e) => setFormData({ ...formData, salary: { ...formData.salary, currency: e.target.value } })}
@@ -125,7 +125,7 @@ export default function CreateJobPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-3">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Min Salary</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{t('jobs.create_page.min_salary')}</label>
                 <Input 
                   type="number" 
                   value={formData.salary.min}
@@ -134,7 +134,7 @@ export default function CreateJobPage() {
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Max Salary</label>
+                <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{t('jobs.create_page.max_salary')}</label>
                 <Input 
                   type="number" 
                   value={formData.salary.max}
@@ -145,9 +145,9 @@ export default function CreateJobPage() {
             </div>
 
             <div className="space-y-3">
-              <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Job Description</label>
+              <label className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-1">{t('jobs.create_page.job_description')}</label>
               <Textarea 
-                placeholder="Describe the role, responsibilities, and requirements..."
+                placeholder={t('jobs.create_page.description_placeholder')}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={8}
@@ -157,7 +157,7 @@ export default function CreateJobPage() {
 
             <div className="pt-8 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-4">
               <Button type="button" variant="ghost" onClick={() => router.back()} disabled={isSubmitting} className="h-14 px-8 rounded-2xl font-bold">
-                Cancel
+                {t('jobs.create_page.cancel')}
               </Button>
               <Button 
                 type="submit" 
@@ -165,7 +165,7 @@ export default function CreateJobPage() {
                 disabled={isSubmitting}
                 className="h-14 px-12 rounded-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
               >
-                {isSubmitting ? 'Posting Opportunity...' : 'Post Job Listing'}
+                {isSubmitting ? t('jobs.create_page.posting') : t('jobs.create_page.post_job')}
               </Button>
             </div>
           </CardContent>
