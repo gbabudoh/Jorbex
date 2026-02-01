@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -83,17 +84,29 @@ export default function SignupPage() {
         throw new Error(data.error || t('signup.errors.signupFailed'));
       }
 
-      console.log('Signup successful, redirecting...');
+      console.log('Signup successful, signing in...');
 
-      // Redirect to appropriate onboarding
-      if (formData.userType === 'candidate') {
-        router.push('/candidate/onboarding');
+      const signInResult = await signIn('credentials', {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
+        userType: formData.userType,
+      });
+
+      if (signInResult?.ok) {
+        // Redirect to appropriate onboarding
+        if (formData.userType === 'candidate') {
+          router.push('/candidate/onboarding');
+        } else {
+          router.push('/employer/subscription');
+        }
       } else {
-        router.push('/employer/subscription');
+        console.error('Auto-login failed:', signInResult?.error);
+        router.push('/login');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Signup error:', err);
-      setError(err.message || t('signup.errors.generic'));
+      setError((err as Error).message || t('signup.errors.generic'));
       setIsLoading(false);
     }
   };
@@ -119,7 +132,7 @@ export default function SignupPage() {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, userType: 'candidate' })}
-                className={`px-4 py-2 rounded-xl border-2 transition-all ${
+                className={`px-4 py-2 rounded-xl border-2 transition-all cursor-pointer ${
                   formData.userType === 'candidate'
                     ? 'border-[#0066FF] bg-[#0066FF]/10 text-[#0066FF]'
                     : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
@@ -130,7 +143,7 @@ export default function SignupPage() {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, userType: 'employer' })}
-                className={`px-4 py-2 rounded-xl border-2 transition-all ${
+                className={`px-4 py-2 rounded-xl border-2 transition-all cursor-pointer ${
                   formData.userType === 'employer'
                     ? 'border-[#0066FF] bg-[#0066FF]/10 text-[#0066FF]'
                     : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
@@ -230,7 +243,7 @@ export default function SignupPage() {
             type="submit"
             variant="primary"
             size="lg"
-            className="w-full"
+            className="w-full cursor-pointer"
             isLoading={isLoading}
           >
             {t('signup.createAccount')}
@@ -239,7 +252,7 @@ export default function SignupPage() {
 
         <div className="mt-6 text-center text-sm">
           <span className="text-gray-600 dark:text-gray-400">{t('signup.haveAccount')} </span>
-          <Link href="/login" className="text-[#0066FF] hover:underline font-medium">
+          <Link href="/login" className="text-[#0066FF] hover:underline font-medium cursor-pointer">
             {t('signup.signIn')}
           </Link>
         </div>

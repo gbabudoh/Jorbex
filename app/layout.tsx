@@ -3,6 +3,7 @@ import { Inter, Poppins, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
+import CookieConsent from "@/components/shared/CookieConsent";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { LanguageProvider } from "@/lib/LanguageContext";
 
@@ -68,6 +69,7 @@ export default function RootLayout({
             <main className="flex-grow">
               {children}
             </main>
+            <CookieConsent />
             <Footer />
           </SessionProvider>
         </LanguageProvider>

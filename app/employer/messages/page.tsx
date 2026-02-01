@@ -24,7 +24,7 @@ interface Message {
   createdAt: string;
 }
 
-export default function MessagesPage() {
+export default function EmployerMessagesPage() {
   const { t } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,9 +36,9 @@ export default function MessagesPage() {
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<{ _id: string, name: string, companyName?: string }[]>([]);
+  const [searchResults, setSearchResults] = useState<{ _id: string, name: string, expertise?: string }[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [newRecipient, setNewRecipient] = useState<{ _id: string, name: string, companyName?: string } | null>(null);
+  const [newRecipient, setNewRecipient] = useState<{ _id: string, name: string, expertise?: string } | null>(null);
 
   const fetchMessages = useCallback(async () => {
     setIsLoading(true);
@@ -67,10 +67,10 @@ export default function MessagesPage() {
       }
       setIsSearching(true);
       try {
-        const response = await fetch(`/api/v1/employers/search?q=${searchTerm}`);
+        const response = await fetch(`/api/v1/candidates/search?skill=${searchTerm}`);
         if (response.ok) {
           const data = await response.json();
-          setSearchResults(data.employers || []);
+          setSearchResults(data.candidates || []);
         }
       } catch (error: unknown) {
         console.error('Search failed:', error instanceof Error ? error.message : error);
@@ -174,7 +174,7 @@ export default function MessagesPage() {
         setNotification({ type: 'error', message: data.error || t('messages.error_send') });
       }
     } catch (error: unknown) {
-      console.error('Failed to send reply:', error instanceof Error ? error.message : error);
+      console.error('Failed to send message:', error instanceof Error ? error.message : error);
       setNotification({ type: 'error', message: t('messages.error_unexpected') });
     } finally {
       setIsSending(false);
@@ -264,8 +264,8 @@ export default function MessagesPage() {
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-bold text-sm truncate pr-2">
                         {messageType === 'sent' 
-                          ? `${t('messages.to')}${message.receiverId?.name || t('messages.employer')}`
-                          : (message.senderId?.name || t('messages.employer'))}
+                          ? `${t('messages.to')}${message.receiverId?.name || t('messages.candidate')}`
+                          : (message.senderId?.name || t('messages.candidate'))}
                       </span>
                       <span className="text-[10px] text-gray-500 shrink-0">
                         {formatDate(message.createdAt)}
@@ -310,11 +310,11 @@ export default function MessagesPage() {
                       <div className="flex items-center justify-between p-3 bg-[#0066FF]/5 dark:bg-[#0066FF]/10 rounded-xl border border-[#0066FF]/20">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-[#0066FF] flex items-center justify-center text-white font-bold text-xs">
-                            {newRecipient.companyName?.charAt(0) || newRecipient.name.charAt(0)}
+                            {newRecipient.name.charAt(0)}
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-gray-900 dark:text-white">{newRecipient.companyName}</p>
-                            <p className="text-xs text-gray-500">{newRecipient.name}</p>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">{newRecipient.name}</p>
+                            <p className="text-xs text-gray-500">{newRecipient.expertise || t('messages.candidate')}</p>
                           </div>
                         </div>
                         <button onClick={() => setNewRecipient(null)} className="text-red-500 hover:text-red-700 cursor-pointer">
@@ -326,7 +326,7 @@ export default function MessagesPage() {
                         <input
                           type="text"
                           className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 focus:border-[#0066FF] outline-none transition-all placeholder:text-gray-400"
-                          placeholder={t('messages.search_employer')}
+                          placeholder={t('messages.search_candidate')}
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -344,11 +344,11 @@ export default function MessagesPage() {
                                 onClick={() => { setNewRecipient(user); setSearchResults([]); setSearchTerm(''); }}
                               >
                                 <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-400 font-bold text-xs">
-                                  {user.companyName?.charAt(0) || user.name.charAt(0)}
+                                  {user.name.charAt(0)}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user.companyName}</p>
-                                  <p className="text-xs text-gray-500 truncate">{user.name}</p>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user.name}</p>
+                                  <p className="text-xs text-gray-500 truncate">{user.expertise || t('messages.candidate')}</p>
                                 </div>
                               </button>
                             ))}
@@ -371,12 +371,12 @@ export default function MessagesPage() {
                 </div>
               </CardContent>
               <div className="p-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex justify-end gap-3">
-                <Button variant="ghost" onClick={() => setIsCreating(false)} className="text-gray-500 cursor-pointer">
+                <Button variant="ghost" onClick={() => setIsCreating(false)} className="text-gray-500 cursor-pointer text-xs md:text-sm">
                   {t('messages.cancel')}
                 </Button>
                 <Button 
                   variant="primary"
-                  className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] px-8 h-10 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer"
+                  className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] px-8 h-10 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer text-xs md:text-sm"
                   disabled={!newRecipient || !replyContent.trim() || isSending}
                   onClick={() => handleSendMessage(true)}
                   isLoading={isSending}
@@ -402,9 +402,7 @@ export default function MessagesPage() {
                           : selectedMessage.senderId?.name}
                       </CardTitle>
                       <CardDescription className="text-xs md:text-sm">
-                        {messageType === 'sent' 
-                          ? (selectedMessage.receiverId?.companyName || t('messages.employer'))
-                          : (selectedMessage.senderId?.companyName || t('messages.employer'))}
+                        {messageType === 'sent' ? t('messages.recipient') : t('messages.sender')}
                       </CardDescription>
                     </div>
                   </div>

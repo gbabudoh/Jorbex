@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/dbConnect';
-import Candidate from '@/models/Candidate';
+import Candidate, { ICandidate } from '@/models/Candidate';
+import { FilterQuery } from 'mongoose';
 
 export async function GET(request: Request) {
   try {
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
     const skill = searchParams.get('skill');
     const minScore = searchParams.get('minScore');
 
-    const query: any = {
+    const query: FilterQuery<ICandidate> = {
       onboardingTestPassed: true,
     };
 
@@ -44,9 +45,10 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({ candidates }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to search candidates';
     return NextResponse.json(
-      { error: error.message || 'Failed to search candidates' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

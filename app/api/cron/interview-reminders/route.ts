@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Interview from '@/models/Interview';
-import { sendNotification, TEMPLATE_IDS } from '@/lib/notifications';
+import { sendNotification } from '@/lib/notifications';
+import { TEMPLATE_IDS } from '@/lib/listmonk';
 
 // This endpoint should be called by a cron service (e.g., GitHub Actions, EasyCron, or Vercel Cron)
 // Protected by a secret key
@@ -64,7 +65,7 @@ export async function GET(request: Request) {
                 minutesUntil: minutesUntil,
                 meetingUrl: interview.meetingUrl,
               },
-              type: 'interviewReminders',
+              type: 'interviews',
               actionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/interview/${interview._id}`,
             }
           );

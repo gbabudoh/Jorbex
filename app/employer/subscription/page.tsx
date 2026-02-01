@@ -216,14 +216,14 @@ export default function SubscriptionPage() {
                     variant="outline"
                     onClick={handleCancelSubscription}
                     disabled={loading}
-                    className="flex-1"
+                    className="flex-1 cursor-pointer"
                   >
                     Cancel Subscription
                   </Button>
                   <Button
                     variant="primary"
                     onClick={() => router.push('/employer/search')}
-                    className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600"
+                    className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 cursor-pointer"
                   >
                     Find Candidates
                   </Button>
@@ -236,7 +236,7 @@ export default function SubscriptionPage() {
                     variant="primary"
                     onClick={handleSubscribe}
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600"
+                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 cursor-pointer"
                   >
                     {loading ? 'Processing...' : 'Upgrade to Premium'}
                   </Button>
@@ -309,7 +309,7 @@ export default function SubscriptionPage() {
                 setSelectedCurrency(e.target.value);
                 setCurrency(getCurrency(e.target.value === 'NGN' ? 'NG' : e.target.value === 'KES' ? 'KE' : e.target.value === 'GHS' ? 'GH' : e.target.value === 'ZAR' ? 'ZA' : e.target.value === 'EGP' ? 'EG' : e.target.value === 'TZS' ? 'TZ' : e.target.value === 'UGX' ? 'UG' : e.target.value === 'XOF' ? 'SN' : 'MA'));
               }}
-              className="px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm"
+              className="px-4 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm cursor-pointer"
             >
               <option value="NGN">🇳🇬 Nigeria (₦)</option>
               <option value="KES">🇰🇪 Kenya (KSh)</option>
@@ -375,7 +375,7 @@ export default function SubscriptionPage() {
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 cursor-pointer"
                 onClick={() => router.push('/signup?type=candidate')}
               >
                 {t('subscription.get_started_free')}
@@ -438,7 +438,7 @@ export default function SubscriptionPage() {
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full"
+                className="w-full cursor-pointer"
                 onClick={handleSubscribe}
                 disabled={loading}
               >
@@ -508,7 +508,7 @@ export default function SubscriptionPage() {
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 cursor-pointer"
                 onClick={handleSubscribe}
                 disabled={loading}
               >

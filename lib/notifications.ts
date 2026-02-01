@@ -1,21 +1,15 @@
 // Combined notification service for email + push + internal (Mattermost)
 
-import {
-  notifyInterviewScheduled,
-  notifyInterviewReminder,
-  notifyInterviewCancelled,
-  notifyInterviewRescheduled,
-  notifyEmployerNewApplication,
-} from './ntfy';
+// Mattermost imports
 
 import {
-  sendInterviewInvite,
-  sendInterviewReminder as emailInterviewReminder,
-  sendInterviewCancellation,
-  sendApplicationConfirmation,
+  sendEmailNotification,
+  TEMPLATE_IDS
 } from './listmonk';
 
 import { createInterviewMeeting, InterviewMeeting } from './jitsi';
+import NotificationPreference from '@/models/NotificationPreference';
+import dbConnect from './dbConnect';
 
 import {
   sendMessage,
@@ -25,6 +19,9 @@ import {
   notifyNewApplication as mattermostNewApplication,
   notifyNewEmployerSignup as mattermostNewEmployerSignup,
 } from './mattermost';
+
+export { TEMPLATE_IDS } from './listmonk';
+import { sendPushNotification } from './ntfy';
 
 // ============================================
 // Mattermost Channel IDs (configure these)
@@ -57,6 +54,13 @@ export interface ScheduleInterviewParams {
   interviewerName?: string;
 }
 
+export interface NotificationUser {
+  _id?: string | { toString(): string };
+  email?: string;
+  ntfyTopic?: string;
+  userType?: 'candidate' | 'employer' | 'admin';
+}
+
 export interface InterviewResult extends InterviewMeeting {
   interviewId: string;
   emailSent: boolean;
@@ -86,37 +90,44 @@ export async function scheduleInterview({
   let pushSent = false;
   let mattermostSent = false;
 
-  // Send email notification to candidate
-  try {
-    await sendInterviewInvite(
-      candidateEmail,
-      candidateName,
-      companyName,
-      position,
-      interviewDate,
-      meeting.candidateUrl,
-      interviewerName
-    );
-    emailSent = true;
-  } catch (error) {
-    console.error('Failed to send interview email:', error);
-  }
+  const formattedDate = interviewDate.toLocaleString('en-US', { 
+    weekday: 'long', 
+    month: 'long', 
+    day: 'numeric', 
+    year: 'numeric',
+    hour: 'numeric', 
+    minute: '2-digit',
+    timeZoneName: 'short'
+  });
 
-  // Send push notification to candidate
-  try {
-    await notifyInterviewScheduled(
-      candidateId,
-      companyName,
-      position,
-      interviewDate,
-      meeting.candidateUrl
-    );
-    pushSent = true;
-  } catch (error) {
-    console.error('Failed to send push notification:', error);
-  }
+  // 1. Notify Candidate via sendNotification (handles Preferences)
+  const results = await sendNotification(
+    { _id: candidateId, email: candidateEmail, userType: 'candidate' },
+    {
+      title: 'Interview Scheduled',
+      message: `An interview with ${companyName} for ${position} has been scheduled for ${formattedDate}.`,
+      emailTemplateId: TEMPLATE_IDS.INTERVIEW_INVITATION,
+      emailData: {
+        candidate_name: candidateName,
+        company_name: companyName,
+        position: position,
+        interview_date: formattedDate,
+        meeting_url: meeting.candidateUrl,
+        interviewer_name: interviewerName || employerName
+      },
+      type: 'interviews',
+      actionUrl: meeting.candidateUrl,
+      priority: 4,
+      tags: ['calendar', 'briefcase'],
+    }
+  );
 
-  // Send internal Mattermost notification
+  // Map results (order: email then push if both enabled)
+  // This mapping is simplified as it depends on enabled channels
+  emailSent = results.some(r => r.status === 'fulfilled'); 
+  pushSent = results.some(r => r.status === 'fulfilled');
+
+  // 2. Send internal Mattermost notification
   try {
     if (MATTERMOST_CHANNELS.INTERVIEWS) {
       await mattermostInterviewScheduled(
@@ -156,33 +167,30 @@ export async function sendInterviewReminders(
   meetingUrl: string,
   minutesUntil: number
 ): Promise<{ emailSent: boolean; pushSent: boolean }> {
-  let emailSent = false;
-  let pushSent = false;
+  const results = await sendNotification(
+    { _id: candidateId, email: candidateEmail, userType: 'candidate' },
+    {
+      title: `Interview in ${minutesUntil} mins`,
+      message: `Prepare for your ${position} interview with ${companyName}.`,
+      emailTemplateId: TEMPLATE_IDS.INTERVIEW_REMINDER,
+      emailData: {
+        candidate_name: candidateName,
+        company_name: companyName,
+        position: position,
+        minutes_until: minutesUntil,
+        meeting_url: meetingUrl
+      },
+      type: 'interviews',
+      actionUrl: meetingUrl,
+      priority: 5,
+      tags: ['alarm_clock', 'video_camera'],
+    }
+  );
 
-  // Send both email and push notification
-  const results = await Promise.allSettled([
-    emailInterviewReminder(
-      candidateEmail,
-      candidateName,
-      companyName,
-      position,
-      interviewDate,
-      meetingUrl,
-      minutesUntil
-    ),
-    notifyInterviewReminder(
-      candidateId,
-      companyName,
-      position,
-      minutesUntil,
-      meetingUrl
-    ),
-  ]);
-
-  emailSent = results[0].status === 'fulfilled';
-  pushSent = results[1].status === 'fulfilled';
-
-  return { emailSent, pushSent };
+  return {
+    emailSent: results.some(r => r.status === 'fulfilled'),
+    pushSent: results.some(r => r.status === 'fulfilled'),
+  };
 }
 
 // ============================================
@@ -197,23 +205,25 @@ export async function cancelInterview(
   position: string,
   reason?: string
 ): Promise<{ emailSent: boolean; pushSent: boolean; mattermostSent: boolean }> {
-  let emailSent = false;
-  let pushSent = false;
   let mattermostSent = false;
 
-  const results = await Promise.allSettled([
-    sendInterviewCancellation(
-      candidateEmail,
-      candidateName,
-      companyName,
-      position,
-      reason
-    ),
-    notifyInterviewCancelled(candidateId, companyName, position, reason),
-  ]);
-
-  emailSent = results[0].status === 'fulfilled';
-  pushSent = results[1].status === 'fulfilled';
+  const results = await sendNotification(
+    { _id: candidateId, email: candidateEmail, userType: 'candidate' },
+    {
+      title: 'Interview Cancelled',
+      message: `${companyName} cancelled the interview for ${position}. Reason: ${reason || 'Not specified'}`,
+      emailTemplateId: TEMPLATE_IDS.INTERVIEW_CANCELLED,
+      emailData: {
+        candidate_name: candidateName,
+        company_name: companyName,
+        position: position,
+        reason: reason || 'Not specified'
+      },
+      type: 'interviews',
+      priority: 4,
+      tags: ['x', 'warning'],
+    }
+  );
 
   // Send internal Mattermost notification
   try {
@@ -228,7 +238,11 @@ export async function cancelInterview(
     console.error('Failed to send Mattermost cancellation notification:', error);
   }
 
-  return { emailSent, pushSent, mattermostSent };
+  return { 
+    emailSent: results.some(r => r.status === 'fulfilled'), 
+    pushSent: results.some(r => r.status === 'fulfilled'), 
+    mattermostSent 
+  };
 }
 
 // ============================================
@@ -248,42 +262,40 @@ export async function rescheduleInterview(
   // Generate new meeting URLs
   const meeting = createInterviewMeeting(interviewId, candidateName, 'Employer');
 
-  let emailSent = false;
-  let pushSent = false;
   let mattermostSent = false;
 
-  const results = await Promise.allSettled([
-    sendInterviewInvite(
-      candidateEmail,
-      candidateName,
-      companyName,
-      position,
-      newDate,
-      meeting.candidateUrl,
-      interviewerName
-    ),
-    notifyInterviewRescheduled(
-      candidateId,
-      companyName,
-      position,
-      newDate,
-      meeting.candidateUrl
-    ),
-  ]);
+  const formattedDate = newDate.toLocaleString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
-  emailSent = results[0].status === 'fulfilled';
-  pushSent = results[1].status === 'fulfilled';
+  const results = await sendNotification(
+    { _id: candidateId, email: candidateEmail, userType: 'candidate' },
+    {
+      title: 'Interview Rescheduled',
+      message: `New time: ${formattedDate} for ${position} at ${companyName}.`,
+      emailTemplateId: TEMPLATE_IDS.INTERVIEW_INVITATION,
+      emailData: {
+        candidate_name: candidateName,
+        company_name: companyName,
+        position: position,
+        interview_date: formattedDate,
+        meeting_url: meeting.candidateUrl,
+        interviewer_name: interviewerName || 'Hiring Manager'
+      },
+      type: 'interviews',
+      actionUrl: meeting.candidateUrl,
+      priority: 4,
+      tags: ['rotating_light', 'calendar'],
+    }
+  );
 
   // Send internal Mattermost notification
   try {
     if (MATTERMOST_CHANNELS.INTERVIEWS) {
-      const formattedDate = newDate.toLocaleString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
       await sendMessage(
         MATTERMOST_CHANNELS.INTERVIEWS,
         `🔄 **Interview Rescheduled**\n\n**Candidate:** ${candidateName}\n**Position:** ${position} at ${companyName}\n**New Date:** ${formattedDate}\n**Interviewer:** ${interviewerName || 'TBD'}`
@@ -297,8 +309,8 @@ export async function rescheduleInterview(
   return {
     interviewId,
     ...meeting,
-    emailSent,
-    pushSent,
+    emailSent: results.some(r => r.status === 'fulfilled'),
+    pushSent: results.some(r => r.status === 'fulfilled'),
     mattermostSent,
   };
 }
@@ -308,6 +320,7 @@ export async function rescheduleInterview(
 // ============================================
 
 export async function notifyNewApplication(
+  candidateId: string,
   candidateEmail: string,
   candidateName: string,
   employerId: string,
@@ -316,30 +329,38 @@ export async function notifyNewApplication(
   applicationId: string,
   applicationUrl: string
 ): Promise<{ candidateEmailSent: boolean; employerPushSent: boolean; mattermostSent: boolean }> {
-  let candidateEmailSent = false;
-  let employerPushSent = false;
   let mattermostSent = false;
 
-  const results = await Promise.allSettled([
-    // Email confirmation to candidate
-    sendApplicationConfirmation(
-      candidateEmail,
-      candidateName,
-      companyName,
-      position,
-      applicationId
-    ),
-    // Push notification to employer
-    notifyEmployerNewApplication(
-      employerId,
-      candidateName,
-      position,
-      applicationUrl
-    ),
-  ]);
+  // 1. Notify Candidate (Email confirmation)
+  const candidateResults = await sendNotification(
+    { _id: candidateId, email: candidateEmail, userType: 'candidate' },
+    {
+      title: 'Application Received',
+      message: `Your application for ${position} at ${companyName} has been received.`,
+      emailTemplateId: TEMPLATE_IDS.APPLICATION_CONFIRMATION,
+      emailData: {
+        candidate_name: candidateName,
+        company_name: companyName,
+        position: position,
+        application_id: applicationId
+      },
+      type: 'applications',
+      priority: 3,
+    }
+  );
 
-  candidateEmailSent = results[0].status === 'fulfilled';
-  employerPushSent = results[1].status === 'fulfilled';
+  // 2. Notify Employer (Push notification)
+  const employerResults = await sendNotification(
+    { _id: employerId, userType: 'employer' },
+    {
+      title: '📥 New Application',
+      message: `${candidateName} applied for ${position}.`,
+      type: 'applications',
+      actionUrl: applicationUrl,
+      priority: 3,
+      tags: ['inbox_tray', 'star'],
+    }
+  );
 
   // Send internal Mattermost notification
   try {
@@ -356,7 +377,11 @@ export async function notifyNewApplication(
     console.error('Failed to send Mattermost application notification:', error);
   }
 
-  return { candidateEmailSent, employerPushSent, mattermostSent };
+  return { 
+    candidateEmailSent: candidateResults.some(r => r.status === 'fulfilled'), 
+    employerPushSent: employerResults.some(r => r.status === 'fulfilled'), 
+    mattermostSent 
+  };
 }
 
 // ============================================
@@ -480,5 +505,99 @@ export async function notifyNewEmployerSignup(
   return { mattermostSent };
 }
 
-// Original generic function for backward compatibility
+// ============================================
+// Generic Notification Utility
+// ============================================
+
+export interface NotificationOptions {
+  title: string;
+  message: string;
+  emailTemplateId?: number;
+  emailData?: Record<string, unknown>;
+  type: 'messages' | 'applications' | 'interviews' | 'tests';
+  actionUrl?: string;
+  priority?: 1 | 2 | 3 | 4 | 5;
+  tags?: string[];
+}
+
+/**
+ * Generic notification function used across the app (Email + Push)
+ * Enforces user preferences.
+ */
+export async function sendNotification(user: NotificationUser, options: NotificationOptions) {
+  const userId = user._id?.toString();
+  if (!userId) {
+    console.error('sendNotification: No userId provided');
+    return [];
+  }
+
+  await dbConnect();
+
+  // Fetch or create preferences
+  let preferences = await NotificationPreference.findOne({ 
+    userId, 
+    userType: user.userType || 'candidate' 
+  });
+
+  if (!preferences) {
+    preferences = await NotificationPreference.create({
+      userId,
+      userType: user.userType || 'candidate'
+    });
+  }
+
+  // 1. Check if this TYPE of notification is enabled
+  if (options.type && !preferences.types[options.type]) {
+    console.log(`Notification of type ${options.type} is disabled for user ${userId}`);
+    return [];
+  }
+
+  const tasks: Promise<unknown>[] = [];
+
+  // 2. Send Email Notification if enabled
+  if (options.emailTemplateId && user.email && preferences.channels.email) {
+    tasks.push(
+      sendEmailNotification({
+        email: user.email,
+        templateId: options.emailTemplateId,
+        data: options.emailData || {},
+        userId: userId,
+        userType: user.userType,
+        subject: options.title,
+      })
+    );
+  }
+
+  // 3. Send Push Notification if enabled
+  if (preferences.channels.push) {
+    const pushTopic = user.ntfyTopic || `user_${userId}`;
+    if (pushTopic) {
+      tasks.push(
+        sendPushNotification({
+          topic: pushTopic,
+          title: options.title,
+          message: options.message,
+          priority: options.priority || 3,
+          tags: options.tags || [],
+          click: options.actionUrl,
+          userId: userId,
+          userType: user.userType,
+        })
+      );
+    }
+  }
+
+  // Wait for all notification attempts
+  const results = await Promise.allSettled(tasks);
+  
+  // Log any failures
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      console.error(`Notification task ${index} failed:`, result.reason);
+    }
+  });
+
+  return results;
+}
+
 // End of notification service

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface Interview {
   _id: string;
@@ -14,6 +15,7 @@ interface Interview {
   dateTime: string;
   type: 'virtual' | 'physical';
   location: string;
+  meetingUrl?: string;
   notes?: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
 }
@@ -21,6 +23,7 @@ interface Interview {
 export default function InterviewsPage() {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchInterviews();
@@ -56,9 +59,9 @@ export default function InterviewsPage() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
-            Interview Schedule
+            {t('interviews.candidate_title')}
           </h1>
-          <p className="text-gray-500 mt-1">Manage your upcoming and past interview invitations</p>
+          <p className="text-gray-500 mt-1">{t('interviews.candidate_subtitle')}</p>
         </div>
       </div>
 
@@ -66,7 +69,7 @@ export default function InterviewsPage() {
         {/* Upcoming Section */}
         <section>
           <div className="flex items-center gap-2 mb-6">
-            <h2 className="text-xl font-bold">Upcoming Interviews</h2>
+            <h2 className="text-xl font-bold">{t('interviews.upcoming_interviews')}</h2>
             <Badge variant="info" className="rounded-full px-2">{upcomingInterviews.length}</Badge>
           </div>
           
@@ -76,7 +79,7 @@ export default function InterviewsPage() {
                 <svg className="w-12 h-12 mx-auto mb-4 opacity-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <p>No upcoming interviews scheduled.</p>
+                <p>{t('interviews.no_upcoming_scheduled')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -91,11 +94,11 @@ export default function InterviewsPage() {
         {/* Past Section */}
         <section>
           <div className="flex items-center gap-2 mb-6">
-            <h2 className="text-xl font-semibold text-gray-600 dark:text-gray-400">Past & Cancelled</h2>
+            <h2 className="text-xl font-semibold text-gray-600 dark:text-gray-400">{t('interviews.past_cancelled')}</h2>
           </div>
           
           {pastInterviews.length === 0 ? (
-            <p className="text-gray-400 text-sm">No past interview history.</p>
+            <p className="text-gray-400 text-sm">{t('interviews.no_past_history')}</p>
           ) : (
             <div className="space-y-4">
               {pastInterviews.map((interview) => (
@@ -110,6 +113,7 @@ export default function InterviewsPage() {
 }
 
 function InterviewCard({ interview, isUpcoming }: { interview: Interview; isUpcoming: boolean }) {
+  const { t } = useLanguage();
   const date = new Date(interview.dateTime);
   const isVirtual = interview.type === 'virtual';
 
@@ -161,10 +165,10 @@ function InterviewCard({ interview, isUpcoming }: { interview: Interview; isUpco
             )}
             <div className="min-w-0 flex-1">
               <span className="text-xs font-bold uppercase text-gray-400 block mb-0.5">
-                {isVirtual ? 'Virtual Meeting' : 'Physical Location'}
+                {isVirtual ? t('interviews.interview') : t('interviews.physical_location')}
               </span>
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300 break-all line-clamp-2">
-                {interview.location}
+                {isVirtual ? t('interviews.video_interview') : interview.location}
               </p>
             </div>
           </div>
@@ -172,24 +176,38 @@ function InterviewCard({ interview, isUpcoming }: { interview: Interview; isUpco
 
         {interview.notes && (
           <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-100 dark:border-gray-800">
-            <span className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Notes from Employer</span>
+            <span className="text-[10px] font-bold uppercase text-gray-400 block mb-1">{t('interviews.notes_from_employer')}</span>
             <p className="text-xs text-gray-600 dark:text-gray-400 italic">&quot;{interview.notes}&quot;</p>
           </div>
         )}
 
         {isUpcoming && interview.status !== 'cancelled' && (
           <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
-            <a 
-              href={isVirtual ? (interview.location.startsWith('http') ? interview.location : `https://${interview.location}`) : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(interview.location)}`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className={`inline-flex items-center justify-center w-full px-6 py-3 text-sm font-bold text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${isVirtual ? 'bg-gradient-to-r from-blue-600 to-blue-500 focus:ring-blue-600' : 'bg-gradient-to-r from-emerald-600 to-emerald-500 focus:ring-emerald-600'}`}
-            >
-              {isVirtual ? 'Join Meeting' : 'Get Directions'}
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
+            {isVirtual && interview.meetingUrl ? (
+              <a 
+                href={interview.meetingUrl}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center w-full px-6 py-3 text-sm font-bold text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-gradient-to-r from-blue-600 to-blue-500 focus:ring-blue-600"
+              >
+                {t('interviews.join_meeting')}
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ) : !isVirtual ? (
+              <a 
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(interview.location)}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center w-full px-6 py-3 text-sm font-bold text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-gradient-to-r from-emerald-600 to-emerald-500 focus:ring-emerald-600"
+              >
+                {t('interviews.get_directions')}
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ) : null}
           </div>
         )}
       </CardContent>

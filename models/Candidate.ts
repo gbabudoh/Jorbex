@@ -6,6 +6,8 @@ export interface ICandidate extends Document {
   email: string;
   password: string;
   phone: string;
+  country: string;
+  city: string;
   expertise: string; // e.g., Finance, IT, Marketing
   skills: string[]; // Max 5 skills
   personalStatement?: string;
@@ -24,6 +26,11 @@ export interface ICandidate extends Document {
   }[];
   onboardingTestPassed: boolean;
   onboardingTestScore?: number;
+  highestQualification?: string;
+  university?: string;
+  degree?: string;
+  professionalQualifications?: string;
+  hobbies?: string;
   ntfyTopic?: string;
   mattermostUserId?: string;
   notificationPreferences?: {
@@ -64,6 +71,16 @@ const CandidateSchema = new Schema<ICandidate>(
     phone: {
       type: String,
       required: [true, 'Phone number is required'],
+      trim: true,
+    },
+    country: {
+      type: String,
+      required: false, // Optional initially, but recommended
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: false,
       trim: true,
     },
     expertise: {
@@ -111,6 +128,26 @@ const CandidateSchema = new Schema<ICandidate>(
       type: Number,
       min: 0,
       max: 100,
+    },
+    highestQualification: {
+      type: String,
+      trim: true,
+    },
+    university: {
+      type: String,
+      trim: true,
+    },
+    degree: {
+      type: String,
+      trim: true,
+    },
+    professionalQualifications: {
+      type: String,
+      trim: true,
+    },
+    hobbies: {
+      type: String,
+      trim: true,
     },
     ntfyTopic: String,
     mattermostUserId: String,

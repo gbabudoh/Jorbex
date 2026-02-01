@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface Question {
   question: string;
@@ -15,6 +16,7 @@ interface Question {
 
 export default function CreateTestPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [passingScore, setPassingScore] = useState(70);
@@ -106,8 +108,8 @@ export default function CreateTestPage() {
           </svg>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create Custom Test</h1>
-          <p className="text-gray-500">Design a new assessment for your candidates</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('employer_tests.create_page.page_title')}</h1>
+          <p className="text-gray-500">{t('employer_tests.create_page.page_subtitle')}</p>
         </div>
       </div>
 
@@ -115,21 +117,21 @@ export default function CreateTestPage() {
         <Card className="border-0 shadow-xl overflow-hidden rounded-2xl">
           <div className="h-2 w-full bg-[#0066FF]" />
           <CardHeader className="p-6 md:p-8">
-            <CardTitle className="text-xl font-bold">General Information</CardTitle>
+            <CardTitle className="text-xl font-bold">{t('employer_tests.create_page.general_info')}</CardTitle>
           </CardHeader>
           <CardContent className="px-6 md:px-8 pb-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Test Title</label>
+                <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">{t('employer_tests.create_page.test_title')}</label>
                 <Input 
-                  placeholder="e.g., Advanced JavaScript Assessment" 
+                  placeholder={t('employer_tests.create_page.test_title_placeholder')} 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="h-12 rounded-xl focus:ring-[#0066FF]"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Passing Score (%)</label>
+                <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">{t('employer_tests.create_page.passing_score')}</label>
                 <Input 
                   type="number" 
                   min="0" 
@@ -142,7 +144,7 @@ export default function CreateTestPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Time Limit (Minutes)</label>
+                <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">{t('employer_tests.create_page.time_limit')}</label>
                 <Input 
                   type="number" 
                   min="1" 
@@ -153,10 +155,10 @@ export default function CreateTestPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Description</label>
+              <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">{t('employer_tests.create_page.description')}</label>
               <textarea 
                 className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 min-h-[100px] focus:ring-2 focus:ring-[#0066FF] outline-none transition-all"
-                placeholder="Briefly describe what this test assesses..."
+                placeholder={t('employer_tests.create_page.description_placeholder')}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -166,8 +168,8 @@ export default function CreateTestPage() {
 
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Questions</h2>
-            <Badge variant="info" className="px-3 py-1 rounded-full">{questions.length} Questions</Badge>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('employer_tests.create_page.questions')}</h2>
+            <Badge variant="info" className="px-3 py-1 rounded-full">{questions.length} {t('employer_tests.create_page.questions')}</Badge>
           </div>
 
           {questions.map((q, qIndex) => (
@@ -178,7 +180,7 @@ export default function CreateTestPage() {
                   <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center font-black text-[#0066FF]">
                     {qIndex + 1}
                   </div>
-                  <CardTitle className="text-lg font-bold">Question Details</CardTitle>
+                  <CardTitle className="text-lg font-bold">{t('employer_tests.create_page.question_details')}</CardTitle>
                 </div>
                 <Button 
                   type="button" 
@@ -195,9 +197,9 @@ export default function CreateTestPage() {
               </CardHeader>
               <CardContent className="px-8 pb-8 space-y-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Question Text</label>
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest">{t('employer_tests.create_page.question_text')}</label>
                   <Input 
-                    placeholder="Enter your question here..." 
+                    placeholder={t('employer_tests.create_page.question_placeholder')} 
                     value={q.question}
                     onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
                     className="h-12 border-0 bg-gray-50 dark:bg-gray-900 rounded-xl"
@@ -206,7 +208,7 @@ export default function CreateTestPage() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Options (Select the correct one)</label>
+                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest">{t('employer_tests.create_page.options_label')}</label>
                     <Button 
                       type="button" 
                       variant="ghost" 
@@ -215,7 +217,7 @@ export default function CreateTestPage() {
                       className="text-[#0066FF] font-bold text-xs"
                       disabled={q.options.length >= 6}
                     >
-                      + Add Option
+                      {t('employer_tests.create_page.add_option')}
                     </Button>
                   </div>
 
@@ -239,7 +241,7 @@ export default function CreateTestPage() {
                         </button>
                         <div className="relative flex-1">
                           <Input 
-                            placeholder={`Option ${oIndex + 1}`}
+                            placeholder={`${t('employer_tests.create_page.option_placeholder')} ${oIndex + 1}`}
                             value={option}
                             onChange={(e) => {
                               const newOptions = [...q.options];
@@ -283,14 +285,14 @@ export default function CreateTestPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
               </div>
-              <span className="font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#0066FF]">Add Question</span>
+              <span className="font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#0066FF]">{t('employer_tests.create_page.add_question')}</span>
             </div>
           </Button>
         </div>
 
         <div className="pt-8 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-4">
           <Button type="button" variant="ghost" onClick={() => router.back()} disabled={isSubmitting}>
-            Cancel
+            {t('employer_tests.create_page.cancel')}
           </Button>
           <Button 
             type="submit" 
@@ -301,9 +303,9 @@ export default function CreateTestPage() {
             {isSubmitting ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Saving...
+                {t('employer_tests.create_page.saving')}
               </div>
-            ) : 'Create Test and Save'}
+            ) : t('employer_tests.create_page.create_and_save')}
           </Button>
         </div>
       </form>

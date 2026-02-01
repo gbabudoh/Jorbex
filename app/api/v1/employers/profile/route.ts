@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/dbConnect';
-import Candidate from '@/models/Candidate';
+import Employer from '@/models/Employer';
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session || session.user?.userType !== 'candidate') {
+    if (!session || session.user?.userType !== 'employer') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -17,16 +17,16 @@ export async function GET() {
 
     await dbConnect();
 
-    const candidate = await Candidate.findById(session.user?.id).select('-password');
+    const employer = await Employer.findById(session.user?.id).select('-password');
 
-    if (!candidate) {
+    if (!employer) {
       return NextResponse.json(
-        { error: 'Candidate not found' },
+        { error: 'Employer not found' },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(candidate, { status: 200 });
+    return NextResponse.json(employer, { status: 200 });
   } catch (error: unknown) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to fetch profile' },
@@ -39,7 +39,7 @@ export async function PUT(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session || session.user?.userType !== 'candidate') {
+    if (!session || session.user?.userType !== 'employer') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -49,41 +49,28 @@ export async function PUT(request: Request) {
     await dbConnect();
 
     const body = await request.json();
-    const { 
-      name, phone, expertise, country, city, personalStatement, skills, 
-      workHistory, references, highestQualification, university, 
-      degree, professionalQualifications, hobbies 
-    } = body;
+    const { name, companyName, phone, country, city } = body;
 
-    const candidate = await Candidate.findByIdAndUpdate(
+    const employer = await Employer.findByIdAndUpdate(
       session.user?.id,
       {
         ...(name && { name }),
+        ...(companyName && { companyName }),
         ...(phone && { phone }),
-        ...(expertise && { expertise }),
         ...(country && { country }),
         ...(city && { city }),
-        ...(personalStatement !== undefined && { personalStatement }),
-        ...(skills && { skills }),
-        ...(workHistory && { workHistory }),
-        ...(references && { references }),
-        ...(highestQualification !== undefined && { highestQualification }),
-        ...(university !== undefined && { university }),
-        ...(degree !== undefined && { degree }),
-        ...(professionalQualifications !== undefined && { professionalQualifications }),
-        ...(hobbies !== undefined && { hobbies }),
       },
       { new: true }
     ).select('-password');
 
-    if (!candidate) {
+    if (!employer) {
       return NextResponse.json(
-        { error: 'Candidate not found' },
+        { error: 'Employer not found' },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(candidate, { status: 200 });
+    return NextResponse.json(employer, { status: 200 });
   } catch (error: unknown) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to update profile' },
@@ -91,4 +78,3 @@ export async function PUT(request: Request) {
     );
   }
 }
-

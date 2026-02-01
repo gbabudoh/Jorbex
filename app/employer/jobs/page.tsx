@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface Job {
   _id: string;
@@ -16,6 +17,7 @@ interface Job {
 }
 
 export default function EmployerJobsPage() {
+  const { t } = useLanguage();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -62,12 +64,12 @@ export default function EmployerJobsPage() {
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Job Management</h1>
-          <p className="text-slate-500 dark:text-slate-400">Manage your active job postings and track applications</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">{t('jobs.management_title')}</h1>
+          <p className="text-slate-500 dark:text-slate-400">{t('jobs.management_subtitle')}</p>
         </div>
         <Link href="/employer/jobs/create">
           <Button variant="primary" className="bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-600/20 font-bold px-6 py-2 rounded-xl cursor-pointer">
-            Post New Job
+            {t('jobs.post_new_job')}
           </Button>
         </Link>
       </div>
@@ -80,10 +82,10 @@ export default function EmployerJobsPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold mb-2">No jobs posted yet</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto">Start reaching out to verified professionals by creating your first job listing today.</p>
+            <h3 className="text-xl font-bold mb-2">{t('jobs.no_jobs_title')}</h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto">{t('jobs.no_jobs_desc')}</p>
             <Link href="/employer/jobs/create">
-              <Button variant="primary" className="h-12 px-8 rounded-xl font-bold bg-[#0066FF] cursor-pointer">Create Your First Job</Button>
+              <Button variant="primary" className="h-12 px-8 rounded-xl font-bold bg-[#0066FF] cursor-pointer">{t('jobs.create_first_job')}</Button>
             </Link>
           </CardContent>
         </Card>
@@ -115,7 +117,7 @@ export default function EmployerJobsPage() {
                 <div className="flex flex-wrap gap-3">
                   <Link href={`/employer/applications?jobId=${job._id}`}>
                     <Button variant="outline" className="rounded-xl font-bold text-blue-600 hover:bg-blue-50 border-blue-100 cursor-pointer">
-                      View Applications
+                      {t('jobs.view_applications')}
                     </Button>
                   </Link>
                   <Button 
@@ -123,7 +125,7 @@ export default function EmployerJobsPage() {
                     className="rounded-xl font-bold text-rose-500 hover:bg-rose-50 border-rose-100 cursor-pointer"
                     onClick={() => deleteJob(job._id)}
                   >
-                    Delete
+                    {t('jobs.delete')}
                   </Button>
                 </div>
               </CardContent>

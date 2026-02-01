@@ -9,6 +9,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { useLanguage } from '@/lib/LanguageContext';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import NotificationDropdown from './NotificationDropdown';
 
 const NavLink = ({ href, pathname, children, icon }: { href: string; pathname: string; children: React.ReactNode; icon?: React.ReactNode }) => {
   const isActive = pathname === href;
@@ -62,7 +63,7 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12">
           {/* Logo Section */}
-          <Link href={logoHref} className="flex items-center space-x-2 group" onClick={() => setIsMenuOpen(false)}>
+          <Link href={logoHref} className="flex-shrink-0 flex items-center space-x-2 group" onClick={() => setIsMenuOpen(false)}>
             <div className="relative">
               <div className="absolute inset-0 bg-blue-600/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
               <Image
@@ -71,6 +72,7 @@ export const Header: React.FC = () => {
                 width={110}
                 height={38}
                 className="h-9 w-auto relative transform group-hover:scale-105 transition-transform duration-300"
+                style={{ minWidth: '110px' }}
               />
             </div>
           </Link>
@@ -85,7 +87,10 @@ export const Header: React.FC = () => {
               
               {session?.user?.userType === 'employer' ? (
                 <>
-                  <NavLink href="/employer/search" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>}>
+                  <NavLink href="/employer/profile" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>}>
+                    {t('employer_profile.title')}
+                  </NavLink>
+                  <NavLink href="/employer/search" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>}>
                     {t('nav.dashboard')}
                   </NavLink>
                   <NavLink href="/employer/jobs" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}>
@@ -94,8 +99,14 @@ export const Header: React.FC = () => {
                   <NavLink href="/employer/applications" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>}>
                     {t('nav.applied_box')}
                   </NavLink>
+                  <NavLink href="/employer/interviews" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}>
+                    {t('nav.interviews') || 'Interviews'}
+                  </NavLink>
                   <NavLink href="/employer/tests" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}>
                     {t('nav.tests')}
+                  </NavLink>
+                  <NavLink href="/employer/messages" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}>
+                    {t('nav.messages')}
                   </NavLink>
                 </>
               ) : session?.user?.userType === 'candidate' && (
@@ -109,6 +120,9 @@ export const Header: React.FC = () => {
                   <NavLink href="/candidate/applications" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>}>
                     {t('jobs.my_applications')}
                   </NavLink>
+                  <NavLink href="/candidate/interviews" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}>
+                    {t('nav.interviews') || 'Interviews'}
+                  </NavLink>
                   <NavLink href="/candidate/messages" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}>
                     {t('nav.messages')}
                   </NavLink>
@@ -120,6 +134,7 @@ export const Header: React.FC = () => {
             </div>
 
             <div className="flex items-center ml-4 space-x-3">
+              {session && <NotificationDropdown />}
               <LanguageSwitcher />
               
               {status === 'loading' ? (
@@ -155,6 +170,7 @@ export const Header: React.FC = () => {
 
           {/* Mobile menu button */}
           <div className="lg:hidden flex items-center gap-3">
+            {session && <NotificationDropdown />}
             <LanguageSwitcher />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -225,15 +241,19 @@ export const Header: React.FC = () => {
                   {[
                     ...(!session ? [{ href: '/#how-it-works', label: t('nav.how_it_works') }] : []),
                     ...(session?.user?.userType === 'employer' ? [
-                      { href: '/employer/search', label: t('nav.dashboard'), icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
+                      { href: '/employer/profile', label: t('employer_profile.title'), icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+                      { href: '/employer/search', label: t('nav.dashboard'), icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
                       { href: '/employer/jobs', label: t('nav.jobs'), icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
                       { href: '/employer/applications', label: t('nav.applied_box'), icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4' },
+                      { href: '/employer/interviews', label: t('nav.interviews') || 'Interviews', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
                       { href: '/employer/tests', label: t('nav.tests'), icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+                      { href: '/employer/messages', label: t('nav.messages'), icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
                       { href: '/employer/results', label: t('nav.results'), icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' }
                     ] : session?.user?.userType === 'candidate' ? [
                       { href: '/candidate/profile', label: t('nav.profile'), icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
                       { href: '/candidate/jobs', label: t('nav.search_jobs'), icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
                       { href: '/candidate/applications', label: t('jobs.my_applications'), icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+                      { href: '/candidate/interviews', label: t('nav.interviews') || 'Interviews', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
                       { href: '/candidate/messages', label: t('nav.messages'), icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
                       { href: '/candidate/tests', label: t('nav.tests'), icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' }
                     ] : [])

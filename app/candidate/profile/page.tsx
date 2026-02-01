@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/Badge';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Notification } from '@/components/ui/Notification';
+import { AFRICAN_COUNTRIES } from '@/lib/locations';
 
 // Icon Components
 const EditIcon = () => (
@@ -72,6 +73,9 @@ interface Reference {
 interface ProfileData {
   name: string;
   email: string;
+  phone?: string;
+  country?: string;
+  city?: string;
   expertise: string;
   onboardingTestPassed?: boolean;
   onboardingTestScore?: number;
@@ -79,6 +83,11 @@ interface ProfileData {
   skills?: string[];
   workHistory?: WorkExperience[];
   references?: Reference[];
+  highestQualification?: string;
+  university?: string;
+  degree?: string;
+  professionalQualifications?: string;
+  hobbies?: string;
 }
 
 export default function ProfilePage() {
@@ -93,11 +102,18 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
+    country: '',
+    city: '',
     expertise: '',
     personalStatement: '',
     skills: [] as string[],
     workHistory: [] as WorkExperience[],
     references: [] as Reference[],
+    highestQualification: '',
+    university: '',
+    degree: '',
+    professionalQualifications: '',
+    hobbies: '',
   });
   
   const [newSkill, setNewSkill] = useState('');
@@ -135,11 +151,18 @@ export default function ProfilePage() {
         setFormData({
           name: data.name || '',
           phone: data.phone || '',
+          country: data.country || '',
+          city: data.city || '',
           expertise: data.expertise || '',
           personalStatement: data.personalStatement || '',
           skills: data.skills || [],
           workHistory: data.workHistory || [],
           references: data.references || [],
+          highestQualification: data.highestQualification || '',
+          university: data.university || '',
+          degree: data.degree || '',
+          professionalQualifications: data.professionalQualifications || '',
+          hobbies: data.hobbies || '',
         });
       }
     } catch {
@@ -267,12 +290,14 @@ export default function ProfilePage() {
 
   const getProfileCompleteness = () => {
     let score = 0;
-    if (formData.personalStatement) score += 20;
-    if (formData.skills.length > 0) score += 20;
-    if (formData.workHistory.length > 0) score += 30;
-    if (formData.references.length > 0) score += 15;
+    if (formData.personalStatement) score += 15;
+    if (formData.skills.length > 0) score += 15;
+    if (formData.workHistory.length > 0) score += 20;
+    if (formData.highestQualification) score += 15;
+    if (formData.university) score += 10;
+    if (formData.references.length > 0) score += 10;
     if (profile?.onboardingTestPassed) score += 15;
-    return score;
+    return Math.min(score, 100);
   };
 
   if (isLoading) {
@@ -427,9 +452,33 @@ export default function ProfilePage() {
                     )}
                   </div>
                   <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.education')}</span>
+                    {formData.highestQualification ? (
+                      <span className="text-green-600 dark:text-green-400">✓</span>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.university')}</span>
+                    {formData.university ? (
+                      <span className="text-green-600 dark:text-green-400">✓</span>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between">
                     <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.references')}</span>
                     {formData.references.length > 0 ? (
                       <span className="text-green-600 dark:text-green-400">✓ {formData.references.length}</span>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.hobbies')}</span>
+                    {formData.hobbies ? (
+                      <span className="text-green-600 dark:text-green-400">✓</span>
                     ) : (
                       <span className="text-gray-400">—</span>
                     )}
@@ -489,6 +538,27 @@ export default function ProfilePage() {
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{t('candidate_profile.country') || 'Country'}</label>
+                        <select
+                          value={formData.country}
+                          onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 outline-none transition-all cursor-pointer"
+                        >
+                          <option value="">{t('common.select') || 'Select'}</option>
+                          {AFRICAN_COUNTRIES.map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <Input
+                        label={t('candidate_profile.city') || 'City'}
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        placeholder="e.g. Lagos"
+                      />
+                    </div>
                     <div>
                       <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{t('candidate_profile.expertise')}</label>
                       <select
@@ -594,6 +664,83 @@ export default function ProfilePage() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Education Section */}
+                <Card className="border-0 shadow-lg">
+                  <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                          <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                        </svg>
+                      </div>
+                      <CardTitle className="text-base md:text-lg">{t('candidate_profile.education')}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 md:p-6 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{t('candidate_profile.highest_qualification')}</label>
+                        <select
+                          value={formData.highestQualification}
+                          onChange={(e) => setFormData({ ...formData, highestQualification: e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 outline-none transition-all cursor-pointer"
+                        >
+                          <option value="">{t('common.select')}</option>
+                          <option value="High School">High School</option>
+                          <option value="Bachelor&apos;s">Bachelor&apos;s Degree</option>
+                          <option value="Master&apos;s">Master&apos;s Degree</option>
+                          <option value="PhD">PhD</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <Input
+                        label={t('candidate_profile.university_institution')}
+                        placeholder={t('candidate_profile.university_placeholder')}
+                        value={formData.university}
+                        onChange={(e) => setFormData({ ...formData, university: e.target.value })}
+                      />
+                    </div>
+                    <Input
+                      label={t('candidate_profile.degree')}
+                      placeholder={t('candidate_profile.degree_placeholder')}
+                      value={formData.degree}
+                      onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
+                    />
+                    <Textarea
+                      label={t('candidate_profile.professional_qualifications')}
+                      placeholder={t('candidate_profile.professional_qualifications_placeholder')}
+                      value={formData.professionalQualifications}
+                      onChange={(e) => setFormData({ ...formData, professionalQualifications: e.target.value })}
+                      rows={3}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Hobbies Section */}
+                <Card className="border-0 shadow-lg">
+                  <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-white">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <CardTitle className="text-base md:text-lg">{t('candidate_profile.personal_interests')}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-4 md:p-6">
+                    <Textarea
+                      label={t('candidate_profile.hobbies')}
+                      placeholder={t('candidate_profile.hobbies_placeholder')}
+                      value={formData.hobbies}
+                      onChange={(e) => setFormData({ ...formData, hobbies: e.target.value })}
+                      rows={3}
+                    />
+                  </CardContent>
+                </Card>
               </>
             )}
 
@@ -614,7 +761,7 @@ export default function ProfilePage() {
                     <Button
                       variant="primary"
                       size="sm"
-                      className="px-2 py-1 h-8 text-[11px]"
+                      className="px-2 py-1 h-8 text-[11px] cursor-pointer"
                       onClick={() => {
                         setShowWorkForm(true);
                         setEditingWorkIndex(null);
@@ -754,7 +901,7 @@ export default function ProfilePage() {
                     <Button
                       variant="primary"
                       size="sm"
-                      className="px-2 py-1 h-8 text-[11px]"
+                      className="px-2 py-1 h-8 text-[11px] cursor-pointer"
                       onClick={() => {
                         setShowRefForm(true);
                         setEditingRefIndex(null);

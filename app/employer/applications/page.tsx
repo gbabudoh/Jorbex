@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface Application {
   _id: string;
@@ -28,6 +29,7 @@ interface Application {
 
 export default function EmployerApplicationsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -63,15 +65,15 @@ export default function EmployerApplicationsPage() {
   };
 
   if (loading && applications.length === 0) {
-    return <div className="p-8 text-center">Loading applications...</div>;
+    return <div className="p-8 text-center">{t('employer_applications.loading')}</div>;
   }
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Applications</h1>
-          <p className="text-gray-500 dark:text-gray-400">Manage and track your candidate applications.</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('employer_applications.title')}</h1>
+          <p className="text-gray-500 dark:text-gray-400">{t('employer_applications.subtitle')}</p>
         </div>
         
         <div className="w-full md:w-48">
@@ -80,14 +82,14 @@ export default function EmployerApplicationsPage() {
             onChange={(e) => setFilterStatus(e.target.value)}
             className="w-full h-10 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="all">All Statuses</option>
-            <option value="applied">New Applied</option>
-            <option value="reviewing">Reviewing</option>
-            <option value="test_sent">Test Sent</option>
-            <option value="interview_scheduled">Interviewing</option>
-            <option value="offer_sent">Offer Sent</option>
-            <option value="hired">Hired</option>
-            <option value="rejected">Rejected</option>
+            <option value="all">{t('employer_applications.all_statuses')}</option>
+            <option value="applied">{t('employer_applications.new_applied')}</option>
+            <option value="reviewing">{t('employer_applications.reviewing')}</option>
+            <option value="test_sent">{t('employer_applications.test_sent')}</option>
+            <option value="interview_scheduled">{t('employer_applications.interviewing')}</option>
+            <option value="offer_sent">{t('employer_applications.offer_sent')}</option>
+            <option value="hired">{t('employer_applications.hired')}</option>
+            <option value="rejected">{t('employer_applications.rejected')}</option>
           </select>
         </div>
       </div>
@@ -95,7 +97,7 @@ export default function EmployerApplicationsPage() {
       <div className="grid gap-4">
         {applications.length === 0 ? (
           <Card className="p-8 text-center text-gray-500">
-            No applications found matching your criteria.
+            {t('employer_applications.no_applications')}
           </Card>
         ) : (
           applications.map((app) => (
@@ -116,7 +118,7 @@ export default function EmployerApplicationsPage() {
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 transition-colors">
                         {app.candidateId.name}
                       </h3>
-                      <p className="text-sm text-gray-500">Applied for <span className="font-medium text-gray-700 dark:text-gray-300">{app.jobId.title}</span></p>
+                      <p className="text-sm text-gray-500">{t('employer_applications.applied_for')} <span className="font-medium text-gray-700 dark:text-gray-300">{app.jobId.title}</span></p>
                       <p className="text-xs text-gray-400 mt-1">
                         {new Date(app.createdAt).toLocaleDateString()}
                       </p>
@@ -131,7 +133,7 @@ export default function EmployerApplicationsPage() {
                     
                     {app.testResultId && (
                       <Badge variant="default" className="text-xs border border-purple-200 bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                        Test Score: {app.testResultId.score}%
+                        {t('employer_applications.test_score')}: {app.testResultId.score}%
                       </Badge>
                     )}
                     
@@ -140,13 +142,13 @@ export default function EmployerApplicationsPage() {
                         e.stopPropagation();
                         router.push(`/employer/candidates/${app.candidateId._id}`);
                       }}>
-                        Review Profile
+                        {t('employer_applications.review_profile')}
                       </Button>
                       <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white flex-1 md:flex-none" onClick={(e) => {
                         e.stopPropagation();
                         // Open message modal (future implementation)
                       }}>
-                        Message
+                        {t('employer_applications.message')}
                       </Button>
                     </div>
                   </div>

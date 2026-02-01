@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useLanguage } from '@/lib/LanguageContext';
+import TestResultModal from '@/components/shared/TestResultModal';
 
 interface Question {
   id: string;
@@ -18,13 +19,15 @@ interface Question {
 export default function OnboardingPage() {
   const router = useRouter();
   const { t } = useLanguage();
-  useSession();
+  const { status } = useSession();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [testResult, setTestResult] = useState({ score: 0, passed: false });
 
   useEffect(() => {
     fetchOnboardingTest();
@@ -81,12 +84,11 @@ export default function OnboardingPage() {
       const data = await response.json();
 
       if (response.ok) {
-        if (data.passed) {
-          alert(`Congratulations! You scored ${data.score}% and passed the test!`);
-          router.push('/candidate/profile');
-        } else {
-          alert(`Test failed. You scored ${data.score}%. You need at least 70% to pass. Please try again.`);
-        }
+        setTestResult({
+          score: data.score,
+          passed: data.passed
+        });
+        setShowResultModal(true);
       } else {
         alert(data.error || 'An error occurred while submitting your test.');
       }
@@ -97,13 +99,32 @@ export default function OnboardingPage() {
     }
   };
 
+  const handleModalAction = () => {
+    if (testResult.passed) {
+      router.push('/candidate/profile');
+    } else {
+      // Reset test
+      setShowResultModal(false);
+      setCurrentQuestion(0);
+      setAnswers({});
+      setTimeRemaining(600);
+      window.scrollTo(0, 0);
+    }
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (isLoading) {
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login?callbackUrl=/candidate/onboarding');
+    }
+  }, [status, router]);
+
+  if (status === 'loading' || isLoading) {
     return (
       <div className="container mx-auto px-4 py-12 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0066FF]"></div>
@@ -183,7 +204,7 @@ export default function OnboardingPage() {
               <button
                 key={index}
                 onClick={() => handleAnswer(question.id, option)}
-                className={`w-full text-left p-4 md:p-5 rounded-2xl border-2 transition-all active:scale-[0.98] ${
+                className={`w-full text-left p-4 md:p-5 rounded-2xl border-2 transition-all active:scale-[0.98] cursor-pointer ${
                   answers[question.id] === option
                     ? 'border-[#0066FF] bg-[#0066FF]/5 text-[#0066FF] ring-2 ring-[#0066FF]/10'
                     : 'border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-[#0066FF]/50'
@@ -227,6 +248,7 @@ export default function OnboardingPage() {
                 variant="primary"
                 onClick={handleNext}
                 disabled={!answers[question.id]}
+                className="cursor-pointer"
               >
                 Next
               </Button>
@@ -262,7 +284,7 @@ export default function OnboardingPage() {
               variant="primary"
               onClick={handleNext}
               disabled={!answers[question.id]}
-              className="flex-[2] h-12 rounded-xl font-bold bg-gradient-to-r from-[#0066FF] to-[#0052CC]"
+              className="flex-[2] h-12 rounded-xl font-bold bg-gradient-to-r from-[#0066FF] to-[#0052CC] cursor-pointer"
             >
               Next Question
             </Button>
@@ -270,6 +292,13 @@ export default function OnboardingPage() {
         </div>
       </div>
       </div>
+
+      <TestResultModal 
+        isOpen={showResultModal}
+        score={testResult.score}
+        passed={testResult.passed}
+        onAction={handleModalAction}
+      />
     </div>
   );
 }

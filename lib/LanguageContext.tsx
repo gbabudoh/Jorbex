@@ -20,18 +20,22 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const VALID_LOCALES: Locale[] = ['en', 'fr', 'ar', 'pt'];
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  // Use lazy initializer to avoid synchronous setState in useEffect
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof window !== 'undefined') {
+  const [locale, setLocaleState] = useState<Locale>('en');
+  const [translations, setTranslations] = useState<Translations>({});
+
+  // Initialize locale from localStorage on mount and listen for changes
+  useEffect(() => {
+    const handleStorageChange = () => {
       const saved = localStorage.getItem('locale') as Locale;
       if (saved && VALID_LOCALES.includes(saved)) {
-        return saved;
+        setLocaleState(prev => (prev !== saved ? saved : prev));
       }
-    }
-    return 'en';
-  });
+    };
 
-  const [translations, setTranslations] = useState<Translations>({});
+    handleStorageChange();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Load translations when locale changes
   useEffect(() => {

@@ -30,6 +30,8 @@ interface Candidate {
   name: string;
   email: string;
   phone: string;
+  country: string;
+  city: string;
   expertise: string;
   skills: string[];
   personalStatement?: string;
@@ -105,6 +107,7 @@ export default function CandidateDetailPage() {
       }
 
       const data = await response.json();
+      console.log('Fetched Candidate Data:', data.candidate);
       setCandidate(data.candidate);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
@@ -243,6 +246,22 @@ export default function CandidateDetailPage() {
                         <div className="flex-1 min-w-0">
                           <p className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-medium">Phone</p>
                           <p className="font-semibold text-xs md:text-sm">{candidate.phone}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-2.5 md:p-3 bg-white/60 dark:bg-gray-800/60 rounded-xl backdrop-blur-sm border border-white/20 dark:border-gray-700/30 text-left">
+                        <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
+                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-medium">Location</p>
+                          <p className="font-semibold text-xs md:text-sm truncate">
+                            {candidate.city && candidate.country
+                              ? `${candidate.city}, ${candidate.country}`
+                              : candidate.country || candidate.city || 'Not specified'}
+                          </p>
                         </div>
                       </div>
                     </div>

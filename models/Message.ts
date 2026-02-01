@@ -6,6 +6,8 @@ export interface IMessage extends Document {
   senderType: 'employer' | 'candidate';
   content: string;
   isRead: boolean;
+  deletedBySender: boolean;
+  deletedByReceiver: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +35,14 @@ const MessageSchema = new Schema<IMessage>(
       trim: true,
     },
     isRead: {
+      type: Boolean,
+      default: false,
+    },
+    deletedBySender: {
+      type: Boolean,
+      default: false,
+    },
+    deletedByReceiver: {
       type: Boolean,
       default: false,
     },

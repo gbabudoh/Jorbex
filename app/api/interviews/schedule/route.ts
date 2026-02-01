@@ -5,14 +5,18 @@ import Candidate from '@/models/Candidate';
 import Employer from '@/models/Employer';
 import Job from '@/models/Job';
 import Application from '@/models/Application';
-import { sendNotification, TEMPLATE_IDS } from '@/lib/notifications';
+import { sendNotification } from '@/lib/notifications';
+import { TEMPLATE_IDS } from '@/lib/listmonk';
 import { mattermost } from '@/lib/mattermost'; // Optional integration
 
 export async function POST(request: Request) {
   try {
     await dbConnect();
     const body = await request.json();
-    const { employerId, candidateId, jobId, jobTitle, applicationId, dateTime, duration = 30, type = 'virtual', location = 'Remote', notes } = body;
+    // Sanitize jobId - treat empty string as undefined
+    const rawJobId = body.jobId;
+    const jobId = rawJobId && rawJobId.trim() !== '' ? rawJobId : undefined;
+    const { employerId, candidateId, jobTitle, applicationId, dateTime, duration = 30, type = 'virtual', location = 'Remote', notes } = body;
 
     // 1. Basic Validation
     if (!employerId || !candidateId || !dateTime) {
@@ -81,13 +85,13 @@ export async function POST(request: Request) {
     const interview = await Interview.create({
       employerId,
       candidateId,
-      jobId,
+      jobId: jobId || undefined, // Ensure empty string doesn't get saved
       jobTitle: positionTitle, // Save the resolved title
       applicationId,
       dateTime: scheduledDate,
       duration,
       type,
-      location: type === 'virtual' ? 'Jitsi Meet' : location,
+      location: type === 'virtual' ? 'Jorbex Video Interview' : location,
       meetingUrl: type === 'virtual' ? meetingUrl : undefined,
       meetingRoomName: type === 'virtual' ? safeRoomName : undefined,
       candidateMeetingUrl: type === 'virtual' ? meetingUrl : undefined, // Could be same
@@ -119,7 +123,7 @@ export async function POST(request: Request) {
           meetingUrl: meetingUrl,
           interviewId: interview._id,
         },
-        type: 'applicationUpdates',
+        type: 'interviews',
         actionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/interview/${interview._id}`,
       }
     );

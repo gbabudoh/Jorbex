@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface InterviewSchedulerProps {
   employerId: string;
@@ -20,6 +21,7 @@ export default function InterviewScheduler({
   onSuccess,
   onCancel,
 }: InterviewSchedulerProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -141,7 +143,7 @@ export default function InterviewScheduler({
                 onChange={() => setFormData({ ...formData, type: 'virtual' })}
                 className="text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-gray-700">Virtual (Jitsi)</span>
+              <span className="text-gray-700">{t('interviews.video_interview')}</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input

@@ -71,7 +71,8 @@ export default function SearchPage() {
   const { t } = useLanguage();
   const router = useRouter();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [showFilters, setShowFilters] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -88,7 +89,7 @@ export default function SearchPage() {
   });
 
   const handleSearch = async () => {
-    setIsLoading(true);
+    if (!isInitialLoad) setIsLoading(true);
     try {
       const params = new URLSearchParams();
       if (filters.expertise) params.append('expertise', filters.expertise);
@@ -126,6 +127,7 @@ export default function SearchPage() {
       console.error('Failed to search candidates:', error);
     } finally {
       setIsLoading(false);
+      setIsInitialLoad(false);
     }
   };
 
@@ -162,31 +164,44 @@ export default function SearchPage() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.03,
+        duration: 0.2,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { y: 10, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
+      transition: {
+        duration: 0.2,
+      },
     },
+  };
+
+  const getExpertiseLabel = (expertise: string) => {
+    const key = expertise.toLowerCase().replace(/ /g, '_');
+    const translationArg = `signup.expertise.${key}`;
+    const translated = t(translationArg);
+    return translated !== translationArg ? translated : expertise;
+  };
+
+  const getSkillLabel = (skill: string) => {
+    const key = skill.toLowerCase().replace(/ /g, '_');
+    const translationArg = `skills.${key}`;
+    const translated = t(translationArg);
+    return translated !== translationArg ? translated : skill;
   };
 
   return (
     <div className="min-h-screen relative bg-white dark:bg-[#020617] text-slate-900 dark:text-slate-100 transition-colors duration-500">
       <LushBackground />
       
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="container mx-auto px-4 py-12 max-w-7xl relative z-10"
-      >
+      <div className="container mx-auto px-4 py-12 max-w-7xl relative z-10">
         {/* Header Section */}
-        <motion.div variants={itemVariants} className="mb-12">
+        <div className="mb-12">
           <Badge className="mb-4 px-3 py-1 bg-blue-600/10 text-blue-600 dark:text-blue-400 border-none rounded-full text-xs font-bold uppercase tracking-widest">
             {t('talent_search.discovery_badge')}
           </Badge>
@@ -196,7 +211,7 @@ export default function SearchPage() {
           <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl font-medium leading-relaxed">
             {t('employer_hero.subtitle')}
           </p>
-        </motion.div>
+        </div>
 
         {/* Stats Dashboard */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
@@ -217,7 +232,7 @@ export default function SearchPage() {
             },
             { 
               label: t('talent_search.stat_top_skill'), 
-              value: stats.topSkills[0] || 'N/A', 
+              value: stats.topSkills[0] ? getSkillLabel(stats.topSkills[0]) : 'N/A', 
               icon: (
                 <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -234,11 +249,9 @@ export default function SearchPage() {
               border: 'border-rose-500/20'
             },
           ].map((stat) => (
-            <motion.div
+            <div
               key={stat.label}
-              variants={itemVariants}
-              whileHover={{ scale: 1.02, translateY: -5 }}
-              className={`relative overflow-hidden rounded-3xl border ${stat.border} bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl p-6 shadow-xl shadow-slate-200/20 dark:shadow-none`}
+              className={`relative overflow-hidden rounded-3xl border ${stat.border} bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl p-6 shadow-xl shadow-slate-200/20 dark:shadow-none hover:scale-[1.02] hover:-translate-y-1 transition-transform duration-200`}
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-50`} />
               <div className="relative z-10">
@@ -248,15 +261,19 @@ export default function SearchPage() {
                   </div>
                   <TrendingIcon />
                 </div>
-                <p className="text-3xl font-black mb-1">{stat.value}</p>
+                {isInitialLoad ? (
+                  <div className="h-9 w-20 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse mb-1" />
+                ) : (
+                  <p className="text-3xl font-black mb-1">{stat.value}</p>
+                )}
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{stat.label}</p>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* Search and Filter Section */}
-        <motion.div variants={itemVariants} className="mb-12">
+        <div className="mb-12">
           <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl shadow-2xl shadow-blue-500/5">
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-32 -mt-32" />
             
@@ -305,6 +322,7 @@ export default function SearchPage() {
                           <option value="Sales">📊 {t('signup.expertise.sales')}</option>
                           <option value="HR">👥 {t('signup.expertise.hr')}</option>
                           <option value="Operations">⚙️ {t('signup.expertise.operations')}</option>
+                          <option value="Data Analysis">📈 {t('signup.expertise.data_analysis')}</option>
                         </select>
                       </div>
 
@@ -345,16 +363,20 @@ export default function SearchPage() {
               </AnimatePresence>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Results Header */}
-        <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-3 mb-1">
               <h2 className="text-2xl font-black text-slate-900 dark:text-white">
-                {candidates.length} {candidates.length === 1 ? t('talent_search.candidate_found') : t('talent_search.candidates_found')}
+                {isInitialLoad ? (
+                  <span className="inline-block h-8 w-48 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse" />
+                ) : (
+                  <>{candidates.length} {candidates.length === 1 ? t('talent_search.candidate_found') : t('talent_search.candidates_found')}</>
+                )}
               </h2>
-              <div className="h-2 w-2 rounded-full bg-blue-600 animate-ping" />
+              {!isInitialLoad && <div className="h-2 w-2 rounded-full bg-blue-600 animate-ping" />}
             </div>
             <p className="text-slate-500 dark:text-slate-400 font-medium">
               {filters.expertise || filters.skill || filters.minScore ? t('talent_search.results_filtered') : t('talent_search.results_all')}
@@ -384,11 +406,11 @@ export default function SearchPage() {
               {t('talent_search.view_list')}
             </Button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Candidates Grid/List */}
         {isLoading ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-32 space-y-6">
+          <div className="flex flex-col items-center justify-center py-32 space-y-6">
             <div className="relative">
               <div className="w-20 h-20 rounded-full border-4 border-blue-600/20 border-t-blue-600 animate-spin" />
               <div className="absolute inset-0 flex items-center justify-center">
@@ -396,46 +418,40 @@ export default function SearchPage() {
               </div>
             </div>
             <p className="text-xl font-bold text-slate-500 dark:text-slate-400 animate-pulse">{t('talent_search.searching')}</p>
-          </motion.div>
+          </div>
         ) : candidates.length === 0 ? (
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-            <Card className="border-none bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-blue-500/5">
-              <CardContent className="py-24 text-center">
-                <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6 shadow-inner">
-                  <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">{t('talent_search.no_match_title')}</h3>
-                <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto font-medium">{t('talent_search.no_match_desc')}</p>
-                <Button 
-                  variant="outline" 
-                  className="rounded-2xl h-12 px-8 border-2 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer" 
-                  onClick={() => {
-                    setFilters({ expertise: '', skill: '', minScore: '' });
-                    handleSearch();
-                  }}
-                >
-                  {t('talent_search.clear_filters')}
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card className="border-none bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-blue-500/5">
+            <CardContent className="py-24 text-center">
+              <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3">{t('talent_search.no_match_title')}</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto font-medium">{t('talent_search.no_match_desc')}</p>
+              <Button 
+                variant="outline" 
+                className="rounded-2xl h-12 px-8 border-2 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer" 
+                onClick={() => {
+                  setFilters({ expertise: '', skill: '', minScore: '' });
+                  handleSearch();
+                }}
+              >
+                {t('talent_search.clear_filters')}
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8' : 'space-y-6'}>
             {candidates.map((candidate) => (
               viewMode === 'grid' ? (
                 // Redesigned Grid View
-                <motion.div
+                <div
                   key={candidate._id}
-                  variants={itemVariants}
-                  whileHover={{ y: -10 }}
-                  className="group relative"
+                  className="group relative hover:-translate-y-2 transition-transform duration-200"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-[2.5rem] opacity-0 group-hover:opacity-10 blur-2xl transition-opacity duration-500" />
-                  
                   <Card 
-                    className="relative border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-blue-500/30 transition-all duration-500 cursor-pointer"
+                    className="relative border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-blue-500/30 transition-all duration-200 cursor-pointer"
                     onClick={() => router.push(`/employer/candidates/${candidate._id}`)}
                   >
                     <div className="p-8">
@@ -449,10 +465,10 @@ export default function SearchPage() {
                               toggleSelection(candidate._id);
                             }}
                           >
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-600/20 transform group-hover:rotate-6 transition-transform">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-600/20 transform group-hover:rotate-6 transition-transform duration-200">
                               {candidate.name.charAt(0).toUpperCase()}
                             </div>
-                            <div className={`absolute -top-2 -left-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                            <div className={`absolute -top-2 -left-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-150 ${
                               selectedIds.has(candidate._id) 
                                 ? 'bg-blue-600 border-blue-600 text-white scale-110' 
                                 : 'bg-white border-slate-200 text-transparent scale-100 group-hover:border-blue-400'
@@ -466,7 +482,7 @@ export default function SearchPage() {
                             <h3 className="text-xl font-black text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                               {candidate.name}
                             </h3>
-                            <p className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">{candidate.expertise}</p>
+                            <p className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">{getExpertiseLabel(candidate.expertise)}</p>
                           </div>
                         </div>
                         <Badge className="bg-emerald-500/10 text-emerald-500 border-none px-3 py-1 font-black text-[10px] uppercase tracking-tighter">
@@ -484,15 +500,10 @@ export default function SearchPage() {
                             </span>
                           </div>
                           <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              whileInView={{ width: `${candidate.onboardingTestScore}%` }}
-                              viewport={{ once: true }}
-                              transition={{ duration: 1.5, ease: "easeOut" }}
-                              className={`h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full relative shadow-[0_0_10px_rgba(37,99,235,0.4)]`}
-                            >
-                              <div className="absolute inset-0 bg-white/20 animate-pulse" />
-                            </motion.div>
+                            <div 
+                              className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full relative shadow-[0_0_10px_rgba(37,99,235,0.4)] transition-all duration-300"
+                              style={{ width: `${candidate.onboardingTestScore}%` }}
+                            />
                           </div>
                         </div>
                       )}
@@ -512,29 +523,28 @@ export default function SearchPage() {
                       </div>
 
                       <Button
-                        className="w-full h-14 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:scale-[1.02] active:scale-[0.98] transition-all group-hover:shadow-2xl shadow-slate-900/10 gap-2 cursor-pointer"
+                        className="w-full h-14 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 group-hover:shadow-2xl shadow-slate-900/10 gap-2 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push(`/employer/candidates/${candidate._id}`);
                         }}
                       >
                         {t('talent_search.view_full_profile')}
-                        <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 transition-transform duration-150 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                       </Button>
                     </div>
                   </Card>
-                </motion.div>
+                </div>
               ) : (
                 // Redesigned List View
-                <motion.div
+                <div
                   key={candidate._id}
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.01 }}
+                  className="hover:scale-[1.01] transition-transform duration-150"
                 >
                   <Card 
-                    className="group relative border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-blue-500/30 transition-all duration-500 cursor-pointer"
+                    className="group relative border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-blue-500/30 transition-all duration-200 cursor-pointer"
                     onClick={() => router.push(`/employer/candidates/${candidate._id}`)}
                   >
                     <CardContent className="p-6 md:p-8">
@@ -566,7 +576,7 @@ export default function SearchPage() {
                               {candidate.name}
                             </h3>
                             <div className="flex items-center gap-2">
-                              <p className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">{candidate.expertise}</p>
+                              <p className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">{getExpertiseLabel(candidate.expertise)}</p>
                               <div className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
                                <Badge className="bg-emerald-500/10 text-emerald-500 border-none font-black text-[10px] py-0">{t('talent_search.verified_badge').toUpperCase()}</Badge>
                             </div>
@@ -633,12 +643,12 @@ export default function SearchPage() {
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </div>
               )
             ))}
           </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Sticky Action Bar */}
       <AnimatePresence>
@@ -647,6 +657,7 @@ export default function SearchPage() {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl"
           >
             <div className="bg-slate-900/90 dark:bg-slate-100/90 backdrop-blur-xl rounded-[2rem] p-4 flex items-center justify-between shadow-2xl border border-white/10 dark:border-slate-800/10">

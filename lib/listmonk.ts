@@ -8,6 +8,7 @@ const LISTMONK_API_PASSWORD = process.env.LISTMONK_API_PASSWORD;
 // Template IDs (Synchronize these with your Listmonk setup)
 export const TEMPLATE_IDS = {
   INTERVIEW_INVITE: 2,
+  INTERVIEW_INVITATION: 2, 
   INTERVIEW_REMINDER: 3,
   INTERVIEW_CANCELLED: 4,
   APPLICATION_CONFIRMATION: 6,
@@ -16,8 +17,7 @@ export const TEMPLATE_IDS = {
 interface SendEmailOptions {
   email: string;
   templateId: number;
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  data: Record<string, any>; // Template variables
+  data: Record<string, unknown>; // Template variables
   userId?: string;
   userType?: 'candidate' | 'employer' | 'admin';
   subject?: string;
@@ -66,9 +66,9 @@ export async function sendEmailNotification(options: SendEmailOptions) {
     }
 
     return response.data;
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-  } catch (error: any) {
-    console.error('Listmonk Error:', error.message);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Listmonk Error:', errorMessage);
     if (userId && userType) {
       await NotificationLog.create({
         userId,
@@ -79,108 +79,11 @@ export async function sendEmailNotification(options: SendEmailOptions) {
         subject: subject,
         content: JSON.stringify(data),
         status: 'FAILED',
-        error: error.message,
+        error: errorMessage,
       });
     }
     throw error;
   }
 }
 
-// Helpers
-
-export async function sendInterviewInvite(
-  email: string,
-  candidateName: string,
-  companyName: string,
-  position: string,
-  date: Date,
-  meetingUrl: string,
-  interviewerName?: string
-) {
-  const formattedDate = date.toLocaleString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric',
-    hour: 'numeric', 
-    minute: '2-digit',
-    timeZoneName: 'short'
-  });
-
-  return sendEmailNotification({
-    email,
-    templateId: TEMPLATE_IDS.INTERVIEW_INVITE,
-    data: {
-      candidate_name: candidateName,
-      company_name: companyName,
-      position: position,
-      interview_date: formattedDate,
-      meeting_url: meetingUrl,
-      interviewer_name: interviewerName || 'Hiring Manager'
-    },
-    subject: `Interview Invitation: ${position} at ${companyName}`
-  });
-}
-
-export async function sendInterviewReminder(
-  email: string,
-  candidateName: string,
-  companyName: string,
-  position: string,
-  date: Date,
-  meetingUrl: string,
-  minutesUntil: number
-) {
-  return sendEmailNotification({
-    email,
-    templateId: TEMPLATE_IDS.INTERVIEW_REMINDER,
-    data: {
-      candidate_name: candidateName,
-      company_name: companyName,
-      position: position,
-      minutes_until: minutesUntil,
-      meeting_url: meetingUrl
-    },
-    subject: `Reminder: Interview in ${minutesUntil} minutes`
-  });
-}
-
-export async function sendInterviewCancellation(
-  email: string,
-  candidateName: string,
-  companyName: string,
-  position: string,
-  reason?: string
-) {
-  return sendEmailNotification({
-    email,
-    templateId: TEMPLATE_IDS.INTERVIEW_CANCELLED,
-    data: {
-      candidate_name: candidateName,
-      company_name: companyName,
-      position: position,
-      reason: reason || 'Not specified'
-    },
-    subject: `Interview Cancelled: ${position} at ${companyName}`
-  });
-}
-
-export async function sendApplicationConfirmation(
-  email: string,
-  candidateName: string,
-  companyName: string,
-  position: string,
-  applicationId: string
-) {
-  return sendEmailNotification({
-    email,
-    templateId: TEMPLATE_IDS.APPLICATION_CONFIRMATION,
-    data: {
-      candidate_name: candidateName,
-      company_name: companyName,
-      position: position,
-      application_id: applicationId
-    },
-    subject: `Application Received: ${position} at ${companyName}`
-  });
-}
+// End of helpers

@@ -5,6 +5,8 @@ import dbConnect from '@/lib/dbConnect';
 import Application from '@/models/Application';
 import Candidate from '@/models/Candidate';
 import Job from '@/models/Job';
+import Employer from '@/models/Employer';
+import { notifyNewApplication } from '@/lib/notifications';
 
 export async function GET() {
   try {
@@ -61,6 +63,21 @@ export async function POST(request: Request) {
       employerId: job.employerId,
       status: 'Applied'
     });
+
+    // Send Notifications
+    const employer = await Employer.findById(job.employerId);
+    if (employer) {
+      await notifyNewApplication(
+        candidate._id.toString(),
+        candidate.email,
+        candidate.name,
+        employer._id.toString(),
+        employer.companyName,
+        job.title,
+        application._id.toString(),
+        `${process.env.NEXT_PUBLIC_APP_URL}/employer/applications?id=${application._id}`
+      );
+    }
 
     return NextResponse.json({ application }, { status: 201 });
   } catch (error: unknown) {

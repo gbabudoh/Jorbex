@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -11,7 +11,6 @@ import { useLanguage } from '@/lib/LanguageContext';
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
     email: '',
@@ -51,7 +50,7 @@ export default function LoginPage() {
       } else {
         router.push('/employer/search');
       }
-    } catch (err) {
+    } catch {
       setError(t('login.error_generic'));
       setIsLoading(false);
     }
@@ -76,7 +75,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, userType: 'candidate' })}
-                className={`px-4 py-2 rounded-xl border-2 transition-all ${
+                className={`px-4 py-2 rounded-xl border-2 transition-all cursor-pointer ${
                   formData.userType === 'candidate'
                     ? 'border-[#0066FF] bg-[#0066FF]/10 text-[#0066FF]'
                     : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
@@ -87,7 +86,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, userType: 'employer' })}
-                className={`px-4 py-2 rounded-xl border-2 transition-all ${
+                className={`px-4 py-2 rounded-xl border-2 transition-all cursor-pointer ${
                   formData.userType === 'employer'
                     ? 'border-[#0066FF] bg-[#0066FF]/10 text-[#0066FF]'
                     : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
@@ -126,7 +125,7 @@ export default function LoginPage() {
             type="submit"
             variant="primary"
             size="lg"
-            className="w-full"
+            className="w-full cursor-pointer"
             isLoading={isLoading}
           >
             {t('login.sign_in')}
@@ -135,7 +134,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center text-sm">
           <span className="text-gray-600 dark:text-gray-400">{t('login.dont_have_account')} </span>
-          <Link href="/signup" className="text-[#0066FF] hover:underline font-medium">
+          <Link href="/signup" className="text-[#0066FF] hover:underline font-medium cursor-pointer">
             {t('login.sign_up')}
           </Link>
         </div>

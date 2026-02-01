@@ -4,8 +4,10 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/dbConnect';
 import Candidate from '@/models/Candidate';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
-  request: Request,
+  _: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -29,7 +31,8 @@ export async function GET(
       );
     }
 
-    const candidate = await Candidate.findById(candidateId).select('-password');
+    const candidate = await Candidate.findById(candidateId).select('-password').lean();
+    console.log(`[API] Fetching candidate ${candidateId}:`, candidate ? { id: candidate._id, city: candidate.city, country: candidate.country } : 'Not found');
 
     if (!candidate) {
       return NextResponse.json(
@@ -47,10 +50,10 @@ export async function GET(
     }
 
     return NextResponse.json({ candidate }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching candidate:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch candidate details' },
+      { error: error instanceof Error ? error.message : 'Failed to fetch candidate details' },
       { status: 500 }
     );
   }

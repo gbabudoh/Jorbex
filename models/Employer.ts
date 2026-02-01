@@ -7,6 +7,8 @@ export interface IEmployer extends Document {
   password: string;
   companyName: string;
   phone: string;
+  country: string;
+  city: string;
   subscriptionStatus: 'trial' | 'active' | 'expired' | 'cancelled';
   subscriptionStartDate?: Date;
   subscriptionEndDate?: Date;
@@ -59,6 +61,16 @@ const EmployerSchema = new Schema<IEmployer>(
     phone: {
       type: String,
       required: [true, 'Phone number is required'],
+      trim: true,
+    },
+    country: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: false,
       trim: true,
     },
     subscriptionStatus: {

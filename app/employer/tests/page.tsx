@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface Test {
   _id: string;
@@ -18,6 +19,7 @@ interface Test {
 }
  
 export default function TestsPage() {
+  const { t } = useLanguage();
   const [tests, setTests] = useState<Test[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'templates' | 'assigned'>('templates');
@@ -56,8 +58,8 @@ export default function TestsPage() {
     <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 italic">Tracking Assessments</h1>
-          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">Manage templates and track sent assessments</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 italic">{t('employer_tests.title')}</h1>
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">{t('employer_tests.subtitle')}</p>
         </div>
         <div className="hidden sm:block">
           <Link href="/employer/tests/create">
@@ -65,7 +67,7 @@ export default function TestsPage() {
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Create New Test
+              {t('employer_tests.create_new')}
             </Button>
           </Link>
         </div>
@@ -81,7 +83,7 @@ export default function TestsPage() {
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
           }`}
         >
-          Templates ({templates.length})
+          {t('employer_tests.templates')} ({templates.length})
         </button>
         <button
           onClick={() => setActiveTab('assigned')}
@@ -91,7 +93,7 @@ export default function TestsPage() {
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
           }`}
         >
-          Sent Assessments ({assignedTests.length})
+          {t('employer_tests.sent_assessments')} ({assignedTests.length})
         </button>
       </div>
 
@@ -105,12 +107,12 @@ export default function TestsPage() {
             </div>
             <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">
               {activeTab === 'templates' 
-                ? "You haven't created any test templates yet." 
-                : "No assessments have been sent to candidates yet."}
+                ? t('employer_tests.no_templates')
+                : t('employer_tests.no_sent')}
             </p>
             {activeTab === 'templates' && (
               <Link href="/employer/tests/create">
-                <Button variant="primary" className="h-12 px-8 rounded-xl font-bold bg-[#0066FF] cursor-pointer">Create Your First Test</Button>
+                <Button variant="primary" className="h-12 px-8 rounded-xl font-bold bg-[#0066FF] cursor-pointer">{t('employer_tests.create_first')}</Button>
               </Link>
             )}
           </CardContent>
@@ -126,7 +128,7 @@ export default function TestsPage() {
                     <CardTitle className="text-xl font-bold text-gray-900 dark:text-white truncate group-hover:text-[#0066FF] transition-colors">{test.title}</CardTitle>
                     {test.candidateId && (
                       <p className="text-[#8B5CF6] font-bold text-xs uppercase tracking-widest mt-1">
-                        Sent to: {test.candidateId.name}
+                        {t('employer_tests.sent_to')}: {test.candidateId.name}
                       </p>
                     )}
                   </div>
@@ -136,11 +138,11 @@ export default function TestsPage() {
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50">
-                    <p className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 mb-1">Items</p>
+                    <p className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 mb-1">{t('employer_tests.items')}</p>
                     <p className="text-2xl font-black text-gray-900 dark:text-white">{test.questions?.length || 0}</p>
                   </div>
                   <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50">
-                    <p className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 mb-1">Pass Mark</p>
+                    <p className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 mb-1">{t('employer_tests.pass_mark')}</p>
                     <p className="text-2xl font-black text-gray-900 dark:text-white">{test.passingScore}%</p>
                   </div>
                 </div>
@@ -151,7 +153,7 @@ export default function TestsPage() {
                   </span>
                   <Link href={`/employer/tests/${test._id}`}>
                     <Button variant="ghost" size="sm" className="rounded-xl font-bold hover:bg-blue-50 dark:hover:bg-blue-950/20 text-[#0066FF] cursor-pointer">
-                      Details
+                      {t('employer_tests.details')}
                       <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                       </svg>

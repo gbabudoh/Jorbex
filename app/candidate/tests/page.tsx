@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface Test {
   _id: string;
@@ -19,6 +20,7 @@ interface Test {
 export default function TestsPage() {
   const [tests, setTests] = useState<Test[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchTests();
@@ -56,10 +58,10 @@ export default function TestsPage() {
       <div className="container mx-auto px-4 max-w-5xl">
         <div className="mb-8 md:mb-12">
           <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-            Assigned <span className="text-[#0066FF]">Tests</span>
+            {t('candidate_tests.title').split(' ')[0]} <span className="text-[#0066FF]">{t('candidate_tests.title').split(' ').slice(1).join(' ')}</span>
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2 text-lg font-medium">
-            Complete these tests to showcase your skills to employers
+            {t('candidate_tests.subtitle')}
           </p>
         </div>
 
@@ -71,8 +73,8 @@ export default function TestsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
               </div>
-              <p className="text-gray-600 dark:text-gray-400 text-lg font-medium">No tests assigned yet.</p>
-              <p className="text-gray-400 text-sm mt-1">Check back later for new opportunities.</p>
+              <p className="text-gray-600 dark:text-gray-400 text-lg font-medium">{t('candidate_tests.no_tests')}</p>
+              <p className="text-gray-400 text-sm mt-1">{t('candidate_tests.check_back')}</p>
             </CardContent>
           </Card>
         ) : (
@@ -90,11 +92,11 @@ export default function TestsPage() {
                     </div>
                     {test.completed ? (
                       <Badge variant="success" className="bg-[#00D9A5]/10 text-[#00D9A5] border-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-                        Completed
+                        {t('candidate_tests.completed')}
                       </Badge>
                     ) : (
                       <Badge variant="warning" className="bg-orange-500/10 text-orange-500 border-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">
-                        Pending
+                        {t('candidate_tests.pending')}
                       </Badge>
                     )}
                   </div>
@@ -111,9 +113,9 @@ export default function TestsPage() {
                         <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Questions</span>
+                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">{t('candidate_tests.questions')}</span>
                       </div>
-                      <span className="text-lg font-black text-gray-900 dark:text-white">{test.questions?.length || 0} <span className="text-xs font-normal text-gray-400">items</span></span>
+                      <span className="text-lg font-black text-gray-900 dark:text-white">{test.questions?.length || 0} <span className="text-xs font-normal text-gray-400">{t('candidate_tests.items')}</span></span>
                     </div>
 
                     <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl flex flex-col justify-center">
@@ -121,9 +123,9 @@ export default function TestsPage() {
                         <svg className="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Duration</span>
+                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">{t('candidate_tests.duration')}</span>
                       </div>
-                      <span className="text-lg font-black text-gray-900 dark:text-white">{test.timeLimit || 30} <span className="text-xs font-normal text-gray-400">min</span></span>
+                      <span className="text-lg font-black text-gray-900 dark:text-white">{test.timeLimit || 30} <span className="text-xs font-normal text-gray-400">{t('candidate_tests.min')}</span></span>
                     </div>
                   </div>
 
@@ -137,13 +139,13 @@ export default function TestsPage() {
                             </svg>
                           </div>
                           <div>
-                            <p className="text-[10px] uppercase font-bold text-gray-500">Your Score</p>
+                            <p className="text-[10px] uppercase font-bold text-gray-500">{t('candidate_tests.your_score')}</p>
                             <p className="text-xl font-black text-[#00D9A5] leading-none">{test.score}%</p>
                           </div>
                         </div>
                         <div className="h-10 w-px bg-[#00D9A5]/20 mx-2 hidden sm:block"></div>
                         <Button variant="ghost" className="text-[#00D9A5] hover:bg-[#00D9A5]/10 hidden sm:flex font-bold" disabled>
-                          View Results
+                          {t('candidate_tests.view_results')}
                         </Button>
                       </div>
                     </div>
@@ -154,7 +156,7 @@ export default function TestsPage() {
                         className="w-full py-7 rounded-2xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 font-black text-sm uppercase tracking-widest group/btn overflow-hidden relative"
                       >
                         <span className="relative z-10 flex items-center justify-center gap-2">
-                          Take Assessment
+                          {t('candidate_tests.take_assessment')}
                           <svg className="w-5 h-5 transition-transform duration-300 group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                           </svg>

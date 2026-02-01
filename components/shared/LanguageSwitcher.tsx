@@ -1,6 +1,4 @@
-'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/LanguageContext';
 
 const languages = [
@@ -13,6 +11,14 @@ const languages = [
 export const LanguageSwitcher = () => {
   const { locale, setLocale } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
   
   const currentLanguage = languages.find(lang => lang.code === locale) || languages[0];
 
@@ -20,6 +26,15 @@ export const LanguageSwitcher = () => {
     setLocale(langCode);
     setIsOpen(false);
   };
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2 rounded-lg opacity-0">
+        <span className="text-xl">🇬🇧</span>
+        <span className="hidden sm:inline text-sm font-medium">EN</span>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

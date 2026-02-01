@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface ScheduleModalProps {
   isOpen: boolean;
@@ -14,13 +16,19 @@ interface ScheduleModalProps {
   employerId?: string;
 }
 
-export default function ScheduleModal({ 
-  isOpen, 
-  onClose, 
-  candidateId, 
-  candidateName,
-  employerId
-}: ScheduleModalProps) {
+export default function ScheduleModal(props: ScheduleModalProps) {
+  const { 
+    isOpen, 
+    onClose, 
+    candidateId, 
+    candidateName,
+    employerId: propEmployerId
+  } = props;
+  const { t } = useLanguage();
+  const { data: session } = useSession();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sessionUser = session?.user as any;
+  const employerId = propEmployerId || sessionUser?.id;
   const [formData, setFormData] = useState({
     date: '',
     time: '',
@@ -43,8 +51,7 @@ export default function ScheduleModal({
   // Fetch jobs when modal opens
   useEffect(() => {
     const fetchJobs = async () => {
-      // Determine effective employerId
-      const eId = employerId && employerId !== 'CURRENT_USER_ID' ? employerId : null;
+      const eId = employerId || null;
       
       if (!eId) {
         // console.warn('Cannot fetch jobs: Missing valid employerId');
@@ -109,7 +116,7 @@ export default function ScheduleModal({
         },
         body: JSON.stringify({
           candidateId,
-          employerId: employerId || 'CURRENT_USER_ID', // Replace with actual session logic
+          employerId,
           ...formData,
           dateTime: dateTime.toISOString(),
         }),
@@ -283,7 +290,7 @@ export default function ScheduleModal({
                 </label>
                 {formData.type === 'virtual' ? (
                    <Input 
-                    value="Jitsi Meet (Auto-generated)"
+                    value={t('interviews.video_interview')}
                     disabled
                     className="rounded-xl bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
                   />
