@@ -40,10 +40,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid date format' }, { status: 400 });
     }
 
-    // 3. Generate Jitsi URL
-    const jitsiBaseUrl = process.env.NEXT_PUBLIC_JITSI_URL || 'https://meet.jit.si';
+    // 3. Generate LiveKit room name (meeting happens on our own interview page)
     const safeRoomName = `jorbex-interview-${Math.random().toString(36).substring(2, 9)}-${Date.now()}`;
-    const meetingUrl = `${jitsiBaseUrl}/${safeRoomName}`;
+    const baseAppUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    // The meetingUrl will be updated after interview creation with the actual ID
+    const placeholderMeetingUrl = `${baseAppUrl}/interview`;
 
     // 4. Create Reminders data
     const remindTimes = [
@@ -73,10 +74,10 @@ export async function POST(request: Request) {
         duration,
         type: type.toUpperCase() as 'VIRTUAL' | 'PHYSICAL',
         location: type === 'virtual' ? 'Jorbex Video Interview' : location,
-        meetingUrl: type === 'virtual' ? meetingUrl : undefined,
+        meetingUrl: type === 'virtual' ? placeholderMeetingUrl : undefined,
         meetingRoomName: type === 'virtual' ? safeRoomName : undefined,
-        candidateMeetingUrl: type === 'virtual' ? meetingUrl : undefined,
-        employerMeetingUrl: type === 'virtual' ? meetingUrl : undefined,
+        candidateMeetingUrl: type === 'virtual' ? placeholderMeetingUrl : undefined,
+        employerMeetingUrl: type === 'virtual' ? placeholderMeetingUrl : undefined,
         notes,
         status: 'CONFIRMED',
         reminders: {
@@ -84,6 +85,15 @@ export async function POST(request: Request) {
         },
       },
     });
+
+    // Update meeting URLs with actual interview ID
+    const meetingUrl = `${baseAppUrl}/interview/${interview.id}`;
+    if (type === 'virtual') {
+      await prisma.interview.update({
+        where: { id: interview.id },
+        data: { meetingUrl, candidateMeetingUrl: meetingUrl, employerMeetingUrl: meetingUrl },
+      });
+    }
 
     // 6. Notifications
     await sendNotification(

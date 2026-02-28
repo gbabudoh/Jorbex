@@ -7,7 +7,7 @@ import {
   TEMPLATE_IDS
 } from './listmonk';
 
-import { createInterviewMeeting, InterviewMeeting } from './jitsi';
+import { createInterviewMeeting, InterviewMeeting } from './livekit';
 import prisma from '@/lib/prisma';
 
 import {
