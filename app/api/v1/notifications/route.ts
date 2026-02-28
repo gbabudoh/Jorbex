@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import NotificationLog from '@/models/NotificationLog';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   try {
@@ -11,14 +10,19 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
+    const userType = session.user.userType;
+    const userId = session.user.id;
 
-    const notifications = await NotificationLog.find({
-      userId: session.user.id,
-      channel: 'IN_APP',
-    })
-    .sort({ createdAt: -1 })
-    .limit(20);
+    const notifications = await prisma.notificationLog.findMany({
+      where: {
+        channel: 'IN_APP',
+        ...(userType === 'employer'
+          ? { employerId: userId }
+          : { candidateId: userId }),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
 
     return NextResponse.json({ notifications }, { status: 200 });
   } catch (error: unknown) {
@@ -35,19 +39,30 @@ export async function PATCH(request: Request) {
     }
 
     const { notificationIds, markAllAsRead } = await request.json();
-
-    await dbConnect();
+    const userType = session.user.userType;
+    const userId = session.user.id;
 
     if (markAllAsRead) {
-      await NotificationLog.updateMany(
-        { userId: session.user.id, channel: 'IN_APP', status: 'SENT' },
-        { status: 'DELIVERED' } // We can use DELIVERED to mean "seen" in this context
-      );
+      await prisma.notificationLog.updateMany({
+        where: {
+          channel: 'IN_APP',
+          status: 'SENT',
+          ...(userType === 'employer'
+            ? { employerId: userId }
+            : { candidateId: userId }),
+        },
+        data: { status: 'DELIVERED' },
+      });
     } else if (notificationIds && Array.isArray(notificationIds)) {
-      await NotificationLog.updateMany(
-        { _id: { $in: notificationIds }, userId: session.user.id },
-        { status: 'DELIVERED' }
-      );
+      await prisma.notificationLog.updateMany({
+        where: {
+          id: { in: notificationIds },
+          ...(userType === 'employer'
+            ? { employerId: userId }
+            : { candidateId: userId }),
+        },
+        data: { status: 'DELIVERED' },
+      });
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

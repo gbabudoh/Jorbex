@@ -1,0 +1,462 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Employer {
+  id                       String             @id @default(uuid())
+  name                     String
+  email                    String             @unique
+  password                 String
+  companyName              String
+  phone                    String
+  country                  String?
+  city                     String?
+  subscriptionStatus       SubscriptionStatus @default(TRIAL)
+  subscriptionStartDate    DateTime?
+  subscriptionEndDate      DateTime?
+  paystackCustomerCode     String?
+  paystackSubscriptionCode String?
+  mattermostTeamId         String?
+  
+  // Relations
+  jobs                     Job[]
+  applications             Application[]
+  interviews               Interview[]
+  offers                   Offer[]
+  messagesSent             Message[]          @relation("EmployerMessagesSent")
+  messagesReceived         Message[]          @relation("EmployerMessagesReceived")
+  testResults              TestResult[]
+  customTests              AptitudeTest[]     @relation("EmployerTests")
+  mattermostChannels       MattermostChannel[]
+  notificationLogs         NotificationLog[]  // Generic notification logs for this employer
+  notificationPreferences  EmployerNotificationPreference?
+  
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+}
+
+model EmployerNotificationPreference {
+  id                 String   @id @default(uuid())
+  employerId         String   @unique
+  employer           Employer @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  email              Boolean  @default(true)
+  push               Boolean  @default(true)
+  mattermost         Boolean  @default(true)
+  interviewReminders Boolean  @default(true)
+  applicationUpdates Boolean  @default(true)
+}
+
+model MattermostChannel {
+  id          String   @id @default(uuid())
+  employerId  String
+  employer    Employer @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  jobId       String?
+  job         Job?     @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  channelId   String
+  channelName String
+}
+
+model Candidate {
+  id                         String    @id @default(uuid())
+  name                       String
+  email                      String    @unique
+  password                   String
+  phone                      String
+  country                    String?
+  city                       String?
+  expertise                  String    // e.g., Finance, IT, Marketing
+  skills                     String[]  // Max 5 skills handled in app logic or Prisma
+  personalStatement          String?   @db.Text
+  
+  onboardingTestPassed       Boolean   @default(false)
+  onboardingTestScore        Float?
+  highestQualification       String?
+  university                 String?
+  degree                     String?
+  professionalQualifications String?
+  hobbies                    String?
+  ntfyTopic                  String?
+  mattermostUserId           String?
+
+  // Relations
+  workHistory                WorkHistory[]
+  references                 Reference[]
+  applications               Application[]
+  interviews                 Interview[]
+  offers                     Offer[]
+  testResults                TestResult[]
+  messagesSent               Message[]          @relation("CandidateMessagesSent")
+  messagesReceived           Message[]          @relation("CandidateMessagesReceived")
+  notificationLogs           NotificationLog[]  // Generic notification logs for this candidate
+  notificationPreferences    CandidateNotificationPreference?
+
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+}
+
+model CandidateNotificationPreference {
+  id                 String   @id @default(uuid())
+  candidateId        String   @unique
+  candidate          Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  email              Boolean  @default(true)
+  push               Boolean  @default(true)
+  mattermost         Boolean  @default(false)
+  interviewReminders Boolean  @default(true)
+  jobAlerts          Boolean  @default(true)
+  applicationUpdates Boolean  @default(true)
+}
+
+model WorkHistory {
+  id          String    @id @default(uuid())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  company     String
+  position    String
+  startDate   DateTime
+  endDate     DateTime?
+  description String    @db.Text
+}
+
+model Reference {
+  id           String    @id @default(uuid())
+  candidateId  String
+  candidate    Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  name         String
+  email        String
+  phone        String
+  relationship String
+}
+
+model Job {
+  id          String     @id @default(uuid())
+  employerId  String
+  employer    Employer   @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  title       String
+  description String?    @db.Text
+  location    String?
+  type        String?
+  status      JobStatus  @default(ACTIVE)
+
+  // Salary embedded structure (optional range with currency)
+  salaryMin   Float?
+  salaryMax   Float?
+  currency    String?
+
+  // Relations
+  applications        Application[]
+  interviews          Interview[]
+  offers              Offer[]
+  mattermostChannels  MattermostChannel[]
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Application {
+  id           String            @id @default(uuid())
+  jobId        String
+  job          Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidateId  String
+  candidate    Candidate         @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  employerId   String
+  employer     Employer          @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  status       ApplicationStatus @default(APPLIED)
+  
+  resumeUrl    String?
+  coverLetter  String?           @db.Text
+
+  // Relations (1-to-1 matching to Application)
+  testResultId String?           @unique
+  testResult   TestResult?       @relation(fields: [testResultId], references: [id])
+  interviewId  String?           @unique
+  interview    Interview?        @relation(fields: [interviewId], references: [id])
+  offerId      String?           @unique
+  offer        Offer?            @relation(fields: [offerId], references: [id])
+  
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@unique([jobId, candidateId]) // A candidate can only apply once per job
+}
+
+model Message {
+  id                String      @id @default(uuid())
+  content           String      @db.Text
+  isRead            Boolean     @default(false)
+  deletedBySender   Boolean     @default(false)
+  deletedByReceiver Boolean     @default(false)
+
+  // Polymorphic-like relationships explicitly modeled
+  senderType        UserType
+  senderEmployerId  String?
+  senderEmployer    Employer?   @relation("EmployerMessagesSent", fields: [senderEmployerId], references: [id])
+  senderCandidateId String?
+  senderCandidate   Candidate?  @relation("CandidateMessagesSent", fields: [senderCandidateId], references: [id])
+
+  receiverEmployerId  String?
+  receiverEmployer    Employer?   @relation("EmployerMessagesReceived", fields: [receiverEmployerId], references: [id])
+  receiverCandidateId String?
+  receiverCandidate   Candidate?  @relation("CandidateMessagesReceived", fields: [receiverCandidateId], references: [id])
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model Interview {
+  id                  String          @id @default(uuid())
+  employerId          String
+  employer            Employer        @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  candidateId         String
+  candidate           Candidate       @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  jobId               String?
+  job                 Job?            @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  
+  // Inverse relation for application
+  application         Application?    
+  
+  jobTitle            String?
+  dateTime            DateTime
+  duration            Int             @default(30) // minutes
+  timezone            String          @default("UTC")
+  type                InterviewType
+  location            String
+  meetingUrl          String?
+  meetingRoomName     String?
+  candidateMeetingUrl String?
+  employerMeetingUrl  String?
+  interviewerName     String?
+  interviewerEmail    String?
+  notes               String?         @db.Text
+  feedback            String?         @db.Text
+  rating              Int?
+  status              InterviewStatus @default(PENDING)
+  cancelledAt         DateTime?
+  cancelReason        String?
+  mattermostChannelId String?
+  
+  // Relations
+  reminders           Reminder[]
+  
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+}
+
+model Reminder {
+  id          String        @id @default(uuid())
+  interviewId String
+  interview   Interview     @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  remindAt    DateTime
+  type        ReminderType
+  channel     ChannelType   @default(BOTH)
+  sent        Boolean       @default(false)
+  sentAt      DateTime?
+  error       String?
+}
+
+model Offer {
+  id            String      @id @default(uuid())
+  candidateId   String
+  candidate     Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  employerId    String
+  employer      Employer    @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  jobId         String
+  job           Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  // Inverse relation for Application
+  application   Application?
+  
+  content       String      @db.Text
+  status        OfferStatus @default(PENDING)
+  salary        String
+  currency      String      @default("NGN")
+  startDate     DateTime
+  token         String      @unique
+  expiresAt     DateTime
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model AptitudeTest {
+  id             String     @id @default(uuid())
+  title          String
+  description    String?    @db.Text
+  testType       TestType
+  expertise      String?
+  
+  employerId     String?
+  employer       Employer?  @relation("EmployerTests", fields: [employerId], references: [id])
+  
+  originalTestId String?
+  originalTest   AptitudeTest?  @relation("TestTemplate", fields: [originalTestId], references: [id])
+  derivedTests   AptitudeTest[] @relation("TestTemplate")
+  
+  passingScore   Float      @default(70)
+  timeLimit      Int?       // In minutes
+  isActive       Boolean    @default(true)
+  
+  questions      Question[]
+  results        TestResult[]
+  
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+model Question {
+  id            String       @id @default(uuid())
+  testId        String
+  test          AptitudeTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+  question      String       @db.Text
+  options       String[]
+  correctAnswer String
+  explanation   String?      @db.Text
+}
+
+model TestResult {
+  id           String       @id @default(uuid())
+  testId       String
+  test         AptitudeTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+  candidateId  String
+  candidate    Candidate    @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  employerId   String?
+  employer     Employer?    @relation(fields: [employerId], references: [id], onDelete: SetNull)
+  score        Float
+  passingScore Float
+  passed       Boolean
+  timeSpent    Int?         // In seconds
+  completedAt  DateTime     @default(now())
+  
+  answers      Answer[]
+  
+  // Inverse relation for application
+  application  Application?
+
+  createdAt    DateTime     @default(now())
+}
+
+model Answer {
+  id             String     @id @default(uuid())
+  testResultId   String
+  testResult     TestResult @relation(fields: [testResultId], references: [id], onDelete: Cascade)
+  questionId     String
+  selectedAnswer String
+  isCorrect      Boolean
+}
+
+model NotificationLog {
+  id            String             @id @default(uuid())
+  userType      RoleType
+  
+  employerId    String?
+  employer      Employer?          @relation(fields: [employerId], references: [id])
+  candidateId   String?
+  candidate     Candidate?         @relation(fields: [candidateId], references: [id])
+  
+  email         String?
+  type          String
+  channel       NotificationChannel
+  subject       String?
+  content       String             @db.Text
+  status        NotificationStatus @default(PENDING)
+  sentAt        DateTime?
+  error         String?
+  referenceId   String?
+  referenceType String?
+  
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+}
+
+// Enums definition
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum JobStatus {
+  ACTIVE
+  CLOSED
+  DRAFT
+}
+
+enum ApplicationStatus {
+  APPLIED
+  REVIEWING
+  TEST_SENT
+  INTERVIEW_SCHEDULED
+  OFFER_SENT
+  HIRED
+  REJECTED
+}
+
+enum UserType {
+  EMPLOYER
+  CANDIDATE
+}
+
+enum RoleType {
+  CANDIDATE
+  EMPLOYER
+  ADMIN
+}
+
+enum InterviewType {
+  VIRTUAL
+  PHYSICAL
+}
+
+enum InterviewStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  RESCHEDULED
+}
+
+enum ReminderType {
+  DAY_BEFORE
+  HOUR_BEFORE
+  FIFTEEN_MINUTES
+}
+
+enum ChannelType {
+  EMAIL
+  PUSH
+  BOTH
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum TestType {
+  ONBOARDING
+  EMPLOYER_CUSTOM
+}
+
+enum NotificationChannel {
+  EMAIL
+  PUSH
+  SMS
+  IN_APP
+  MATTERMOST
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+}

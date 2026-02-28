@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import Application from '@/models/Application';
-import Employer from '@/models/Employer';
+import prisma from '@/lib/prisma';
+import { ApplicationStatus } from '@prisma/client';
 
 export async function GET(req: Request) {
   try {
@@ -13,29 +12,28 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
-
-    const employer = await Employer.findById(session.user.id);
+    const employer = await prisma.employer.findUnique({ where: { id: session.user.id } });
     if (!employer) {
       return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
     }
 
-    // Parse query params for filtering
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const url = new URL(req.url) as any;
+    const url = new URL(req.url);
     const status = url.searchParams.get('status');
     const jobId = url.searchParams.get('jobId');
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const query: any = { employerId: employer._id };
-    if (status) query.status = status;
-    if (jobId) query.jobId = jobId;
-
-    const applications = await Application.find(query)
-      .populate('candidateId', 'name email status headshot') // specific fields
-      .populate('jobId', 'title')
-      .populate('testResultId', 'score status') // If they did a test
-      .sort({ createdAt: -1 });
+    const applications = await prisma.application.findMany({
+      where: {
+        employerId: employer.id,
+        ...(status && { status: status.toUpperCase() as ApplicationStatus }),
+        ...(jobId && { jobId }),
+      },
+      include: {
+        candidate: { select: { name: true, email: true } },
+        job: { select: { title: true } },
+        testResult: { select: { score: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
     return NextResponse.json({ applications });
   } catch (error: unknown) {

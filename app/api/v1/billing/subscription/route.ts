@@ -1,29 +1,27 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import Employer from '@/models/Employer';
+import prisma from '@/lib/prisma';
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user?.userType !== 'employer') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
-
-    const employer = await Employer.findById(session.user?.id).select('-password');
+    const employer = await prisma.employer.findUnique({
+      where: { id: session.user.id },
+      select: {
+        subscriptionStatus: true,
+        subscriptionStartDate: true,
+        subscriptionEndDate: true,
+      },
+    });
 
     if (!employer) {
-      return NextResponse.json(
-        { error: 'Employer not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
     }
 
     return NextResponse.json(
@@ -34,11 +32,8 @@ export async function GET(request: Request) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Failed to fetch subscription' },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch subscription';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

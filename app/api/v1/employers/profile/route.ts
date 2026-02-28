@@ -1,30 +1,25 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import Employer from '@/models/Employer';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user?.userType !== 'employer') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
+    const employerRaw = await prisma.employer.findUnique({
+      where: { id: session.user.id },
+    });
 
-    const employer = await Employer.findById(session.user?.id).select('-password');
-
-    if (!employer) {
-      return NextResponse.json(
-        { error: 'Employer not found' },
-        { status: 404 }
-      );
+    if (!employerRaw) {
+      return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
     }
+
+    const { password: _, ...employer } = employerRaw;
 
     return NextResponse.json(employer, { status: 200 });
   } catch (error: unknown) {
@@ -38,37 +33,26 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session || session.user?.userType !== 'employer') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
 
-    await dbConnect();
+    if (!session || session.user?.userType !== 'employer') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const body = await request.json();
     const { name, companyName, phone, country, city } = body;
 
-    const employer = await Employer.findByIdAndUpdate(
-      session.user?.id,
-      {
+    const employerRaw = await prisma.employer.update({
+      where: { id: session.user.id },
+      data: {
         ...(name && { name }),
         ...(companyName && { companyName }),
         ...(phone && { phone }),
         ...(country && { country }),
         ...(city && { city }),
       },
-      { new: true }
-    ).select('-password');
+    });
 
-    if (!employer) {
-      return NextResponse.json(
-        { error: 'Employer not found' },
-        { status: 404 }
-      );
-    }
+    const { password: _, ...employer } = employerRaw;
 
     return NextResponse.json(employer, { status: 200 });
   } catch (error: unknown) {

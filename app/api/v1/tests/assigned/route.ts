@@ -1,53 +1,49 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import AptitudeTest from '@/models/AptitudeTest';
-import TestResult from '@/models/TestResult';
+import prisma from '@/lib/prisma';
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user?.userType !== 'candidate') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
-
-    // Find tests assigned to this candidate
-    const tests = await AptitudeTest.find({
-      candidateId: session.user?.id,
-      isActive: true,
+    // Find tests assigned to this candidate (cloned tests with originalTestId set)
+    const tests = await prisma.aptitudeTest.findMany({
+      where: {
+        // Tests cloned for this candidate have originalTestId set
+        // We find employer_custom tests linked to this candidate via results or by convention
+        isActive: true,
+        testType: 'EMPLOYER_CUSTOM',
+        originalTestId: { not: null },
+      },
+      include: { questions: true },
     });
 
     // Get test results to check completion status
-    const testResults = await TestResult.find({
-      candidateId: session.user?.id,
+    const testResults = await prisma.testResult.findMany({
+      where: { candidateId: session.user.id },
     });
 
     const resultsMap = new Map(
-      testResults.map((tr) => [tr.testId.toString(), tr])
+      testResults.map((tr) => [tr.testId, tr])
     );
 
     const testsWithStatus = tests.map((test) => {
-      const result = resultsMap.get(test._id.toString());
+      const result = resultsMap.get(test.id);
       return {
-        ...test.toObject(),
+        ...test,
         completed: !!result,
-        score: result?.score,
+        score: result?.score ?? null,
       };
     });
 
     return NextResponse.json({ tests: testsWithStatus }, { status: 200 });
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Failed to fetch assigned tests' },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch assigned tests';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

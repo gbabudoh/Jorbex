@@ -1,31 +1,22 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import Employer from '@/models/Employer';
+import prisma from '@/lib/prisma';
 import { initializePayment } from '@/lib/paystack';
 import { generateReference } from '@/lib/utils';
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user?.userType !== 'employer') {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
-
-    const employer = await Employer.findById(session.user?.id);
+    const employer = await prisma.employer.findUnique({ where: { id: session.user.id } });
 
     if (!employer) {
-      return NextResponse.json(
-        { error: 'Employer not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
     }
 
     const reference = generateReference();
@@ -37,7 +28,7 @@ export async function POST(request: Request) {
       reference,
       callback_url: `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/v1/billing/webhook`,
       metadata: {
-        employerId: employer._id.toString(),
+        employerId: employer.id,
         type: 'subscription',
       },
     });
@@ -49,11 +40,8 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Failed to initiate subscription' },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to initiate subscription';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

@@ -1,14 +1,11 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import Employer from '@/models/Employer';
+import prisma from '@/lib/prisma';
 import { verifyPayment } from '@/lib/paystack';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { reference, metadata } = body;
-
-    await dbConnect();
 
     // Verify payment with Paystack
     const verification = await verifyPayment({ reference });
@@ -21,22 +18,22 @@ export async function POST(request: Request) {
         const subscriptionEndDate = new Date();
         subscriptionEndDate.setDate(subscriptionEndDate.getDate() + 30);
 
-        await Employer.findByIdAndUpdate(employerId, {
-          subscriptionStatus: 'active',
-          subscriptionStartDate: new Date(),
-          subscriptionEndDate,
-          paystackCustomerCode: verification.data.customer?.customer_code,
+        await prisma.employer.update({
+          where: { id: employerId },
+          data: {
+            subscriptionStatus: 'ACTIVE',
+            subscriptionStartDate: new Date(),
+            subscriptionEndDate,
+            paystackCustomerCode: verification.data.customer?.customer_code,
+          },
         });
       }
     }
 
     return NextResponse.json({ received: true }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Webhook processing failed';
     console.error('Webhook error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Webhook processing failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

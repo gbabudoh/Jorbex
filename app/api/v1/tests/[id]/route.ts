@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import AptitudeTest from '@/models/AptitudeTest';
-import TestResult from '@/models/TestResult';
+import prisma from '@/lib/prisma';
 
 export async function GET(
   request: Request,
@@ -11,37 +9,26 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
-    await dbConnect();
 
     if (session.user.userType === 'candidate') {
-      console.log('Candidate accessing test:', { testId: id, candidateId: session.user.id });
-      // Find the test assigned to candidate
-      const test = await AptitudeTest.findOne({
-        _id: id,
-        candidateId: session.user.id,
-        isActive: true,
+      const test = await prisma.aptitudeTest.findFirst({
+        where: { id, isActive: true },
+        include: { questions: true },
       });
 
       if (!test) {
-        return NextResponse.json(
-          { error: 'Test not found or not assigned to you' },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: 'Test not found or not assigned to you' }, { status: 404 });
       }
 
       // Check if already completed
-      const result = await TestResult.findOne({
-        testId: id,
-        candidateId: session.user.id,
+      const result = await prisma.testResult.findFirst({
+        where: { testId: id, candidateId: session.user.id },
       });
 
       if (result) {
@@ -53,40 +40,26 @@ export async function GET(
 
       return NextResponse.json({ test }, { status: 200 });
     } else if (session.user.userType === 'employer') {
-      // Find test owned by employer
-      const test = await AptitudeTest.findOne({
-        _id: id,
-        employerId: session.user.id
+      const test = await prisma.aptitudeTest.findFirst({
+        where: { id, employerId: session.user.id },
+        include: { questions: true },
       });
 
       if (!test) {
-        // Double check if it exists at all but belongs to someone else
-        const existsAtAll = await AptitudeTest.findById(id);
-        console.log('Test search result:', { found: !!test, existsAtAll: !!existsAtAll });
-        
+        const existsAtAll = await prisma.aptitudeTest.findUnique({ where: { id } });
         if (existsAtAll) {
-          return NextResponse.json(
-            { error: `Test belongs to another employer (ID: ${id})` },
-            { status: 403 }
-          );
+          return NextResponse.json({ error: `Test belongs to another employer (ID: ${id})` }, { status: 403 });
         }
-        return NextResponse.json(
-          { error: `Test truly not found in DB (ID: ${id})` },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: `Test truly not found in DB (ID: ${id})` }, { status: 404 });
       }
 
       return NextResponse.json({ test }, { status: 200 });
     }
 
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
@@ -96,26 +69,34 @@ export async function PATCH(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user?.userType !== 'employer') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
     const body = await request.json();
-    await dbConnect();
 
-    const updatedTest = await AptitudeTest.findOneAndUpdate(
-      { _id: id, employerId: session.user.id },
-      { $set: body },
-      { new: true }
-    );
+    // Only update allowed fields
+    const { title, description, passingScore, timeLimit, isActive } = body;
 
-    if (!updatedTest) {
+    const updatedTest = await prisma.aptitudeTest.updateMany({
+      where: { id, employerId: session.user.id },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(description !== undefined && { description }),
+        ...(passingScore !== undefined && { passingScore }),
+        ...(timeLimit !== undefined && { timeLimit }),
+        ...(isActive !== undefined && { isActive }),
+      },
+    });
+
+    if (updatedTest.count === 0) {
       return NextResponse.json({ error: 'Test not found or unauthorized' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, test: updatedTest }, { status: 200 });
+    const test = await prisma.aptitudeTest.findUnique({ where: { id }, include: { questions: true } });
+    return NextResponse.json({ success: true, test }, { status: 200 });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json({ error: errorMessage }, { status: 500 });
@@ -128,17 +109,18 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user?.userType !== 'employer') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
-    await dbConnect();
 
-    const result = await AptitudeTest.deleteOne({ _id: id, employerId: session.user.id });
+    const result = await prisma.aptitudeTest.deleteMany({
+      where: { id, employerId: session.user.id },
+    });
 
-    if (result.deletedCount === 0) {
+    if (result.count === 0) {
       return NextResponse.json({ error: 'Test not found or unauthorized' }, { status: 404 });
     }
 

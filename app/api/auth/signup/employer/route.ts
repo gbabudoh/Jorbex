@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import Employer from '@/models/Employer';
+import { hash } from 'bcryptjs';
+import prisma from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -14,49 +14,50 @@ export async function POST(request: Request) {
       );
     }
 
-    await dbConnect();
+    const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if employer already exists
-    const existingEmployer = await Employer.findOne({ email });
-    if (existingEmployer) {
+    const existing = await prisma.employer.findUnique({
+      where: { email: normalizedEmail },
+    });
+    if (existing) {
       return NextResponse.json(
         { error: 'Email already registered' },
         { status: 400 }
       );
     }
 
-    // Calculate trial end date (30 days from now)
+    const hashedPassword = await hash(password, 12);
+
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + 30);
 
-    // Create new employer
-    const employer = await Employer.create({
-      name,
-      email,
-      password,
-      phone,
-      companyName,
-      subscriptionStatus: 'trial',
-      subscriptionStartDate: new Date(),
-      subscriptionEndDate: trialEndDate,
+    const employer = await prisma.employer.create({
+      data: {
+        name: name.trim(),
+        email: normalizedEmail,
+        password: hashedPassword,
+        phone: phone.trim(),
+        companyName: companyName.trim(),
+        subscriptionStatus: 'TRIAL',
+        subscriptionStartDate: new Date(),
+        subscriptionEndDate: trialEndDate,
+      },
     });
 
     return NextResponse.json(
       {
         message: 'Employer created successfully',
         employer: {
-          id: employer._id,
+          id: employer.id,
           email: employer.email,
           name: employer.name,
         },
       },
       { status: 201 }
     );
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message || 'Failed to create employer' },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    console.error('Signup error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to create employer';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

@@ -1,54 +1,25 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import mongoose from 'mongoose';
+import prisma from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    await dbConnect();
-    
-    // Use raw MongoDB query to bypass Mongoose schema
-    const db = mongoose.connection.db;
-    const collection = db?.collection('candidates');
-    
-    if (!collection) {
-      return NextResponse.json({ error: 'Collection not found' }, { status: 500 });
-    }
-    
-    const candidateId = new mongoose.Types.ObjectId('6970e4e73aee5a2e4cc6753d');
-    
-    // Read current state directly from MongoDB
-    const candidateBefore = await collection.findOne({ _id: candidateId });
-    console.log('[DEBUG RAW] Before:', candidateBefore);
-    
-    // Update directly via MongoDB
-    const updateResult = await collection.updateOne(
-      { _id: candidateId },
-      { $set: { country: 'Nigeria', city: 'Lagos' } }
-    );
-    
-    // Read after update
-    const candidateAfter = await collection.findOne({ _id: candidateId });
-    console.log('[DEBUG RAW] After:', candidateAfter);
-    
-    return NextResponse.json({ 
+    // This was a MongoDB-specific debug route. With Prisma/PostgreSQL, 
+    // direct raw updates are done differently. Keeping as a simple debug endpoint.
+    const candidates = await prisma.candidate.findMany({
+      take: 5,
+      select: { id: true, name: true, country: true, city: true },
+    });
+
+    return NextResponse.json({
       success: true,
-      before: { 
-        name: candidateBefore?.name,
-        country: candidateBefore?.country, 
-        city: candidateBefore?.city 
-      },
-      after: { 
-        name: candidateAfter?.name,
-        country: candidateAfter?.country, 
-        city: candidateAfter?.city 
-      },
-      updateResult
+      database: 'PostgreSQL (Prisma)',
+      sampleCandidates: candidates,
     });
   } catch (error: unknown) {
-    console.error('[DEBUG ERROR]', error);
     const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[DEBUG ERROR]', error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

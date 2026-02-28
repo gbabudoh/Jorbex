@@ -8,8 +8,7 @@ import {
 } from './listmonk';
 
 import { createInterviewMeeting, InterviewMeeting } from './jitsi';
-import NotificationPreference from '@/models/NotificationPreference';
-import dbConnect from './dbConnect';
+import prisma from '@/lib/prisma';
 
 import {
   sendMessage,
@@ -531,31 +530,32 @@ export async function sendNotification(user: NotificationUser, options: Notifica
     return [];
   }
 
-  await dbConnect();
+  await Promise.resolve(); // no-op, replaced dbConnect
 
-  // Fetch or create preferences
-  let preferences = await NotificationPreference.findOne({ 
-    userId, 
-    userType: user.userType || 'candidate' 
-  });
+  // Fetch or create preferences based on user type
+  let emailEnabled = true;
+  let pushEnabled = true;
 
-  if (!preferences) {
-    preferences = await NotificationPreference.create({
-      userId,
-      userType: user.userType || 'candidate'
-    });
-  }
-
-  // 1. Check if this TYPE of notification is enabled
-  if (options.type && !preferences.types[options.type]) {
-    console.log(`Notification of type ${options.type} is disabled for user ${userId}`);
-    return [];
+  if (user.userType === 'employer' && userId) {
+    let prefs = await prisma.employerNotificationPreference.findUnique({ where: { employerId: userId } });
+    if (!prefs) {
+      prefs = await prisma.employerNotificationPreference.create({ data: { employerId: userId } });
+    }
+    emailEnabled = prefs.email;
+    pushEnabled = prefs.push;
+  } else if (userId) {
+    let prefs = await prisma.candidateNotificationPreference.findUnique({ where: { candidateId: userId } });
+    if (!prefs) {
+      prefs = await prisma.candidateNotificationPreference.create({ data: { candidateId: userId } });
+    }
+    emailEnabled = prefs.email;
+    pushEnabled = prefs.push;
   }
 
   const tasks: Promise<unknown>[] = [];
 
   // 2. Send Email Notification if enabled
-  if (options.emailTemplateId && user.email && preferences.channels.email) {
+  if (options.emailTemplateId && user.email && emailEnabled) {
     tasks.push(
       sendEmailNotification({
         email: user.email,
@@ -569,7 +569,7 @@ export async function sendNotification(user: NotificationUser, options: Notifica
   }
 
   // 3. Send Push Notification if enabled
-  if (preferences.channels.push) {
+  if (pushEnabled) {
     const pushTopic = user.ntfyTopic || `user_${userId}`;
     if (pushTopic) {
       tasks.push(

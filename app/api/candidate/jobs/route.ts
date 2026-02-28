@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import Job from '@/models/Job';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
@@ -11,28 +10,23 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
-
     const { searchParams } = new URL(request.url);
     const title = searchParams.get('title');
     const type = searchParams.get('type');
     const location = searchParams.get('location');
 
-    const query: Record<string, unknown> = { status: 'active' };
-    
-    if (title) {
-      query.title = { $regex: title, $options: 'i' };
-    }
-    if (type) {
-      query.type = type;
-    }
-    if (location) {
-      query.location = { $regex: location, $options: 'i' };
-    }
-
-    const jobs = await Job.find(query)
-      .populate('employerId', 'companyName industry logo')
-      .sort({ createdAt: -1 });
+    const jobs = await prisma.job.findMany({
+      where: {
+        status: 'ACTIVE',
+        ...(title && { title: { contains: title, mode: 'insensitive' } }),
+        ...(type && { type }),
+        ...(location && { location: { contains: location, mode: 'insensitive' } }),
+      },
+      include: {
+        employer: { select: { companyName: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
     return NextResponse.json({ jobs });
   } catch (error: unknown) {

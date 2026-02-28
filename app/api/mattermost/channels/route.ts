@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import Employer from '@/models/Employer';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
@@ -11,16 +10,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Missing employerId' }, { status: 400 });
     }
 
-    await dbConnect();
-    const employer = await Employer.findById(employerId).select('mattermostChannels');
+    const channels = await prisma.mattermostChannel.findMany({
+      where: { employerId },
+    });
 
-    if (!employer) {
-      return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({ channels: employer.mattermostChannels || [] });
-
-  } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ channels });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch channels';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

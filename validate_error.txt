@@ -1,0 +1,3 @@
+Failed to load config file "E:\APPLICATIONS\applications\Africa Based\jorbex" as a TypeScript/JavaScript module. Error: Error: Cannot find module 'effect'
+Require stack:
+- E:\APPLICATIONS\applications\Africa Based\jorbex\node_modules\@prisma\config\dist\index.js

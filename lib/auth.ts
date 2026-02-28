@@ -1,9 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
-import dbConnect from './dbConnect';
-import Candidate from '@/models/Candidate';
-import Employer from '@/models/Employer';
+import prisma from './prisma';
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || 'development-secret-key-change-in-production',
@@ -22,25 +20,28 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          await dbConnect();
-
-          // Normalize email to lowercase to match database storage
           const normalizedEmail = credentials.email.toLowerCase().trim();
-          
-          const UserModel = credentials.userType === 'candidate' ? Candidate : Employer;
-          const user = await UserModel.findOne({ email: normalizedEmail }).select('+password');
+
+          let user: { id: string; email: string; name: string; password: string } | null = null;
+
+          if (credentials.userType === 'candidate') {
+            user = await prisma.candidate.findUnique({
+              where: { email: normalizedEmail },
+              select: { id: true, email: true, name: true, password: true },
+            });
+          } else {
+            user = await prisma.employer.findUnique({
+              where: { email: normalizedEmail },
+              select: { id: true, email: true, name: true, password: true },
+            });
+          }
 
           if (!user) {
             console.error(`User not found: ${normalizedEmail}`);
             return null;
           }
 
-          if (!user.password) {
-            console.error('User password field is missing');
-            return null;
-          }
-
-          const isPasswordValid = await user.comparePassword(credentials.password);
+          const isPasswordValid = await compare(credentials.password, user.password);
 
           if (!isPasswordValid) {
             console.error('Invalid password for user:', normalizedEmail);
@@ -48,7 +49,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           return {
-            id: user._id.toString(),
+            id: user.id,
             email: user.email,
             name: user.name,
             userType: credentials.userType,
@@ -84,4 +85,3 @@ export const authOptions: NextAuthOptions = {
   },
   debug: process.env.NODE_ENV === 'development',
 };
-

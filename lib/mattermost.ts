@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Employer from '@/models/Employer';
+import prisma from '@/lib/prisma';
 
 const MATTERMOST_URL = process.env.MATTERMOST_URL;
 const MATTERMOST_BOT_TOKEN = process.env.MATTERMOST_BOT_TOKEN;
@@ -139,7 +139,6 @@ export const mattermost = {
         type: options.type || 'P',
       });
       return response.data;
-      return response.data;
     } catch (error: any) {
       console.error('Mattermost Create Channel Error:', error);
       throw error;
@@ -147,7 +146,7 @@ export const mattermost = {
   },
   
   createHiringChannel: async (employerId: string, jobId: string, jobTitle: string) => {
-    const employer = await Employer.findById(employerId);
+    const employer = await prisma.employer.findUnique({ where: { id: employerId } });
     if (!employer) throw new Error('Employer not found');
     const teamId = employer.mattermostTeamId || MATTERMOST_TEAM_ID;
     if (!teamId) throw new Error('Mattermost Team ID not configured');

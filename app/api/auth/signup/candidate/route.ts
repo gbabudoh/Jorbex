@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import Candidate from '@/models/Candidate';
+import { hash } from 'bcryptjs';
+import prisma from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -14,112 +14,47 @@ export async function POST(request: Request) {
       );
     }
 
-    try {
-      await dbConnect();
-      console.log('Database connected successfully');
-    } catch (dbError: any) {
-      console.error('Database connection error:', dbError);
-      return NextResponse.json(
-        { error: `Database connection failed: ${dbError.message}. Please check your MongoDB connection in .env.local` },
-        { status: 500 }
-      );
-    }
-
-    // Normalize email
     const normalizedEmail = email.toLowerCase().trim();
 
     // Check if candidate already exists
-    const existingCandidate = await Candidate.findOne({ email: normalizedEmail });
-    if (existingCandidate) {
+    const existing = await prisma.candidate.findUnique({
+      where: { email: normalizedEmail },
+    });
+    if (existing) {
       return NextResponse.json(
         { error: 'Email already registered' },
         { status: 400 }
       );
     }
 
-    // Create new candidate
-    console.log('Attempting to create candidate:', { 
-      name: name.trim(), 
-      email: normalizedEmail,
-      phone: phone.trim(),
-      expertise,
-    });
-    
-    let candidate;
-    try {
-      candidate = await Candidate.create({
+    const hashedPassword = await hash(password, 12);
+
+    const candidate = await prisma.candidate.create({
+      data: {
         name: name.trim(),
         email: normalizedEmail,
-        password,
+        password: hashedPassword,
         phone: phone.trim(),
         expertise,
         skills: [],
-        workHistory: [],
-        references: [],
         onboardingTestPassed: false,
-      });
-
-      console.log('Candidate created successfully:', {
-        id: candidate._id,
-        name: candidate.name,
-        email: candidate.email,
-        createdAt: candidate.createdAt,
-      });
-    } catch (createError: any) {
-      console.error('Candidate creation error:', createError);
-      
-      // Handle validation errors
-      if (createError.name === 'ValidationError') {
-        const validationErrors = Object.values(createError.errors).map((err: any) => err.message);
-        return NextResponse.json(
-          { error: `Validation error: ${validationErrors.join(', ')}` },
-          { status: 400 }
-        );
-      }
-      
-      // Handle duplicate key error
-      if (createError.code === 11000) {
-        return NextResponse.json(
-          { error: 'Email already registered' },
-          { status: 400 }
-        );
-      }
-      
-      throw createError; // Re-throw to be caught by outer catch
-    }
+      },
+    });
 
     return NextResponse.json(
       {
         message: 'Candidate created successfully',
         candidate: {
-          id: candidate._id,
+          id: candidate.id,
           email: candidate.email,
           name: candidate.name,
         },
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Signup error:', error);
-    console.error('Error details:', {
-      name: error.name,
-      message: error.message,
-      code: error.code,
-      errors: error.errors,
-      stack: error.stack,
-    });
-    
-    return NextResponse.json(
-      { 
-        error: error.message || 'Failed to create candidate',
-        details: process.env.NODE_ENV === 'development' ? {
-          name: error.name,
-          code: error.code,
-          errors: error.errors,
-        } : undefined,
-      },
-      { status: 500 }
-    );
+    const message = error instanceof Error ? error.message : 'Failed to create candidate';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

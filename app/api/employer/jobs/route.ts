@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import Job from '@/models/Job';
-import Employer from '@/models/Employer';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
@@ -13,21 +11,12 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const employerId = searchParams.get('employerId');
+    const employerId = searchParams.get('employerId') || session.user.id;
 
-    await dbConnect();
-
-    const query: Record<string, unknown> = {};
-    if (employerId) {
-      query.employerId = employerId;
-    } else {
-      // If no employerId provided, find by the current session's employer profile
-      const employer = await Employer.findById(session.user.id);
-      if (!employer) return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
-      query.employerId = employer._id;
-    }
-
-    const jobs = await Job.find(query).sort({ createdAt: -1 });
+    const jobs = await prisma.job.findMany({
+      where: { employerId },
+      orderBy: { createdAt: 'desc' },
+    });
 
     return NextResponse.json({ jobs });
   } catch (error: unknown) {
@@ -50,21 +39,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
     }
 
-    await dbConnect();
-
-    const employer = await Employer.findById(session.user.id);
+    const employer = await prisma.employer.findUnique({ where: { id: session.user.id } });
     if (!employer) {
       return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
     }
 
-    const job = await Job.create({
-      employerId: employer._id,
-      title,
-      description,
-      location,
-      type,
-      salary,
-      status: 'active'
+    const job = await prisma.job.create({
+      data: {
+        employerId: employer.id,
+        title,
+        description,
+        location,
+        type,
+        ...(salary && {
+          salaryMin: salary.min,
+          salaryMax: salary.max,
+          currency: salary.currency,
+        }),
+        status: 'ACTIVE',
+      },
     });
 
     return NextResponse.json({ job }, { status: 201 });
@@ -88,13 +81,11 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Missing job ID' }, { status: 400 });
     }
 
-    await dbConnect();
+    const result = await prisma.job.deleteMany({
+      where: { id, employerId: session.user.id },
+    });
 
-    const employer = await Employer.findById(session.user.id);
-    if (!employer) return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
-
-    const job = await Job.findOneAndDelete({ _id: id, employerId: employer._id });
-    if (!job) {
+    if (result.count === 0) {
       return NextResponse.json({ error: 'Job not found or unauthorized' }, { status: 404 });
     }
 

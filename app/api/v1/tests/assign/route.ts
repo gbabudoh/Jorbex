@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import AptitudeTest from '@/models/AptitudeTest';
-import Employer from '@/models/Employer';
-import Candidate from '@/models/Candidate';
-import Application from '@/models/Application';
+import prisma from '@/lib/prisma';
 import { sendPushNotification } from '@/lib/ntfy';
 
 export async function POST(req: Request) {
@@ -22,19 +18,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    await dbConnect();
-
     // 1. Verify Employer
-    const employer = await Employer.findById(session.user.id);
+    const employer = await prisma.employer.findUnique({ where: { id: session.user.id } });
     if (!employer) {
       return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
     }
 
-    // 2. Find the Template Test
-    const templateTest = await AptitudeTest.findOne({
-      _id: testId,
-      employerId: employer._id,
-      candidateId: { $exists: false },
+    // 2. Find the Template Test (owned by employer, no candidateId assigned)
+    const templateTest = await prisma.aptitudeTest.findFirst({
+      where: {
+        id: testId,
+        employerId: employer.id,
+      },
+      include: { questions: true },
     });
 
     if (!templateTest) {
@@ -42,58 +38,66 @@ export async function POST(req: Request) {
     }
 
     // 3. Find Candidate
-    const candidate = await Candidate.findById(candidateId).populate('userId');
+    const candidate = await prisma.candidate.findUnique({ where: { id: candidateId } });
     if (!candidate) {
       return NextResponse.json({ error: 'Candidate not found' }, { status: 404 });
     }
 
     // 4. Clone the Test for the Candidate
-    const assignedTest = await AptitudeTest.create({
-      title: templateTest.title,
-      description: templateTest.description,
-      testType: 'employer_custom',
-      employerId: employer._id,
-      candidateId: candidateId,
-      originalTestId: templateTest._id,
-      questions: templateTest.questions,
-      passingScore: templateTest.passingScore,
-      timeLimit: templateTest.timeLimit,
-      expertise: templateTest.expertise,
-      isActive: true,
+    const assignedTest = await prisma.aptitudeTest.create({
+      data: {
+        title: templateTest.title,
+        description: templateTest.description,
+        testType: 'EMPLOYER_CUSTOM',
+        employerId: employer.id,
+        originalTestId: templateTest.id,
+        passingScore: templateTest.passingScore,
+        timeLimit: templateTest.timeLimit,
+        expertise: templateTest.expertise,
+        isActive: true,
+        questions: {
+          create: templateTest.questions.map((q) => ({
+            question: q.question,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            explanation: q.explanation,
+          })),
+        },
+      },
     });
 
     // 5. Update Application Status (if exists)
-    // Find application between this candidate and employer (optional logic, but good for flow)
-    const application = await Application.findOne({
-      candidateId: candidateId,
-      employerId: employer._id,
-    }).sort({ createdAt: -1 });
+    const application = await prisma.application.findFirst({
+      where: {
+        candidateId: candidateId,
+        employerId: employer.id,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
     if (application) {
-      application.status = 'test_sent';
-      await application.save();
-    }
-
-    // 6. Notify Candidate
-    // We construct a link to take the test. Assuming a route like /dashboard/tests/[id]
-    const testLink = `${process.env.NEXTAUTH_URL}/dashboard/tests/${assignedTest._id}`;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anyCandidate = candidate as any;
-
-    if (anyCandidate.userId) { // If candidate has a User account linked
-      await sendPushNotification({
-        topic: anyCandidate.ntfyTopic || `user_${anyCandidate.userId}`, 
-        userType: 'candidate',
-        userId: anyCandidate.userId.toString(),
-        title: '📝 New Assessment Assigned',
-        message: `${employer.companyName} has sent you an aptitude test: "${templateTest.title}".`,
-        click: testLink,
-        priority: 3
+      await prisma.application.update({
+        where: { id: application.id },
+        data: { status: 'TEST_SENT' },
       });
     }
 
-    return NextResponse.json({ success: true, testId: assignedTest._id });
+    // 6. Notify Candidate
+    const testLink = `${process.env.NEXTAUTH_URL}/dashboard/tests/${assignedTest.id}`;
+
+    if (candidate.ntfyTopic) {
+      await sendPushNotification({
+        topic: candidate.ntfyTopic,
+        userType: 'candidate',
+        userId: candidate.id,
+        title: '📝 New Assessment Assigned',
+        message: `${employer.companyName} has sent you an aptitude test: "${templateTest.title}".`,
+        click: testLink,
+        priority: 3,
+      });
+    }
+
+    return NextResponse.json({ success: true, testId: assignedTest.id });
   } catch (error: unknown) {
     console.error('Error assigning test:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

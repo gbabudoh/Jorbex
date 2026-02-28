@@ -1,51 +1,48 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/dbConnect';
-import Message from '@/models/Message';
-// Ensured models are registered
-import '@/models/Employer';
-import '@/models/Candidate';
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'inbox';
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const userType = session.user.userType;
+    const userId = session.user.id;
 
-    await dbConnect();
+    const isEmployer = userType === 'employer';
 
-    let query = {};
+    let where = {};
     if (type === 'sent') {
-      query = { 
-        senderId: session.user.id,
-        deletedBySender: { $ne: true }
-      };
+      where = isEmployer
+        ? { senderEmployerId: userId, deletedBySender: false }
+        : { senderCandidateId: userId, deletedBySender: false };
     } else {
-      query = { 
-        receiverId: session.user.id,
-        deletedByReceiver: { $ne: true }
-      };
+      where = isEmployer
+        ? { receiverEmployerId: userId, deletedByReceiver: false }
+        : { receiverCandidateId: userId, deletedByReceiver: false };
     }
 
-    const messages = await Message.find(query)
-      .populate('senderId', 'name companyName')
-      .populate('receiverId', 'name companyName')
-      .sort({ createdAt: -1 });
+    const messages = await prisma.message.findMany({
+      where,
+      include: {
+        senderEmployer: { select: { id: true, name: true, companyName: true } },
+        senderCandidate: { select: { id: true, name: true } },
+        receiverEmployer: { select: { id: true, name: true, companyName: true } },
+        receiverCandidate: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
     return NextResponse.json({ messages }, { status: 200 });
-
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
-      { error: errorMessage },
+      { error: error instanceof Error ? error.message : 'An unknown error occurred' },
       { status: 500 }
     );
   }
@@ -54,44 +51,31 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { messageId } = await request.json();
-
     if (!messageId) {
-      return NextResponse.json(
-        { error: 'Message ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Message ID is required' }, { status: 400 });
     }
 
-    await dbConnect();
+    const isEmployer = session.user.userType === 'employer';
+    const receiverField = isEmployer ? 'receiverEmployerId' : 'receiverCandidateId';
 
-    const result = await Message.findOneAndUpdate(
-      { _id: messageId, receiverId: session.user.id },
-      { isRead: true },
-      { new: true }
-    );
+    const message = await prisma.message.updateMany({
+      where: { id: messageId, [receiverField]: session.user.id },
+      data: { isRead: true },
+    });
 
-    if (!result) {
-      return NextResponse.json(
-        { error: 'Message not found or unauthorized' },
-        { status: 404 }
-      );
+    if (message.count === 0) {
+      return NextResponse.json({ error: 'Message not found or unauthorized' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, message: result }, { status: 200 });
-
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
-      { error: errorMessage },
+      { error: error instanceof Error ? error.message : 'An unknown error occurred' },
       { status: 500 }
     );
   }
@@ -100,44 +84,31 @@ export async function PATCH(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { receiverId, content } = await request.json();
-
-    if (!receiverId || !content || content.trim() === '') {
-      return NextResponse.json(
-        { error: 'Receiver ID and content are required' },
-        { status: 400 }
-      );
+    const { receiverId, receiverType, content } = await request.json();
+    if (!receiverId || !content?.trim()) {
+      return NextResponse.json({ error: 'Receiver ID and content are required' }, { status: 400 });
     }
 
-    await dbConnect();
+    const isEmployer = session.user.userType === 'employer';
+    const targetIsEmployer = receiverType === 'employer';
 
-    const newMessage = new Message({
-      senderId: session.user.id,
-      receiverId,
-      senderType: session.user.userType,
-      content: content.trim(),
+    const message = await prisma.message.create({
+      data: {
+        content: content.trim(),
+        senderType: isEmployer ? 'EMPLOYER' : 'CANDIDATE',
+        ...(isEmployer ? { senderEmployerId: session.user.id } : { senderCandidateId: session.user.id }),
+        ...(targetIsEmployer ? { receiverEmployerId: receiverId } : { receiverCandidateId: receiverId }),
+      },
     });
 
-    await newMessage.save();
-
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Message sent successfully',
-      data: newMessage 
-    }, { status: 201 });
-
+    return NextResponse.json({ success: true, message: 'Message sent successfully', data: message }, { status: 201 });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
-      { error: errorMessage },
+      { error: error instanceof Error ? error.message : 'An unknown error occurred' },
       { status: 500 }
     );
   }
@@ -146,56 +117,40 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { messageId } = await request.json();
-
     if (!messageId) {
-      return NextResponse.json(
-        { error: 'Message ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Message ID is required' }, { status: 400 });
     }
 
-    await dbConnect();
-
-    // Find the message
-    const message = await Message.findById(messageId);
-
+    const message = await prisma.message.findUnique({ where: { id: messageId } });
     if (!message) {
-      return NextResponse.json(
-        { error: 'Message not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Message not found' }, { status: 404 });
     }
 
-    // Determine if user is sender or receiver and mark accordingly
-    if (message.senderId.toString() === session.user.id) {
-      message.deletedBySender = true;
-    } else if (message.receiverId.toString() === session.user.id) {
-      message.deletedByReceiver = true;
-    } else {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    const userId = session.user.id;
+    const isSender = message.senderEmployerId === userId || message.senderCandidateId === userId;
+    const isReceiver = message.receiverEmployerId === userId || message.receiverCandidateId === userId;
+
+    if (!isSender && !isReceiver) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // If both marked as deleted, we could hard delete, but soft delete is safer
-    await message.save();
+    await prisma.message.update({
+      where: { id: messageId },
+      data: {
+        ...(isSender && { deletedBySender: true }),
+        ...(isReceiver && { deletedByReceiver: true }),
+      },
+    });
 
     return NextResponse.json({ success: true, message: 'Message deleted' }, { status: 200 });
-
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json(
-      { error: errorMessage },
+      { error: error instanceof Error ? error.message : 'An unknown error occurred' },
       { status: 500 }
     );
   }
