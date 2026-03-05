@@ -31,9 +31,9 @@ export async function GET(request: Request) {
     const messages = await prisma.message.findMany({
       where,
       include: {
-        senderEmployer: { select: { id: true, name: true, companyName: true } },
+        senderEmployer: { select: { id: true, name: true, companyName: true, country: true, city: true } },
         senderCandidate: { select: { id: true, name: true } },
-        receiverEmployer: { select: { id: true, name: true, companyName: true } },
+        receiverEmployer: { select: { id: true, name: true, companyName: true, country: true, city: true } },
         receiverCandidate: { select: { id: true, name: true } },
       },
       orderBy: { createdAt: 'desc' },

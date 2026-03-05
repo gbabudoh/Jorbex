@@ -22,10 +22,12 @@ interface InterviewRoomProps {
 
 export default function InterviewRoom({ roomName, displayName, serverUrl }: InterviewRoomProps) {
   return (
-    <LiveKitMeeting
-      roomName={roomName}
-      displayName={displayName}
-      serverUrl={serverUrl}
-    />
+    <div className="flex-1 flex flex-col min-h-0 w-full">
+      <LiveKitMeeting
+        roomName={roomName}
+        displayName={displayName}
+        serverUrl={serverUrl}
+      />
+    </div>
   );
 }

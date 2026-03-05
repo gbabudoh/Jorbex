@@ -16,18 +16,21 @@ const NavLink = ({ href, pathname, children, icon }: { href: string; pathname: s
   return (
     <Link
       href={href}
-      className={`relative flex items-center space-x-1.5 px-3 py-2 text-sm font-bold transition-all duration-300 group
-        ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400'}`}
+      className={`relative flex items-center space-x-2 px-3.5 py-2 text-[13px] font-bold tracking-tight transition-all duration-300 group rounded-xl
+        ${isActive 
+          ? 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-400/10' 
+          : 'text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/50'}`}
     >
-      {icon}
+      <span className={`transition-transform duration-300 group-hover:scale-110 ${isActive ? 'scale-110' : ''}`}>
+        {icon}
+      </span>
       <span>{children}</span>
       {isActive && (
         <motion.div
-          layoutId="nav-underglow"
-          className="absolute -bottom-[21px] left-0 right-0 h-[3px] bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full shadow-[0_0_10px_rgba(37,99,235,0.4)]"
+          layoutId="nav-glow"
+          className="absolute inset-0 z-[-1] rounded-xl bg-blue-500/5 blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ type: "spring", stiffness: 380, damping: 30 }}
         />
       )}
     </Link>
@@ -55,10 +58,10 @@ export const Header: React.FC = () => {
 
   return (
     <header 
-      className={`sticky top-0 z-[100] w-full transition-all duration-500 border-b
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500
         ${scrolled 
-          ? 'py-2 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm' 
-          : 'py-4 bg-white dark:bg-slate-900 border-b border-transparent'}`}
+          ? 'mt-2 mx-4 sm:mx-6 lg:mx-8 rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 shadow-2xl shadow-blue-500/10 py-1.5' 
+          : 'bg-white dark:bg-slate-950/0 border-b border-transparent py-4'}`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12">
@@ -87,13 +90,13 @@ export const Header: React.FC = () => {
               
               {session?.user?.userType === 'employer' ? (
                 <>
-                  <NavLink href="/employer/profile" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>}>
+                  <NavLink href="/employer/profile" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}>
                     {t('employer_profile.title')}
                   </NavLink>
                   <NavLink href="/employer/search" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>}>
                     {t('nav.dashboard')}
                   </NavLink>
-                  <NavLink href="/employer/jobs" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}>
+                  <NavLink href="/employer/jobs" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>}>
                     {t('nav.jobs')}
                   </NavLink>
                   <NavLink href="/employer/applications" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>}>
@@ -102,11 +105,11 @@ export const Header: React.FC = () => {
                   <NavLink href="/employer/interviews" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}>
                     {t('nav.interviews') || 'Interviews'}
                   </NavLink>
+                  <NavLink href="/employer/messages" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>}>
+                    {t('nav.messages')}
+                  </NavLink>
                   <NavLink href="/employer/tests" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}>
                     {t('nav.tests')}
-                  </NavLink>
-                  <NavLink href="/employer/messages" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}>
-                    {t('nav.messages')}
                   </NavLink>
                 </>
               ) : session?.user?.userType === 'candidate' && (
@@ -123,7 +126,7 @@ export const Header: React.FC = () => {
                   <NavLink href="/candidate/interviews" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}>
                     {t('nav.interviews') || 'Interviews'}
                   </NavLink>
-                  <NavLink href="/candidate/messages" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>}>
+                  <NavLink href="/candidate/messages" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>}>
                     {t('nav.messages')}
                   </NavLink>
                   <NavLink href="/candidate/tests" pathname={pathname} icon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}>
@@ -154,12 +157,12 @@ export const Header: React.FC = () => {
               ) : (
                 <div className="flex items-center space-x-2">
                   <Link href="/login">
-                    <Button variant="ghost" size="sm" className="h-11 px-6 font-bold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-all">
+                    <Button variant="ghost" size="sm" className="h-11 px-5 text-[13px] font-bold cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-xl transition-all">
                       {t('nav.sign_in')}
                     </Button>
                   </Link>
                   <Link href="/signup">
-                    <Button variant="primary" size="sm" className="h-11 px-8 font-black rounded-2xl shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all cursor-pointer">
+                    <Button variant="primary" size="sm" className="h-11 px-6 text-[13px] font-black rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all cursor-pointer border-none">
                       {t('nav.get_started')}
                     </Button>
                   </Link>
@@ -228,9 +231,14 @@ export const Header: React.FC = () => {
             >
               <div className="flex flex-col h-full p-8">
                 <div className="flex justify-between items-center mb-10">
-                  <Image src="/logo.png" alt="Jorbex" width={100} height={35} className="h-8 w-auto" />
-                  <button onClick={() => setIsMenuOpen(false)} className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 cursor-pointer">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <Link href="/" onClick={() => setIsMenuOpen(false)}>
+                    <Image src="/logo.png" alt="Jorbex" width={100} height={35} className="h-8 w-auto" />
+                  </Link>
+                  <button 
+                    onClick={() => setIsMenuOpen(false)} 
+                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800/50 text-slate-500 hover:text-rose-500 transition-colors cursor-pointer"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -262,41 +270,49 @@ export const Header: React.FC = () => {
                       key={item.href}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.1 }}
+                      transition={{ delay: i * 0.05 }}
                     >
                       <Link
                         href={item.href}
-                        className={`flex items-center space-x-4 text-xl font-black transition-all ${pathname === item.href ? 'text-blue-600' : 'text-slate-900 dark:text-white'}`}
+                        className={`flex items-center space-x-4 p-3 rounded-2xl transition-all duration-300 group
+                          ${pathname === item.href 
+                            ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' 
+                            : 'hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300'}`}
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        {item.icon && (
-                          <svg className="w-6 h-6 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={item.icon} />
-                          </svg>
-                        )}
-                        <span>{item.label}</span>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
+                          ${pathname === item.href 
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' 
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 group-hover:bg-white dark:group-hover:bg-slate-700 group-hover:text-blue-600 shadow-sm'}`}
+                        >
+                          {item.icon && (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                            </svg>
+                          )}
+                        </div>
+                        <span className="text-sm font-bold tracking-tight">{item.label}</span>
                       </Link>
                     </motion.div>
                   ))}
                   
                   {session ? (
                     <motion.div 
-                      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                      className="pt-10 mt-10 border-t border-slate-100 dark:border-slate-800"
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+                      className="pt-6 mt-auto bg-slate-50/50 dark:bg-slate-900/50 -mx-8 px-8 pb-8"
                     >
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-between h-14 px-6 rounded-2xl bg-rose-500/5 text-rose-500 border-2 border-rose-500/10 font-black cursor-pointer"
+                      <button
+                        className="w-full flex items-center justify-between h-12 px-5 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-500 border border-rose-100 dark:border-rose-500/20 text-[13px] font-bold cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all"
                         onClick={() => {
                           setIsMenuOpen(false);
                           signOut({ callbackUrl: '/' });
                         }}
                       >
                         {t('nav.sign_out')}
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 16l4-4m0 0l-4-4m4 4H7" />
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7" />
                         </svg>
-                      </Button>
+                      </button>
                     </motion.div>
                   ) : (
                     <motion.div 

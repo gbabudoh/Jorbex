@@ -5,12 +5,14 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
+  containerClassName?: string;
 }
 
 export const Input: React.FC<InputProps> = ({
   label,
   error,
   helperText,
+  containerClassName,
   className,
   id,
   ...props
@@ -19,7 +21,7 @@ export const Input: React.FC<InputProps> = ({
   const inputId = id || generatedId;
 
   return (
-    <div className="w-full">
+    <div className={cn("w-full", containerClassName)}>
       {label && (
         <label
           htmlFor={inputId}

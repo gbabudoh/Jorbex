@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import SendTestModal from '@/components/shared/SendTestModal';
 import { useLanguage } from '@/lib/LanguageContext';
+import { EXPERTISE_LIST } from '@/lib/constants';
 
 interface Candidate {
   id: string;
@@ -317,13 +318,11 @@ export default function SearchPage() {
                           className="w-full h-14 px-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all font-medium appearance-none cursor-pointer"
                         >
                           <option value="">{t('talent_search.all_areas')}</option>
-                          <option value="Finance">💼 {t('signup.expertise.finance')}</option>
-                          <option value="IT">💻 {t('signup.expertise.it')}</option>
-                          <option value="Marketing">📢 {t('signup.expertise.marketing')}</option>
-                          <option value="Sales">📊 {t('signup.expertise.sales')}</option>
-                          <option value="HR">👥 {t('signup.expertise.hr')}</option>
-                          <option value="Operations">⚙️ {t('signup.expertise.operations')}</option>
-                          <option value="Data Analysis">📈 {t('signup.expertise.data_analysis')}</option>
+                          {EXPERTISE_LIST.map((exp) => (
+                            <option key={exp.id} value={exp.label}>
+                              {t(`signup.expertise.${exp.id}`)}
+                            </option>
+                          ))}
                         </select>
                       </div>
 

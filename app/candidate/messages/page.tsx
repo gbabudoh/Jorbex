@@ -8,16 +8,33 @@ import { Notification } from '@/components/ui/Notification';
 import { useLanguage } from '@/lib/LanguageContext';
 
 interface Message {
-  _id: string;
-  senderId: {
-    _id: string;
+  id: string;
+  senderType: 'EMPLOYER' | 'CANDIDATE';
+  senderEmployerId?: string;
+  senderCandidateId?: string;
+  receiverEmployerId?: string;
+  receiverCandidateId?: string;
+  senderEmployer?: {
+    id: string;
     name: string;
     companyName?: string;
+    country?: string;
+    city?: string;
   };
-  receiverId: {
-    _id: string;
+  senderCandidate?: {
+    id: string;
+    name: string;
+  };
+  receiverEmployer?: {
+    id: string;
     name: string;
     companyName?: string;
+    country?: string;
+    city?: string;
+  };
+  receiverCandidate?: {
+    id: string;
+    name: string;
   };
   content: string;
   isRead: boolean;
@@ -36,9 +53,9 @@ export default function MessagesPage() {
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<{ _id: string, name: string, companyName?: string }[]>([]);
+  const [searchResults, setSearchResults] = useState<{ id: string, name: string, companyName?: string }[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [newRecipient, setNewRecipient] = useState<{ _id: string, name: string, companyName?: string } | null>(null);
+  const [newRecipient, setNewRecipient] = useState<{ id: string, name: string, companyName?: string } | null>(null);
 
   const fetchMessages = useCallback(async () => {
     setIsLoading(true);
@@ -90,7 +107,7 @@ export default function MessagesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messageId }),
       });
-      setMessages(prev => prev.map(m => m._id === messageId ? { ...m, isRead: true } : m));
+      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isRead: true } : m));
     } catch (error: unknown) {
       console.error('Failed to mark message as read:', error instanceof Error ? error.message : error);
     }
@@ -109,7 +126,7 @@ export default function MessagesPage() {
 
       if (response.ok) {
         setNotification({ type: 'success', message: t('messages.delete_success') });
-        setMessages(prev => prev.filter(m => m._id !== messageId));
+        setMessages(prev => prev.filter(m => m.id !== messageId));
         setSelectedMessage(null);
       } else {
         const data = await response.json();
@@ -127,7 +144,7 @@ export default function MessagesPage() {
     setSelectedMessage(message);
     setIsCreating(false);
     if (messageType === 'inbox' && !message.isRead) {
-      markAsRead(message._id);
+      markAsRead(message.id);
     }
     setReplyContent('');
   };
@@ -137,14 +154,22 @@ export default function MessagesPage() {
     if (!content) return;
 
     let receiverId = '';
+    let receiverType = '';
+
     if (isNew) {
       if (!newRecipient) return;
-      receiverId = newRecipient._id;
+      receiverId = newRecipient.id;
+      receiverType = 'employer'; // Candidate always sends to employer in this view
     } else {
       if (!selectedMessage) return;
       receiverId = messageType === 'inbox' 
-        ? selectedMessage.senderId._id 
-        : selectedMessage.receiverId._id;
+        ? (selectedMessage.senderEmployerId || selectedMessage.senderCandidateId || '')
+        : (selectedMessage.receiverEmployerId || selectedMessage.receiverCandidateId || '');
+      
+      // If we are in inbox, the receiver of our reply is the sender of the original message
+      receiverType = messageType === 'inbox' 
+        ? selectedMessage.senderType.toLowerCase()
+        : (selectedMessage.receiverEmployerId ? 'employer' : 'candidate');
     }
 
     setIsSending(true);
@@ -156,6 +181,7 @@ export default function MessagesPage() {
         },
         body: JSON.stringify({
           receiverId,
+          receiverType,
           content,
         }),
       });
@@ -255,17 +281,17 @@ export default function MessagesPage() {
             <div className="space-y-3">
               {messages.map((message) => (
                 <Card 
-                  key={message._id} 
+                  key={message.id} 
                   hover 
-                  className={`cursor-pointer transition-all ${selectedMessage?._id === message._id ? 'border-[#0066FF] ring-1 ring-[#0066FF]' : ''} ${messageType === 'inbox' && !message.isRead ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                  className={`cursor-pointer transition-all ${selectedMessage?.id === message.id ? 'border-[#0066FF] ring-1 ring-[#0066FF]' : ''} ${messageType === 'inbox' && !message.isRead ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
                   onClick={() => handleSelectMessage(message)}
                 >
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-bold text-sm truncate pr-2">
                         {messageType === 'sent' 
-                          ? `${t('messages.to')}${message.receiverId?.name || t('messages.employer')}`
-                          : (message.senderId?.name || t('messages.employer'))}
+                          ? `${t('messages.to')}${selectedMessage?.receiverEmployer?.companyName || selectedMessage?.receiverEmployer?.name || selectedMessage?.receiverCandidate?.name || t('messages.recipient')}`
+                          : (message.senderEmployer?.companyName || message.senderEmployer?.name || message.senderCandidate?.name || t('messages.sender'))}
                       </span>
                       <span className="text-[10px] text-gray-500 shrink-0">
                         {formatDate(message.createdAt)}
@@ -339,7 +365,7 @@ export default function MessagesPage() {
                           <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-2xl z-50 overflow-hidden">
                             {searchResults.map((user) => (
                               <button
-                                key={user._id}
+                                key={user.id}
                                 className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-0 flex items-center gap-3 transition-colors cursor-pointer"
                                 onClick={() => { setNewRecipient(user); setSearchResults([]); setSearchTerm(''); }}
                               >
@@ -398,19 +424,19 @@ export default function MessagesPage() {
                     <div>
                       <CardTitle className="text-base md:text-lg">
                         {messageType === 'sent' 
-                          ? selectedMessage.receiverId?.name 
-                          : selectedMessage.senderId?.name}
+                          ? (selectedMessage.receiverEmployer?.companyName || selectedMessage.receiverEmployer?.name || selectedMessage.receiverCandidate?.name)
+                          : (selectedMessage.senderEmployer?.companyName || selectedMessage.senderEmployer?.name || selectedMessage.senderCandidate?.name)}
                       </CardTitle>
                       <CardDescription className="text-xs md:text-sm">
                         {messageType === 'sent' 
-                          ? (selectedMessage.receiverId?.companyName || t('messages.employer'))
-                          : (selectedMessage.senderId?.companyName || t('messages.employer'))}
+                          ? (selectedMessage.receiverEmployer ? t('messages.employer') : t('messages.candidate'))
+                          : (selectedMessage.senderEmployer ? t('messages.employer') : t('messages.candidate'))}
                       </CardDescription>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 md:gap-4">
                     <button 
-                      onClick={() => handleDelete(selectedMessage._id)}
+                      onClick={() => handleDelete(selectedMessage.id)}
                       disabled={isDeleting}
                       className="p-1.5 md:p-2 text-gray-400 hover:text-red-500 transition-colors bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer"
                       title={t('messages.delete_tooltip')}
@@ -431,6 +457,17 @@ export default function MessagesPage() {
               <CardContent className="p-4 md:p-8 overflow-y-auto flex-1 bg-white dark:bg-gray-950">
                 <div className="space-y-6">
                   <div className="prose dark:prose-invert max-w-none">
+                    {selectedMessage.senderType === 'EMPLOYER' && selectedMessage.senderEmployer && (
+                      <div className="mb-6 p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Employer Details</p>
+                        <p className="text-base font-bold text-[#0066FF]">Employer [{selectedMessage.senderEmployer.companyName || selectedMessage.senderEmployer.name}]</p>
+                        {(selectedMessage.senderEmployer.country || selectedMessage.senderEmployer.city) && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Location: {[selectedMessage.senderEmployer.country, selectedMessage.senderEmployer.city].filter(Boolean).join(' | ')}
+                          </p>
+                        )}
+                      </div>
+                    )}
                     <p className="whitespace-pre-wrap leading-relaxed text-sm md:text-base text-gray-800 dark:text-gray-200">
                       {selectedMessage.content}
                     </p>

@@ -18,15 +18,15 @@ interface LiveKitMeetingProps {
 
 function JorbexBranding() {
   return (
-    <div className="absolute top-4 left-4 z-50 flex items-center gap-2 bg-black/60 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg">
+    <div className="absolute top-4 left-4 z-50 flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-lg px-3 py-1.5 border border-white/10 shadow-xl">
       <Image
         src="/logo.png"
         alt="Jorbex"
         width={80}
         height={28}
-        className="h-6 w-auto brightness-0 invert"
+        className="h-6 w-auto"
       />
-      <span className="text-[10px] font-semibold text-white/70 uppercase tracking-wider border-l border-white/20 pl-2">
+      <span className="text-[10px] font-bold text-white uppercase tracking-wider border-l border-white/20 pl-2">
         Interview
       </span>
     </div>
@@ -69,9 +69,22 @@ export default function LiveKitMeeting({
     fetchToken();
   }, [roomName, displayName]);
 
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
+
   const handleDisconnected = useCallback(() => {
+    setConnectionStatus('disconnected');
     if (onLeave) onLeave();
   }, [onLeave]);
+
+  const handleConnected = useCallback(() => {
+    setConnectionStatus('connected');
+  }, []);
+
+  const handleError = useCallback((err: Error) => {
+    console.error('LiveKit Room Error:', err);
+    setError(`Connection Error: ${err.message}`);
+    setConnectionStatus('disconnected');
+  }, []);
 
   if (loading) {
     return (
@@ -102,22 +115,50 @@ export default function LiveKitMeeting({
     );
   }
 
+  // Use proxied URL in browser to bypass Firefox CORS/Signal blocks
+  const effectiveServerUrl = typeof window !== 'undefined' 
+    ? `${window.location.protocol}//${window.location.host}/livekit`
+    : serverUrl;
+
   return (
-    <div className="relative w-full h-full min-h-[500px] bg-gray-950 rounded-xl overflow-hidden">
+    <div className="relative flex-1 w-full flex flex-col min-h-0 bg-gray-950 rounded-xl overflow-hidden">
       <JorbexBranding />
       <LiveKitRoom
         token={token}
-        serverUrl={serverUrl}
+        serverUrl={effectiveServerUrl}
         data-lk-theme="default"
         onDisconnected={handleDisconnected}
+        onConnected={handleConnected}
+        onError={handleError}
         className="h-full"
         connect={true}
         video={true}
         audio={true}
-        style={{ height: '100%' }}
+        options={{
+          adaptiveStream: false, // Often helpful for Firefox connectivity
+          dynacast: true,
+          publishDefaults: {
+            simulcast: false, // Simpler stream for troubleshooting Firefox
+          },
+        }}
+        style={{ height: '100%', flex: '1 1 0%', minHeight: 0 }}
       >
         <VideoConference />
         <RoomAudioRenderer />
+        {connectionStatus === 'disconnected' && (
+          <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-[60]">
+            <div className="text-center px-4">
+              <p className="text-red-400 font-bold mb-2">Room Disconnected</p>
+              <p className="text-gray-400 text-sm mb-4">The connection to the interview room was lost.</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+              >
+                Try Reconnecting
+              </button>
+            </div>
+          </div>
+        )}
       </LiveKitRoom>
     </div>
   );

@@ -8,6 +8,7 @@ import CookieConsent from '@/components/shared/CookieConsent';
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isInterviewPage = pathname?.startsWith('/interview');
+  const isProfilePage = pathname?.startsWith('/candidate/profile') || pathname?.startsWith('/employer');
 
   if (isInterviewPage) {
     return <>{children}</>;
@@ -16,11 +17,11 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   return (
     <>
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow pt-20">
         {children}
       </main>
-      <CookieConsent />
-      <Footer />
+      {!isProfilePage && <CookieConsent />}
+      {!isProfilePage && <Footer />}
     </>
   );
 }

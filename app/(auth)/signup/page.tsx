@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useLanguage } from '@/lib/LanguageContext';
+import { EXPERTISE_LIST } from '@/lib/constants';
 
 function SignupForm() {
   const router = useRouter();
@@ -204,13 +205,11 @@ function SignupForm() {
                 required
               >
                 <option value="">{t('signup.selectExpertise')}</option>
-                <option value="Finance">{t('signup.expertise.finance')}</option>
-                <option value="IT">{t('signup.expertise.it')}</option>
-                <option value="Marketing">{t('signup.expertise.marketing')}</option>
-                <option value="Sales">{t('signup.expertise.sales')}</option>
-                <option value="HR">{t('signup.expertise.hr')}</option>
-                <option value="Operations">{t('signup.expertise.operations')}</option>
-                <option value="Other">{t('signup.expertise.other')}</option>
+                {EXPERTISE_LIST.map((exp) => (
+                  <option key={exp.id} value={exp.label}>
+                    {t(`signup.expertise.${exp.id}`)}
+                  </option>
+                ))}
               </select>
             </div>
           )}
