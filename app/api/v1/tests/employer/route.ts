@@ -20,7 +20,9 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json({ tests });
+    return NextResponse.json({ 
+      tests: tests.map(t => ({ ...t, _id: t.id })) 
+    });
   } catch (error: unknown) {
     console.error('Error fetching employer tests:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

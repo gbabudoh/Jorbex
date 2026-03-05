@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui/Badge';
 import { useLanguage } from '@/lib/LanguageContext';
 
 interface Interview {
-  _id: string;
+  id: string;
+  _id?: string;
   employerId: {
-    _id: string;
+    id: string;
+    _id?: string;
     name: string;
     companyName: string;
   };
@@ -84,8 +86,8 @@ export default function InterviewsPage() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {upcomingInterviews.map((interview) => (
-                <InterviewCard key={interview._id} interview={interview} isUpcoming={true} />
+              {upcomingInterviews.map((interview, index) => (
+                <InterviewCard key={interview.id || interview._id || `upcoming-${index}`} interview={interview} isUpcoming={true} />
               ))}
             </div>
           )}
@@ -101,8 +103,8 @@ export default function InterviewsPage() {
             <p className="text-gray-400 text-sm">{t('interviews.no_past_history')}</p>
           ) : (
             <div className="space-y-4">
-              {pastInterviews.map((interview) => (
-                <InterviewCard key={interview._id} interview={interview} isUpcoming={false} />
+              {pastInterviews.map((interview, index) => (
+                <InterviewCard key={interview.id || interview._id || `past-${index}`} interview={interview} isUpcoming={false} />
               ))}
             </div>
           )}
@@ -115,7 +117,7 @@ export default function InterviewsPage() {
 function InterviewCard({ interview, isUpcoming }: { interview: Interview; isUpcoming: boolean }) {
   const { t } = useLanguage();
   const date = new Date(interview.dateTime);
-  const isVirtual = interview.type === 'virtual';
+  const isVirtual = interview.type?.toLowerCase() === 'virtual';
 
   const badgeVariant = interview.status === 'cancelled' ? 'error' : interview.status === 'completed' ? 'success' : 'info';
 

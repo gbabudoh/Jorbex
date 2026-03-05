@@ -31,7 +31,9 @@ export async function GET(request: Request) {
       },
     });
 
-    return NextResponse.json({ candidates }, { status: 200 });
+    return NextResponse.json({ 
+      candidates: candidates.map(c => ({ ...c, _id: c.id })) 
+    }, { status: 200 });
   } catch (error: unknown) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to search candidates' },

@@ -5,7 +5,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
 interface Test {
-  _id: string;
+  id: string;
+  _id?: string;
   title: string;
   description: string;
   passingScore: number;
@@ -173,12 +174,12 @@ export default function SendTestModal({ isOpen, onClose, candidateId, candidateN
                       </Button>
                     </div>
                   ) : (
-                    tests.map((test) => (
+                    tests.map((test, index) => (
                       <div 
-                        key={test._id}
-                        onClick={() => setSelectedTestId(test._id)}
+                        key={test.id || test._id || `test-${index}`}
+                        onClick={() => setSelectedTestId(test.id || test._id || '')}
                         className={`p-4 rounded-xl border-2 transition-all cursor-pointer relative overflow-hidden group ${
-                          selectedTestId === test._id 
+                          selectedTestId === (test.id || test._id) 
                             ? 'border-[#0066FF] bg-blue-50/50 dark:bg-blue-900/20 shadow-md' 
                             : 'border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 bg-white dark:bg-gray-900'
                         }`}
@@ -199,9 +200,9 @@ export default function SendTestModal({ isOpen, onClose, candidateId, candidateN
                             </div>
                           </div>
                           <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
-                            selectedTestId === test._id ? 'border-[#0066FF] bg-[#0066FF] text-white' : 'border-gray-200 dark:border-gray-700'
+                            selectedTestId === (test.id || test._id) ? 'border-[#0066FF] bg-[#0066FF] text-white' : 'border-gray-200 dark:border-gray-700'
                           }`}>
-                            {selectedTestId === test._id && (
+                            {selectedTestId === (test.id || test._id) && (
                               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                               </svg>

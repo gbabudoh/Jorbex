@@ -24,6 +24,7 @@
     "@capacitor/core": "^7.4.4",
     "@capacitor/ios": "^7.4.4",
     "@livekit/components-react": "^2.9.20",
+    "@livekit/components-styles": "^1.2.0",
     "@prisma/client": "^6.9.0",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",

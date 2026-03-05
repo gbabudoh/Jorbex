@@ -11,7 +11,8 @@ import SendTestModal from '@/components/shared/SendTestModal';
 import { useLanguage } from '@/lib/LanguageContext';
 
 interface Candidate {
-  _id: string;
+  id: string;
+  _id?: string; // Fallback for transition
   name: string;
   email: string;
   phone: string;
@@ -148,8 +149,8 @@ export default function SearchPage() {
 
   const getSelectedCandidatesData = () => {
     return candidates
-      .filter(c => selectedIds.has(c._id))
-      .map(c => ({ id: c._id, name: c.name }));
+      .filter(c => selectedIds.has(c.id || c._id || ''))
+      .map(c => ({ id: c.id || c._id || '', name: c.name }));
   };
 
   const getScoreColor = (score: number) => {
@@ -442,17 +443,23 @@ export default function SearchPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-stretch' : 'space-y-6'}>
-            {candidates.map((candidate) => (
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-stretch' : 'space-y-6'}
+          >
+            {candidates.map((candidate, index) => (
               viewMode === 'grid' ? (
                 // Redesigned Grid View
-                <div
-                  key={candidate._id}
+                <motion.div
+                  key={candidate.id || candidate._id || `cand-${index}`}
+                  variants={itemVariants}
                   className="group relative hover:-translate-y-2 transition-transform duration-200 h-full"
                 >
                   <Card 
                     className="relative h-full flex flex-col border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-blue-500/30 transition-all duration-200 cursor-pointer"
-                    onClick={() => router.push(`/employer/candidates/${candidate._id}`)}
+                    onClick={() => router.push(`/employer/candidates/${candidate.id || candidate._id}`)}
                   >
                     <div className="p-8 flex flex-col flex-1">
                       {/* Avatar and Info Header */}
@@ -462,14 +469,14 @@ export default function SearchPage() {
                             className="relative cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation();
-                              toggleSelection(candidate._id);
+                              toggleSelection(candidate.id || candidate._id || '');
                             }}
                           >
                             <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-600/20 transform group-hover:rotate-6 transition-transform duration-200">
                               {candidate.name.charAt(0).toUpperCase()}
                             </div>
                             <div className={`absolute -top-2 -left-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-150 ${
-                              selectedIds.has(candidate._id) 
+                              selectedIds.has(candidate.id || candidate._id || '') 
                                 ? 'bg-blue-600 border-blue-600 text-white scale-110' 
                                 : 'bg-white border-slate-200 text-transparent scale-100 group-hover:border-blue-400'
                             }`}>
@@ -527,7 +534,7 @@ export default function SearchPage() {
                         className="w-full h-14 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 group-hover:shadow-2xl shadow-slate-900/10 gap-2 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push(`/employer/candidates/${candidate._id}`);
+                          router.push(`/employer/candidates/${candidate.id || candidate._id}`);
                         }}
                       >
                         {t('talent_search.view_full_profile')}
@@ -535,18 +542,19 @@ export default function SearchPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                       </Button>
-                    </div>
-                  </Card>
-                </div>
+                      </div>
+                    </Card>
+                  </motion.div>
               ) : (
                 // Redesigned List View
-                <div
-                  key={candidate._id}
+                <motion.div
+                  key={candidate.id || candidate._id || `cand-${index}`}
+                  variants={itemVariants}
                   className="hover:scale-[1.01] transition-transform duration-150"
                 >
                   <Card 
                     className="group relative border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none hover:border-blue-500/30 transition-all duration-200 cursor-pointer"
-                    onClick={() => router.push(`/employer/candidates/${candidate._id}`)}
+                    onClick={() => router.push(`/employer/candidates/${candidate.id || candidate._id}`)}
                   >
                     <CardContent className="p-6 md:p-8">
                       <div className="flex flex-col lg:flex-row lg:items-center gap-8">
@@ -556,14 +564,14 @@ export default function SearchPage() {
                             className="relative cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation();
-                              toggleSelection(candidate._id);
+                              toggleSelection(candidate.id || candidate._id || '');
                             }}
                           >
                             <div className="w-20 h-20 rounded-[1.5rem] bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-blue-600/20 group-hover:rotate-3 transition-transform">
                                {candidate.name.charAt(0).toUpperCase()}
                             </div>
                             <div className={`absolute -top-2 -left-2 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
-                              selectedIds.has(candidate._id) 
+                              selectedIds.has(candidate.id || candidate._id || '') 
                                 ? 'bg-blue-600 border-blue-600 text-white scale-110 shadow-lg' 
                                 : 'bg-white border-slate-200 text-transparent scale-100 group-hover:border-blue-400 shadow-md'
                             }`}>
@@ -613,7 +621,7 @@ export default function SearchPage() {
                                   {skill}
                                 </span>
                               ))}
-                            </div>
+                           </div>
                           </div>
 
                           {/* Contact Info */}
@@ -633,7 +641,7 @@ export default function SearchPage() {
                           className="w-full lg:w-auto px-8 h-14 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:scale-[1.05] transition-all group-hover:shadow-2xl shadow-slate-900/10 gap-2 shrink-0 cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/employer/candidates/${candidate._id}`);
+                            router.push(`/employer/candidates/${candidate.id || candidate._id}`);
                           }}
                         >
                           {t('talent_search.view_profile')}
@@ -644,10 +652,10 @@ export default function SearchPage() {
                       </div>
                     </CardContent>
                   </Card>
-                </div>
+                </motion.div>
               )
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
 

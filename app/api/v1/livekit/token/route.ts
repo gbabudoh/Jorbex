@@ -5,19 +5,26 @@ import { createLiveKitToken } from '@/lib/livekit';
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { roomName } = await request.json();
+    const { roomName, displayName } = await request.json();
 
     if (!roomName) {
       return NextResponse.json({ error: 'Room name is required' }, { status: 400 });
     }
 
-    const participantName = session.user.name || 'Participant';
-    const participantIdentity = `${session.user.userType}-${session.user.id}`;
+    // Try to get session for identity, but allow unauthenticated access for interview links
+    const session = await getServerSession(authOptions);
+
+    let participantName: string;
+    let participantIdentity: string;
+
+    if (session?.user) {
+      participantName = session.user.name || 'Participant';
+      participantIdentity = `${session.user.userType}-${session.user.id}`;
+    } else {
+      // Guest access for interview links — use displayName or generate guest identity
+      participantName = displayName || 'Guest';
+      participantIdentity = `guest-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    }
 
     const token = await createLiveKitToken(roomName, participantName, participantIdentity);
 

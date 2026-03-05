@@ -55,8 +55,8 @@ export interface ScheduleInterviewParams {
 
 export interface NotificationUser {
   _id?: string | { toString(): string };
-  email?: string;
-  ntfyTopic?: string;
+  email?: string | null;
+  ntfyTopic?: string | null;
   userType?: 'candidate' | 'employer' | 'admin';
 }
 

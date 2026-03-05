@@ -10,12 +10,15 @@ const pwaConfig = withPWA({
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Remove static export to allow API routes
-  // For Capacitor builds, use: npm run build && npm run export (if needed)
+  transpilePackages: [
+    '@livekit/components-react',
+    '@livekit/components-core',
+    '@livekit/components-styles',
+    'livekit-client',
+  ],
   images: {
     unoptimized: true,
   },
-  // Empty turbopack config to silence the warning
   turbopack: {},
 };
 

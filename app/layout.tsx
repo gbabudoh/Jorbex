@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Poppins, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/shared/Header";
-import { Footer } from "@/components/shared/Footer";
-import CookieConsent from "@/components/shared/CookieConsent";
+import LayoutShell from "@/components/shared/LayoutShell";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { LanguageProvider } from "@/lib/LanguageContext";
 
@@ -65,15 +63,13 @@ export default function RootLayout({
       >
         <LanguageProvider>
           <SessionProvider>
-            <Header />
-            <main className="flex-grow">
+            <LayoutShell>
               {children}
-            </main>
-            <CookieConsent />
-            <Footer />
+            </LayoutShell>
           </SessionProvider>
         </LanguageProvider>
       </body>
     </html>
   );
 }
+

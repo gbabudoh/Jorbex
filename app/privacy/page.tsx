@@ -2,8 +2,23 @@
 
 import { useLanguage } from '@/lib/LanguageContext';
 
+type NestedTranslations = { [key: string]: string | string[] | NestedTranslations };
+
+function getArray(obj: NestedTranslations | undefined, ...keys: string[]): string[] {
+  let current: unknown = obj;
+  for (const key of keys) {
+    if (current && typeof current === 'object' && !Array.isArray(current)) {
+      current = (current as NestedTranslations)[key];
+    } else {
+      return [];
+    }
+  }
+  return Array.isArray(current) ? current as string[] : [];
+}
+
 export default function PrivacyPage() {
   const { t, translations } = useLanguage();
+  const privacy = translations?.privacy as NestedTranslations | undefined;
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
@@ -28,17 +43,17 @@ export default function PrivacyPage() {
               
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">{t('privacy.section2.candidates_title')}</h3>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                {(translations?.privacy?.section2?.candidates || []).map((item: string, i: number) => <li key={i}>{item}</li>)}
+                {getArray(privacy, 'section2', 'candidates').map((item: string, i: number) => <li key={i}>{item}</li>)}
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">{t('privacy.section2.employers_title')}</h3>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                {(translations?.privacy?.section2?.employers || []).map((item: string, i: number) => <li key={i}>{item}</li>)}
+                {getArray(privacy, 'section2', 'employers').map((item: string, i: number) => <li key={i}>{item}</li>)}
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 mt-4">{t('privacy.section2.auto_title')}</h3>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                {(translations?.privacy?.section2?.auto || []).map((item: string, i: number) => <li key={i}>{item}</li>)}
+                {getArray(privacy, 'section2', 'auto').map((item: string, i: number) => <li key={i}>{item}</li>)}
               </ul>
             </section>
 
@@ -48,7 +63,7 @@ export default function PrivacyPage() {
                 {t('privacy.section3.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                {(translations?.privacy?.section3?.items || []).map((item: string, i: number) => <li key={i}>{item}</li>)}
+                {getArray(privacy, 'section3', 'items').map((item: string, i: number) => <li key={i}>{item}</li>)}
               </ul>
             </section>
 
@@ -74,7 +89,7 @@ export default function PrivacyPage() {
                 {t('privacy.section5.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                {(translations?.privacy?.section5?.items || []).map((item: string, i: number) => <li key={i}>{item}</li>)}
+                {getArray(privacy, 'section5', 'items').map((item: string, i: number) => <li key={i}>{item}</li>)}
               </ul>
             </section>
 
@@ -84,7 +99,7 @@ export default function PrivacyPage() {
                 {t('privacy.section6.intro')}
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                {(translations?.privacy?.section6?.items || []).map((item: string, i: number) => <li key={i}>{item}</li>)}
+                {getArray(privacy, 'section6', 'items').map((item: string, i: number) => <li key={i}>{item}</li>)}
               </ul>
             </section>
 

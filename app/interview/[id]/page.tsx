@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
-import LiveKitMeeting from '@/components/LiveKitMeeting';
 import Image from 'next/image';
+import InterviewRoom from '@/components/InterviewRoom';
 
 export default async function InterviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -31,7 +31,6 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="flex flex-col h-screen bg-gray-950 text-white">
-      {/* Branded Header */}
       <header className="flex items-center justify-between px-6 py-3 bg-gray-900 border-b border-gray-800">
         <div className="flex items-center gap-4">
           <Image
@@ -42,10 +41,15 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
             className="h-8 w-auto brightness-0 invert"
           />
           <div className="h-6 w-px bg-gray-700" />
-          <div>
-            <p className="text-sm font-medium text-gray-200">
-              {serializedInterview.employerName} &middot; {serializedInterview.candidateName}
-            </p>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/20">
+              <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Employer</span>
+              <span className="text-xs font-semibold text-white">{serializedInterview.employerName}</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/15 border border-blue-500/20">
+              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Candidate</span>
+              <span className="text-xs font-semibold text-white">{serializedInterview.candidateName}</span>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -54,10 +58,8 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
       </header>
-
-      {/* Video Area */}
       <main className="flex-1 relative">
-        <LiveKitMeeting
+        <InterviewRoom
           roomName={serializedInterview.roomName}
           displayName="Participant"
           serverUrl={livekitUrl}

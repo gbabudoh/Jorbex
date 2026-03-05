@@ -5,13 +5,8 @@ import {
   LiveKitRoom,
   VideoConference,
   RoomAudioRenderer,
-  ControlBar,
-  useTracks,
-  GridLayout,
-  ParticipantTile,
 } from '@livekit/components-react';
 import '@livekit/components-styles';
-import { Track } from 'livekit-client';
 import Image from 'next/image';
 
 interface LiveKitMeetingProps {
@@ -38,22 +33,6 @@ function JorbexBranding() {
   );
 }
 
-function VideoLayout() {
-  const tracks = useTracks(
-    [
-      { source: Track.Source.Camera, withPlaceholder: true },
-      { source: Track.Source.ScreenShare, withPlaceholder: false },
-    ],
-    { onlySubscribed: false }
-  );
-
-  return (
-    <GridLayout tracks={tracks} className="h-full">
-      <ParticipantTile />
-    </GridLayout>
-  );
-}
-
 export default function LiveKitMeeting({
   roomName,
   displayName,
@@ -70,7 +49,7 @@ export default function LiveKitMeeting({
         const res = await fetch('/api/v1/livekit/token', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ roomName }),
+          body: JSON.stringify({ roomName, displayName }),
         });
 
         if (!res.ok) {
@@ -88,7 +67,7 @@ export default function LiveKitMeeting({
     }
 
     fetchToken();
-  }, [roomName]);
+  }, [roomName, displayName]);
 
   const handleDisconnected = useCallback(() => {
     if (onLeave) onLeave();
@@ -134,12 +113,13 @@ export default function LiveKitMeeting({
         className="h-full"
         connect={true}
         video={true}
-        audio={false}
+        audio={true}
+        style={{ height: '100%' }}
       >
-        <VideoLayout />
+        <VideoConference />
         <RoomAudioRenderer />
-        <ControlBar variation="minimal" />
       </LiveKitRoom>
     </div>
   );
 }
+

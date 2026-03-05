@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useLanguage } from '@/lib/LanguageContext';
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userTypeParam = searchParams.get('type') || 'candidate';
@@ -261,3 +261,17 @@ export default function SignupPage() {
   );
 }
 
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <Card className="w-full max-w-md animate-fade-in">
+        <CardContent className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0066FF]" />
+        </CardContent>
+      </Card>
+    }>
+      <SignupForm />
+    </Suspense>
+  );
+}

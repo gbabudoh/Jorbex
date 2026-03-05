@@ -180,7 +180,7 @@ function InterviewCard({ interview, isUpcoming }: { interview: Interview; isUpco
   const { t } = useLanguage();
   const date = new Date(interview.dateTime);
   // Check type field, or fallback to checking if location indicates virtual
-  const isVirtual = interview.type === 'virtual' || interview.location?.toLowerCase().includes('video interview');
+  const isVirtual = interview.type?.toLowerCase() === 'virtual' || interview.location?.toLowerCase().includes('video interview');
   const positionTitle = interview.jobId?.title || interview.jobTitle || t('interviews.general_interview') || 'General Interview';
 
   const statusConfig: Record<string, { variant: 'success' | 'error' | 'warning' | 'info'; label: string }> = {

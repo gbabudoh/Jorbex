@@ -23,7 +23,14 @@ export async function GET() {
       orderBy: { dateTime: 'asc' },
     });
 
-    return NextResponse.json({ interviews }, { status: 200 });
+    const formattedInterviews = interviews.map(i => ({
+      ...i,
+      _id: i.id,
+      employerId: i.employer ? { ...i.employer, _id: i.employer.id } : null,
+      candidateId: i.candidate ? { ...i.candidate, _id: i.candidate.id } : null,
+    }));
+
+    return NextResponse.json({ interviews: formattedInterviews }, { status: 200 });
   } catch (error: unknown) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'An unknown error occurred' },
