@@ -124,6 +124,7 @@ export default function LiveKitMeeting({
     <div className="relative flex-1 w-full flex flex-col min-h-0 bg-gray-950 rounded-xl overflow-hidden">
       <JorbexBranding />
       <LiveKitRoom
+        key={token}
         token={token}
         serverUrl={effectiveServerUrl}
         data-lk-theme="default"
@@ -135,11 +136,8 @@ export default function LiveKitMeeting({
         video={true}
         audio={true}
         options={{
-          adaptiveStream: false, // Often helpful for Firefox connectivity
+          adaptiveStream: true, 
           dynacast: true,
-          publishDefaults: {
-            simulcast: false, // Simpler stream for troubleshooting Firefox
-          },
         }}
         style={{ height: '100%', flex: '1 1 0%', minHeight: 0 }}
       >
