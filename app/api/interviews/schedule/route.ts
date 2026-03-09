@@ -9,7 +9,20 @@ export async function POST(request: Request) {
     const body = await request.json();
     const rawJobId = body.jobId;
     const jobId = rawJobId && rawJobId.trim() !== '' ? rawJobId : undefined;
-    const { employerId, candidateId, jobTitle, applicationId, dateTime, duration = 30, type = 'virtual', location = 'Remote', notes } = body;
+    const { 
+      employerId, 
+      candidateId, 
+      jobTitle, 
+      applicationId, 
+      dateTime, 
+      duration = 30, 
+      type = 'virtual', 
+      location = 'Remote', 
+      notes,
+      interviewers,
+      interviewerName,
+      interviewerEmail
+    } = body;
 
     // 1. Basic Validation
     if (!employerId || !candidateId || !dateTime) {
@@ -78,6 +91,9 @@ export async function POST(request: Request) {
         meetingRoomName: type === 'virtual' ? safeRoomName : undefined,
         candidateMeetingUrl: type === 'virtual' ? placeholderMeetingUrl : undefined,
         employerMeetingUrl: type === 'virtual' ? placeholderMeetingUrl : undefined,
+        interviewerName,
+        interviewerEmail,
+        interviewers: interviewers || undefined,
         notes,
         status: 'CONFIRMED',
         reminders: {
