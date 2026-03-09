@@ -93,6 +93,7 @@ export async function POST(request: Request) {
         employerMeetingUrl: type === 'virtual' ? placeholderMeetingUrl : undefined,
         interviewerName,
         interviewerEmail,
+        // @ts-expect-error: the interviewers field is not yet in the generated Prisma client
         interviewers: interviewers || undefined,
         notes,
         status: 'CONFIRMED',

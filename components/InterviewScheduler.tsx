@@ -35,10 +35,40 @@ export default function InterviewScheduler({
     notes: '',
   });
 
+  const [interviewers, setInterviewers] = useState<{ name: string; email: string }[]>([
+    { name: '', email: '' }
+  ]);
+
+  const addInterviewer = () => {
+    setInterviewers([...interviewers, { name: '', email: '' }]);
+  };
+
+  const removeInterviewer = (index: number) => {
+    if (interviewers.length > 1) {
+      const newList = [...interviewers];
+      newList.splice(index, 1);
+      setInterviewers(newList);
+    }
+  };
+
+  const updateInterviewer = (index: number, field: 'name' | 'email', value: string) => {
+    const newList = [...interviewers];
+    newList[index][field] = value;
+    setInterviewers(newList);
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Validate interviewers
+    const validInterviewers = interviewers.filter(i => i.name.trim() !== '' && i.email.trim() !== '');
+    if (validInterviewers.length === 0) {
+      setError("Please add at least one interviewer with a name and email.");
+      setLoading(false);
+      return;
+    }
 
     try {
       // Combine date and time
@@ -59,6 +89,9 @@ export default function InterviewScheduler({
           type: formData.type,
           location: formData.type === 'virtual' ? 'Remote' : formData.location,
           notes: formData.notes,
+          interviewers: validInterviewers,
+          interviewerName: validInterviewers[0].name, // Compatibility
+          interviewerEmail: validInterviewers[0].email, // Compatibility
         }),
       });
 
@@ -93,6 +126,52 @@ export default function InterviewScheduler({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Interviewers Dynamic List */}
+        <div className="space-y-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+          <label className="block text-sm font-bold text-gray-700">Interviewers (Panel members)</label>
+          {interviewers.map((inv, index) => (
+            <div key={index} className="space-y-2 pb-3 border-b border-gray-200 last:border-0 last:pb-0">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-semibold text-gray-500">Interviewer #{index + 1}</span>
+                {interviewers.length > 1 && (
+                  <button 
+                    type="button" 
+                    onClick={() => removeInterviewer(index)}
+                    className="text-xs text-red-500 hover:text-red-700 font-bold"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  required
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-gray-900"
+                  value={inv.name}
+                  onChange={(e) => updateInterviewer(index, 'name', e.target.value)}
+                />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  required
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-gray-900"
+                  value={inv.email}
+                  onChange={(e) => updateInterviewer(index, 'email', e.target.value)}
+                />
+              </div>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addInterviewer}
+            className="w-full py-2 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-blue-400 hover:text-blue-500 transition-all text-xs font-bold"
+          >
+            + Add Another Interviewer
+          </button>
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>

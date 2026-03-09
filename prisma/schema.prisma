@@ -231,6 +231,7 @@ model Interview {
   employerMeetingUrl  String?
   interviewerName     String?
   interviewerEmail    String?
+  interviewers        Json?           // Array of { name: string, email: string }
   notes               String?         @db.Text
   feedback            String?         @db.Text
   rating              Int?

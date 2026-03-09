@@ -26,6 +26,8 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
     employerName: interview.employer.companyName,
     candidateName: interview.candidate.name,
     dateTime: interview.dateTime.toISOString(),
+    // @ts-expect-error - interviewers field pending prisma sync
+    interviewers: (interview.interviewers as { name: string; email: string }[]) || [],
   };
 
   return (
@@ -33,10 +35,21 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
       <header className="flex items-center justify-between px-6 py-3 bg-gray-900 border-b border-gray-800">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/20">
-              <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Employer</span>
-              <span className="text-xs font-semibold text-white">{serializedInterview.employerName}</span>
-            </div>
+            {/* Render all interviewers if it's a panel, otherwise show Employer name */}
+            {serializedInterview.interviewers.length > 0 ? (
+              serializedInterview.interviewers.map((inv, idx) => (
+                <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/20">
+                  <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Interviewer</span>
+                  <span className="text-xs font-semibold text-white">{inv.name}</span>
+                </div>
+              ))
+            ) : (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/15 border border-purple-500/20">
+                <span className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Employer</span>
+                <span className="text-xs font-semibold text-white">{serializedInterview.employerName}</span>
+              </div>
+            )}
+            
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/15 border border-blue-500/20">
               <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Candidate</span>
               <span className="text-xs font-semibold text-white">{serializedInterview.candidateName}</span>
