@@ -55,16 +55,18 @@ export default function EmployerLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0066FF]/5 via-white to-[#00D9A5]/5 pt-[70px]">
+    <div className="min-h-screen bg-linear-to-br from-[#0066FF]/5 via-white to-[#00D9A5]/5 pt-14">
       <Header />
-      
-      <div className="container mx-auto px-4 pt-2 pb-6 max-w-7xl">
-        {/* Persistent Navigation Hub */}
-        <div className="mb-6 sticky top-[72px] z-50">
+
+      {/* Fixed nav bar below header */}
+      <div className="fixed top-[72px] left-0 right-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800/50">
+        <div className="container mx-auto px-4 max-w-7xl py-2">
           <NavigationCards />
         </div>
+      </div>
 
-        {/* Dynamic Content Area */}
+      {/* Main content — pt-24 clears header + fixed nav */}
+      <div className="container mx-auto px-4 max-w-7xl pt-24 pb-6">
         <main className="relative">
           {children}
         </main>

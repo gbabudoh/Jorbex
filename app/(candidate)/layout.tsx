@@ -52,7 +52,7 @@ export default function CandidateLayout({
 
   // Allow onboarding page to render immediately
   if (isOnboardingPage) {
-    return <div className="min-h-screen bg-gradient-to-br from-[#0066FF]/5 via-white to-[#00D9A5]/5">{children}</div>;
+    return <div className="min-h-screen bg-linear-to-br from-[#0066FF]/5 via-white to-[#00D9A5]/5">{children}</div>;
   }
 
   // Block other pages if not authenticated or not a candidate
@@ -60,6 +60,6 @@ export default function CandidateLayout({
     return null;
   }
 
-  return <div className="min-h-screen bg-gradient-to-br from-[#0066FF]/5 via-white to-[#00D9A5]/5">{children}</div>;
+  return <div className="min-h-screen bg-linear-to-br from-[#0066FF]/5 via-white to-[#00D9A5]/5">{children}</div>;
 }
 

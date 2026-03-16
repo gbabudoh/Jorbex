@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -24,11 +24,7 @@ export default function TestsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'templates' | 'assigned'>('templates');
 
-  useEffect(() => {
-    fetchTests();
-  }, []);
-
-  const fetchTests = async () => {
+  const fetchTests = useCallback(async () => {
     try {
       const response = await fetch('/api/v1/tests/employer');
       if (response.ok) {
@@ -40,30 +36,34 @@ export default function TestsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const templates = tests.filter(t => !t.candidateId);
-  const assignedTests = tests.filter(t => t.candidateId);
+  useEffect(() => {
+    fetchTests();
+  }, [fetchTests]);
+
+  const templates = tests.filter(test => !test.candidateId);
+  const assignedTests = tests.filter(test => test.candidateId);
   const displayTests = activeTab === 'templates' ? templates : assignedTests;
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-12 flex items-center justify-center">
+      <div className="flex items-center justify-center py-32">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0066FF]"></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-4 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 italic">{t('employer_tests.title')}</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">{t('employer_tests.title')}</h1>
           <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">{t('employer_tests.subtitle')}</p>
         </div>
         <div className="hidden sm:block">
           <Link href="/employer/tests/create">
-            <Button variant="primary" className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all cursor-pointer">
+            <Button variant="primary" className="bg-linear-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all cursor-pointer">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
@@ -120,8 +120,7 @@ export default function TestsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayTests.map((test) => (
-            <Card key={test._id} className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden rounded-3xl bg-white dark:bg-gray-900">
-              <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${activeTab === 'templates' ? 'from-blue-500 to-cyan-500' : 'from-purple-500 to-indigo-500'}`} />
+            <Card key={test._id} className={`border-t-4 ${activeTab === 'templates' ? 'border-t-blue-500' : 'border-t-purple-500'} shadow-lg hover:shadow-xl transition-shadow duration-300 group rounded-3xl bg-white dark:bg-gray-900`}>
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <div className="flex-1 min-w-0">
@@ -149,7 +148,7 @@ export default function TestsPage() {
                 
                 <div className="flex items-center justify-between pt-2">
                   <span className="text-xs text-gray-400 font-medium italic">
-                    {new Date(test.createdAt).toLocaleDateString('en-GB')}
+                    {new Date(test.createdAt).toLocaleDateString()}
                   </span>
                   <Link href={`/employer/tests/${test._id}`}>
                     <Button variant="ghost" size="sm" className="rounded-xl font-bold hover:bg-blue-50 dark:hover:bg-blue-950/20 text-[#0066FF] cursor-pointer">
@@ -171,7 +170,7 @@ export default function TestsPage() {
         <Link href="/employer/tests/create">
           <Button 
             variant="primary" 
-            className="w-14 h-14 rounded-full shadow-2xl bg-gradient-to-br from-[#0066FF] to-[#0052CC] p-0 flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer"
+            className="w-14 h-14 rounded-full shadow-2xl bg-linear-to-br from-[#0066FF] to-[#0052CC] p-0 flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer"
           >
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 6v12m6-6H6" />

@@ -66,7 +66,7 @@ export default function CreateJobPage() {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <Card className="border-0 shadow-xl overflow-hidden rounded-[2.5rem]">
-          <div className="h-2.5 w-full bg-gradient-to-r from-blue-600 to-indigo-600" />
+          <div className="h-2.5 w-full bg-linear-to-r from-blue-600 to-indigo-600" />
           <CardHeader className="p-8 md:p-10">
             <CardTitle className="text-2xl font-bold">{t('jobs.create_page.job_details')}</CardTitle>
           </CardHeader>
@@ -163,7 +163,7 @@ export default function CreateJobPage() {
                 type="submit" 
                 variant="primary" 
                 disabled={isSubmitting}
-                className="h-14 px-12 rounded-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
+                className="h-14 px-12 rounded-2xl font-black bg-linear-to-r from-blue-600 to-indigo-600 shadow-xl shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all"
               >
                 {isSubmitting ? t('jobs.create_page.posting') : t('jobs.create_page.post_job')}
               </Button>

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -54,110 +55,172 @@ export default function EmployerApplicationsPage() {
     fetchApplications();
   }, [fetchApplications]);
 
-  const statusColors: Record<string, string> = {
-    applied: 'bg-blue-100 text-blue-800',
-    reviewing: 'bg-yellow-100 text-yellow-800',
-    test_sent: 'bg-purple-100 text-purple-800',
-    interview_scheduled: 'bg-pink-100 text-pink-800',
-    offer_sent: 'bg-orange-100 text-orange-800',
-    hired: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-100 text-red-800',
+  const getStatusStyle = (status: string) => {
+    const styles: Record<string, string> = {
+      applied:              'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      reviewing:            'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+      test_sent:            'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+      interview_scheduled:  'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400',
+      offer_sent:           'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+      hired:                'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+      rejected:             'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    };
+    return styles[status] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
+  };
+
+  const getStatusBorderColor = (status: string) => {
+    const borders: Record<string, string> = {
+      applied:              'border-l-blue-500',
+      reviewing:            'border-l-amber-500',
+      test_sent:            'border-l-purple-500',
+      interview_scheduled:  'border-l-pink-500',
+      offer_sent:           'border-l-orange-500',
+      hired:                'border-l-emerald-500',
+      rejected:             'border-l-red-400',
+    };
+    return borders[status] || 'border-l-slate-300';
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      applied:              t('employer_applications.new_applied'),
+      reviewing:            t('employer_applications.reviewing'),
+      test_sent:            t('employer_applications.test_sent'),
+      interview_scheduled:  t('employer_applications.interviewing'),
+      offer_sent:           t('employer_applications.offer_sent'),
+      hired:                t('employer_applications.hired'),
+      rejected:             t('employer_applications.rejected'),
+    };
+    return labels[status] || status.replace(/_/g, ' ');
   };
 
   if (loading && applications.length === 0) {
-    return <div className="p-8 text-center">{t('employer_applications.loading')}</div>;
+    return (
+      <div className="flex items-center justify-center py-32">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0066FF] mx-auto mb-4"></div>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">{t('employer_applications.loading')}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
+    <div className="container mx-auto px-4 py-4 max-w-7xl">
+      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('employer_applications.title')}</h1>
-          <p className="text-gray-500 dark:text-gray-400">{t('employer_applications.subtitle')}</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{t('employer_applications.title')}</h1>
+          <p className="text-gray-500 dark:text-gray-400 flex items-center gap-2">
+            {t('employer_applications.subtitle')}
+            {applications.length > 0 && (
+              <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-black">
+                {applications.length}
+              </span>
+            )}
+          </p>
         </div>
-        
-        <div className="w-full md:w-48">
-          <select 
-            value={filterStatus} 
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="w-full h-10 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">{t('employer_applications.all_statuses')}</option>
-            <option value="applied">{t('employer_applications.new_applied')}</option>
-            <option value="reviewing">{t('employer_applications.reviewing')}</option>
-            <option value="test_sent">{t('employer_applications.test_sent')}</option>
-            <option value="interview_scheduled">{t('employer_applications.interviewing')}</option>
-            <option value="offer_sent">{t('employer_applications.offer_sent')}</option>
-            <option value="hired">{t('employer_applications.hired')}</option>
-            <option value="rejected">{t('employer_applications.rejected')}</option>
-          </select>
-        </div>
+
+        {/* Status filter */}
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="h-12 px-4 pr-10 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 font-medium text-sm outline-none focus:border-blue-500/50 transition-all cursor-pointer shadow-sm appearance-none min-w-48"
+        >
+          <option value="all">{t('employer_applications.all_statuses')}</option>
+          <option value="applied">{t('employer_applications.new_applied')}</option>
+          <option value="reviewing">{t('employer_applications.reviewing')}</option>
+          <option value="test_sent">{t('employer_applications.test_sent')}</option>
+          <option value="interview_scheduled">{t('employer_applications.interviewing')}</option>
+          <option value="offer_sent">{t('employer_applications.offer_sent')}</option>
+          <option value="hired">{t('employer_applications.hired')}</option>
+          <option value="rejected">{t('employer_applications.rejected')}</option>
+        </select>
       </div>
 
-      <div className="grid gap-4">
-        {applications.length === 0 ? (
-          <Card className="p-8 text-center text-gray-500">
-            {t('employer_applications.no_applications')}
-          </Card>
-        ) : (
-          applications.map((app) => (
-            <Card key={app._id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/employer/candidates/${app.candidateId._id}`)}>
-              <CardContent className="p-6">
+      {/* Empty state */}
+      {applications.length === 0 ? (
+        <Card className="rounded-3xl shadow-xl border-0">
+          <CardContent className="py-20 text-center">
+            <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{t('employer_applications.empty_title')}</h3>
+            <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto">{t('employer_applications.no_applications')}</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4">
+          {applications.map((app) => (
+            <Card
+              key={app._id}
+              className={`border-l-4 ${getStatusBorderColor(app.status)} shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-3xl cursor-pointer group`}
+              onClick={() => router.push(`/employer/candidates/${app.candidateId._id}`)}
+            >
+              <CardContent className="p-6 md:p-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  {/* Candidate Info */}
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+
+                  {/* Candidate info */}
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-blue-500 to-blue-400 flex items-center justify-center overflow-hidden shrink-0 shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
                       {app.candidateId.headshot ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img src={app.candidateId.headshot} alt={app.candidateId.name} className="w-full h-full object-cover" />
+                        <Image
+                          src={app.candidateId.headshot}
+                          alt={app.candidateId.name}
+                          width={56}
+                          height={56}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <span className="text-xl font-bold text-gray-500">{app.candidateId.name.charAt(0)}</span>
+                        <span className="text-xl font-black text-white">{app.candidateId.name.charAt(0).toUpperCase()}</span>
                       )}
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 transition-colors">
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
                         {app.candidateId.name}
                       </h3>
-                      <p className="text-sm text-gray-500">{t('employer_applications.applied_for')} <span className="font-medium text-gray-700 dark:text-gray-300">{app.jobId.title}</span></p>
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
+                        {t('employer_applications.applied_for')}{' '}
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">{app.jobId.title}</span>
+                      </p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                         {new Date(app.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
 
-                  {/* Status & Actions */}
-                  <div className="flex flex-col items-end gap-2 w-full md:w-auto">
-                    <Badge className={`${statusColors[app.status] || 'bg-gray-100'} px-3 py-1 capitalize`}>
-                      {app.status.replace('_', ' ')}
-                    </Badge>
-                    
-                    {app.testResultId && (
-                      <Badge variant="default" className="text-xs border border-purple-200 bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                        {t('employer_applications.test_score')}: {app.testResultId.score}%
-                      </Badge>
-                    )}
-                    
-                    <div className="flex gap-2 mt-2 w-full md:w-auto">
-                      <Button size="sm" variant="outline" className="flex-1 md:flex-none" onClick={(e) => {
+                  {/* Status & actions */}
+                  <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(app.status)}`}>
+                        {getStatusLabel(app.status)}
+                      </span>
+                      {app.testResultId && (
+                        <Badge className="text-xs border border-purple-200 bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800">
+                          {t('employer_applications.test_score')}: {app.testResultId.score}%
+                        </Badge>
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-100 dark:border-blue-800 cursor-pointer"
+                      onClick={(e) => {
                         e.stopPropagation();
                         router.push(`/employer/candidates/${app.candidateId._id}`);
-                      }}>
-                        {t('employer_applications.review_profile')}
-                      </Button>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white flex-1 md:flex-none" onClick={(e) => {
-                        e.stopPropagation();
-                        // Open message modal (future implementation)
-                      }}>
-                        {t('employer_applications.message')}
-                      </Button>
-                    </div>
+                      }}
+                    >
+                      {t('employer_applications.review_profile')}
+                    </Button>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

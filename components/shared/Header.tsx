@@ -50,6 +50,21 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  React.useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isMenuOpen]);
+
   const logoHref = session?.user?.userType === 'candidate' 
     ? '/candidate/profile' 
     : session?.user?.userType === 'employer' 
@@ -58,10 +73,15 @@ export const Header: React.FC = () => {
 
   return (
     <header 
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500
-        ${scrolled 
-          ? 'mt-2 mx-4 sm:mx-6 lg:mx-8 rounded-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 shadow-2xl shadow-blue-500/10 py-1.5' 
-          : 'bg-white dark:bg-slate-950/0 border-b border-transparent py-4'}`}
+      className={`fixed top-0 left-0 right-0 z-[100] transition-[background-color,border-color,box-shadow,padding] duration-300
+        ${scrolled
+          ? [
+              /* Mobile: stay pinned flush — no margin, no movement, no rounding */
+              'py-2 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 shadow-sm',
+              /* Desktop only: float as pill */
+              'md:mt-2 md:mx-4 lg:mx-8 md:rounded-2xl md:border md:border-slate-200/50 md:dark:border-slate-800/50 md:shadow-2xl md:shadow-blue-500/10 md:py-1.5',
+            ].join(' ')
+          : 'bg-white dark:bg-slate-950/0 border-b border-transparent py-3'}`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12">
@@ -127,7 +147,7 @@ export const Header: React.FC = () => {
                     </Button>
                   </Link>
                   <Link href="/signup">
-                    <Button variant="primary" size="sm" className="h-11 px-6 text-[13px] font-black rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all cursor-pointer border-none">
+                    <Button variant="primary" size="sm" className="h-11 px-6 text-[13px] font-black rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-600/20 hover:scale-105 active:scale-95 transition-all cursor-pointer border-none">
                       {t('nav.get_started')}
                     </Button>
                   </Link>
@@ -137,12 +157,12 @@ export const Header: React.FC = () => {
           </nav>
 
           {/* Mobile menu button */}
-          <div className="lg:hidden flex items-center gap-3">
+          <div className="lg:hidden flex items-center gap-2 pr-2">
             {session && <NotificationDropdown />}
             <LanguageSwitcher />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="relative w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 active:scale-95 transition-all overflow-hidden cursor-pointer"
+              className="relative w-10 h-10 mr-1 flex items-center justify-center rounded-xl bg-[#0066FF] text-white shadow-md shadow-blue-500/30 active:scale-95 active:shadow-none transition-all cursor-pointer shrink-0"
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait">
@@ -174,28 +194,34 @@ export const Header: React.FC = () => {
       </div>
 
       {/* Mobile Navigation Drawer */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isMenuOpen && (
-          <div className="fixed inset-0 z-[100] lg:hidden">
-            {/* Backdrop */}
-            <motion.div 
+          <>
+            {/* Backdrop — direct AnimatePresence child so exit fires */}
+            <motion.div
+              key="menu-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              className="fixed inset-0 z-110 bg-slate-900/50 backdrop-blur-[2px] lg:hidden"
               onClick={() => setIsMenuOpen(false)}
             />
-            
-            {/* Drawer */}
-            <motion.div 
+
+            {/* Drawer — direct AnimatePresence child so exit fires */}
+            <motion.div
+              key="menu-drawer"
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="absolute top-0 right-0 w-[300px] h-full bg-white dark:bg-slate-950 shadow-[0_0_50px_rgba(0,0,0,0.3)] dark:shadow-none border-l border-slate-200 dark:border-slate-800"
+              transition={{ type: 'spring', damping: 32, stiffness: 320, mass: 0.75 }}
+              className="fixed top-0 right-0 z-120 w-[82vw] max-w-[320px] h-full bg-white dark:bg-slate-950 shadow-2xl border-l border-slate-100 dark:border-slate-800 lg:hidden"
+              style={{ willChange: 'transform' }}
             >
-              <div className="flex flex-col h-full p-8">
-                <div className="flex justify-between items-center mb-10">
+              <div className="flex flex-col h-full overflow-hidden">
+              {/* Drawer inner scroll container */}
+              <div className="flex flex-col h-full overflow-y-auto overscroll-contain p-6">
+                <div className="flex justify-between items-center mb-6">
                   <Link href="/" onClick={() => setIsMenuOpen(false)}>
                     <Image src="/logo.png" alt="Jorbex" width={100} height={35} className="h-8 w-auto" />
                   </Link>
@@ -264,7 +290,7 @@ export const Header: React.FC = () => {
                   {session ? (
                     <motion.div 
                       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-                      className="pt-6 mt-auto bg-slate-50/50 dark:bg-slate-900/50 -mx-8 px-8 pb-8"
+                      className="pt-6 mt-auto bg-slate-50/50 dark:bg-slate-900/50 -mx-6 px-6 pb-8"
                     >
                       <button
                         className="w-full flex items-center justify-between h-12 px-5 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-500 border border-rose-100 dark:border-rose-500/20 text-[13px] font-bold cursor-pointer hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all"
@@ -297,9 +323,10 @@ export const Header: React.FC = () => {
                     </motion.div>
                   )}
                 </nav>
-              </div>
+              </div> {/* /inner scroll container */}
+              </div> {/* /overflow-hidden wrapper */}
             </motion.div>
-          </div>
+          </>
         )}
       </AnimatePresence>
     </header>

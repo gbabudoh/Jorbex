@@ -116,7 +116,7 @@ export default function ResultsBucketPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center text-lg font-black text-slate-400 dark:text-slate-500 shadow-inner group-hover:scale-105 transition-transform duration-500">
+                    <div className="w-10 h-10 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center text-lg font-black text-slate-400 dark:text-slate-500 shadow-inner group-hover:scale-105 transition-transform duration-500">
                       {result.candidateId.name.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">

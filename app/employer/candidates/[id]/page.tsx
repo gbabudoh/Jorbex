@@ -149,7 +149,7 @@ export default function CandidateDetailPage() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/30">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/30">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Top Navigation - Desktop only or refined for mobile */}
         <div className="mb-4 md:mb-8 flex items-center justify-between">
@@ -172,7 +172,7 @@ export default function CandidateDetailPage() {
               <span className="hidden xs:inline">Share Profile</span>
               <span className="xs:hidden">Share</span>
             </Button>
-            <Button variant="primary" className="h-9 px-3 md:h-10 md:px-4 bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all text-sm cursor-pointer">
+            <Button variant="primary" className="h-9 px-3 md:h-10 md:px-4 bg-linear-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all text-sm cursor-pointer">
               <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
               </svg>
@@ -186,13 +186,13 @@ export default function CandidateDetailPage() {
           {/* Left Column - Main Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Hero Card with Profile */}
-            <Card className="overflow-hidden border-0 shadow-lg md:shadow-xl bg-gradient-to-br from-white via-blue-50/30 to-white dark:from-gray-900 dark:via-blue-950/20 dark:to-gray-900">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#0066FF]/10 to-[#00D9A5]/10 rounded-full blur-3xl -mr-32 -mt-32" />
+            <Card className="overflow-hidden border-0 shadow-lg md:shadow-xl bg-linear-to-br from-white via-blue-50/30 to-white dark:from-gray-900 dark:via-blue-950/20 dark:to-gray-900">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-[#0066FF]/10 to-[#00D9A5]/10 rounded-full blur-3xl -mr-32 -mt-32" />
               <CardContent className="relative pt-6 md:pt-8">
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 text-center md:text-left">
                   {/* Avatar */}
                   <div className="relative">
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-lg">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-linear-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-lg">
                       {candidate.name.charAt(0).toUpperCase()}
                     </div>
                     {candidate.onboardingTestPassed && (
@@ -275,7 +275,7 @@ export default function CandidateDetailPage() {
               <Card className="border-0 shadow-lg">
                 <CardHeader>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                       <UserIcon />
                     </div>
                     <CardTitle>About</CardTitle>
@@ -295,7 +295,7 @@ export default function CandidateDetailPage() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
                         <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
@@ -310,7 +310,7 @@ export default function CandidateDetailPage() {
                     {candidate.skills.map((skill) => (
                       <div
                         key={skill}
-                        className="group px-4 py-2.5 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800 hover:shadow-md hover:scale-105 transition-all cursor-default"
+                        className="group px-4 py-2.5 bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800 hover:shadow-md hover:scale-105 transition-all cursor-default"
                       >
                         <span className="font-medium text-blue-700 dark:text-blue-300">{skill}</span>
                       </div>
@@ -325,7 +325,7 @@ export default function CandidateDetailPage() {
               <Card className="border-0 shadow-lg">
                 <CardHeader>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-linear-to-br from-orange-500 to-red-500 flex items-center justify-center">
                       <BriefcaseIcon />
                     </div>
                     <CardTitle>Work Experience</CardTitle>
@@ -334,17 +334,17 @@ export default function CandidateDetailPage() {
                 <CardContent>
                   <div className="relative">
                     {/* Timeline Line */}
-                    <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-200 via-blue-300 to-transparent dark:from-blue-800 dark:via-blue-700" />
+                    <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-linear-to-b from-blue-200 via-blue-300 to-transparent dark:from-blue-800 dark:via-blue-700" />
                     
                     <div className="space-y-4 md:space-y-8">
                       {candidate.workHistory.map((work, index) => (
                         <div key={index} className="relative pl-8 md:pl-12">
                           {/* Timeline Dot */}
-                          <div className="absolute left-0 top-1 w-6 h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                          <div className="absolute left-0 top-1 w-6 h-6 md:w-8 md:h-8 rounded-full bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
                             <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-white" />
                           </div>
                           
-                          <div className="bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50 p-4 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all">
+                          <div className="bg-linear-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50 p-4 md:p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all">
                             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
                               <div>
                                 <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white leading-tight">{work.position}</h3>
@@ -369,7 +369,7 @@ export default function CandidateDetailPage() {
               <Card className="border-0 shadow-lg">
                 <CardHeader>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-linear-to-br from-green-500 to-emerald-500 flex items-center justify-center">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
@@ -382,10 +382,10 @@ export default function CandidateDetailPage() {
                     {candidate.references.map((ref, index) => (
                       <div
                         key={index}
-                        className="relative p-5 bg-gradient-to-br from-white to-green-50/30 dark:from-gray-800 dark:to-green-950/20 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all"
+                        className="relative p-5 bg-linear-to-br from-white to-green-50/30 dark:from-gray-800 dark:to-green-950/20 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                          <div className="w-12 h-12 rounded-xl bg-linear-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold text-lg shadow-md">
                             {ref.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1">
@@ -415,8 +415,8 @@ export default function CandidateDetailPage() {
           <div className="space-y-6">
             {/* Aptitude Score Card */}
             {candidate.onboardingTestScore !== undefined && (
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white via-blue-50/30 to-white dark:from-gray-900 dark:via-blue-950/20 dark:to-gray-900 overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0066FF]/20 to-[#00D9A5]/20 rounded-full blur-2xl -mr-16 -mt-16" />
+              <Card className="border-0 shadow-xl bg-linear-to-br from-white via-blue-50/30 to-white dark:from-gray-900 dark:via-blue-950/20 dark:to-gray-900 overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-[#0066FF]/20 to-[#00D9A5]/20 rounded-full blur-2xl -mr-16 -mt-16" />
                 <CardContent className="relative p-6">
                   <div className="text-center mb-6">
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Aptitude Score</p>
@@ -490,7 +490,7 @@ export default function CandidateDetailPage() {
               <CardContent className="p-6 space-y-3">
                 <Button 
                   variant="primary" 
-                  className="w-full bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-xl transition-all cursor-pointer"
+                  className="w-full bg-linear-to-r from-[#0066FF] to-[#0052CC] hover:shadow-xl transition-all cursor-pointer"
                   onClick={() => setIsTestModalOpen(true)}
                 >
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -554,7 +554,7 @@ export default function CandidateDetailPage() {
                   </div>
                   <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-[#0066FF] to-[#00D9A5] transition-all duration-1000"
+                      className="h-full bg-linear-to-r from-[#0066FF] to-[#00D9A5] transition-all duration-1000"
                       style={{
                         width: `${Math.round(
                           ((candidate.personalStatement ? 20 : 0) +
@@ -623,7 +623,7 @@ export default function CandidateDetailPage() {
         </Button>
         <Button 
           variant="primary" 
-          className="flex-[2] h-12 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all cursor-pointer"
+          className="flex-[2] h-12 rounded-xl bg-linear-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg transition-all cursor-pointer"
           onClick={() => setIsTestModalOpen(true)}
         >
           <div className="flex flex-col items-center">

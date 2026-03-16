@@ -181,7 +181,7 @@ export default function CandidateJobsPage() {
                   <div className="flex md:flex-col justify-end gap-3 shrink-0">
                     <Button 
                       variant="primary" 
-                      className="h-16 px-12 rounded-2xl font-black text-lg bg-gradient-to-r from-blue-600 to-indigo-600 shadow-xl shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all"
+                      className="h-16 px-12 rounded-2xl font-black text-lg bg-linear-to-r from-blue-600 to-indigo-600 shadow-xl shadow-blue-600/20 hover:scale-[1.02] active:scale-95 transition-all"
                       onClick={() => handleApply(job._id)}
                       disabled={applyingId === job._id}
                     >

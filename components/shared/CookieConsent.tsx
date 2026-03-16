@@ -45,7 +45,7 @@ export default function CookieConsent() {
           
           {/* Icon & Text Content */}
           <div className="flex items-start gap-4 flex-1">
-            <div className="hidden sm:flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 shadow-lg text-white flex-shrink-0">
+            <div className="hidden sm:flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br from-blue-600 to-cyan-500 shadow-lg text-white flex-shrink-0">
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
                 width="24" 
@@ -91,7 +91,7 @@ export default function CookieConsent() {
             <Button
               onClick={handleAccept}
               variant="primary"
-              className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white shadow-md hover:shadow-lg cursor-pointer"
+              className="flex-1 bg-linear-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white shadow-md hover:shadow-lg cursor-pointer"
             >
               {t('cookies.accept')}
             </Button>

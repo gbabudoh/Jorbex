@@ -75,7 +75,7 @@ export default function SearchPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
@@ -198,25 +198,25 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen relative bg-white dark:bg-[#020617] text-slate-900 dark:text-slate-100 transition-colors duration-500">
+    <div className="min-h-screen relative text-slate-900 dark:text-slate-100 transition-colors duration-500">
       <LushBackground />
-      
-      <div className="container mx-auto px-4 py-12 max-w-7xl relative z-10">
+
+      <div className="container mx-auto px-4 py-6 max-w-7xl relative z-10">
         {/* Header Section */}
-        <div className="mb-12">
-          <Badge className="mb-4 px-3 py-1 bg-blue-600/10 text-blue-600 dark:text-blue-400 border-none rounded-full text-xs font-bold uppercase tracking-widest">
+        <div className="mb-6">
+          <Badge className="mb-3 px-3 py-1 bg-blue-600/10 text-blue-600 dark:text-blue-400 border-none rounded-full text-xs font-bold uppercase tracking-widest">
             {t('talent_search.discovery_badge')}
           </Badge>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-4 bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-blue-100 dark:to-white bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight mb-2 bg-linear-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-blue-100 dark:to-white bg-clip-text text-transparent">
             {t('employer_hero.title')}
           </h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl font-medium leading-relaxed">
+          <p className="text-base text-slate-500 dark:text-slate-400 max-w-2xl font-medium leading-relaxed">
             {t('employer_hero.subtitle')}
           </p>
         </div>
 
         {/* Stats Dashboard */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
           {[
             { 
               label: t('talent_search.stat_total_candidates'), 
@@ -255,7 +255,7 @@ export default function SearchPage() {
               key={stat.label}
               className={`relative overflow-hidden rounded-3xl border ${stat.border} bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl p-6 shadow-xl shadow-slate-200/20 dark:shadow-none hover:scale-[1.02] hover:-translate-y-1 transition-transform duration-200`}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-50`} />
+              <div className={`absolute inset-0 bg-linear-to-br ${stat.gradient} opacity-50`} />
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 rounded-2xl bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-white shadow-sm">
@@ -275,7 +275,7 @@ export default function SearchPage() {
         </div>
 
         {/* Search and Filter Section */}
-        <div className="mb-12">
+        <div className="mb-6">
           <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl shadow-2xl shadow-blue-500/5">
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-32 -mt-32" />
             
@@ -471,7 +471,7 @@ export default function SearchPage() {
                               toggleSelection(candidate.id || candidate._id || '');
                             }}
                           >
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-600/20 transform group-hover:rotate-6 transition-transform duration-200">
+                            <div className="w-16 h-16 rounded-2xl bg-linear-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-blue-600/20 transform group-hover:rotate-6 transition-transform duration-200">
                               {candidate.name.charAt(0).toUpperCase()}
                             </div>
                             <div className={`absolute -top-2 -left-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-150 ${
@@ -506,7 +506,7 @@ export default function SearchPage() {
                         </div>
                         <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                           <div 
-                            className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full relative shadow-[0_0_10px_rgba(37,99,235,0.4)] transition-all duration-300"
+                            className="h-full bg-linear-to-r from-blue-600 to-cyan-400 rounded-full relative shadow-[0_0_10px_rgba(37,99,235,0.4)] transition-all duration-300"
                             style={{ width: `${candidate.onboardingTestScore || 0}%` }}
                           />
                         </div>
@@ -566,7 +566,7 @@ export default function SearchPage() {
                               toggleSelection(candidate.id || candidate._id || '');
                             }}
                           >
-                            <div className="w-20 h-20 rounded-[1.5rem] bg-gradient-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-blue-600/20 group-hover:rotate-3 transition-transform">
+                            <div className="w-20 h-20 rounded-[1.5rem] bg-linear-to-tr from-blue-600 to-blue-400 flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-blue-600/20 group-hover:rotate-3 transition-transform">
                                {candidate.name.charAt(0).toUpperCase()}
                             </div>
                             <div className={`absolute -top-2 -left-2 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -625,12 +625,12 @@ export default function SearchPage() {
 
                           {/* Contact Info */}
                           <div className="hidden sm:block space-y-2">
-                            <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Direct Contact</p>
+                            <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('talent_search.label_email')}</p>
                             <p className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-[150px]">{candidate.email}</p>
                           </div>
 
                           <div className="hidden sm:block space-y-2">
-                            <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Telephone</p>
+                            <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{t('talent_search.label_phone')}</p>
                             <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{candidate.phone}</p>
                           </div>
                         </div>

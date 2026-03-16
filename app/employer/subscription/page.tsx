@@ -111,7 +111,7 @@ export default function SubscriptionPage() {
   // If employer has active subscription, show subscription management
   if (session?.user?.userType === 'employer' && subscriptionData?.isActive) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 py-16">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 px-4">
@@ -223,7 +223,7 @@ export default function SubscriptionPage() {
                   <Button
                     variant="primary"
                     onClick={() => router.push('/employer/search')}
-                    className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 cursor-pointer"
+                    className="flex-1 bg-linear-to-r from-emerald-600 to-teal-600 cursor-pointer"
                   >
                     Find Candidates
                   </Button>
@@ -236,7 +236,7 @@ export default function SubscriptionPage() {
                     variant="primary"
                     onClick={handleSubscribe}
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 cursor-pointer"
+                    className="w-full bg-linear-to-r from-emerald-600 to-teal-600 cursor-pointer"
                   >
                     {loading ? 'Processing...' : 'Upgrade to Premium'}
                   </Button>
@@ -289,12 +289,12 @@ export default function SubscriptionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 py-16">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 px-4">
-            {t('subscription.title_part1')} <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{t('subscription.title_part2')}</span>
+            {t('subscription.title_part1')} <span className="bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{t('subscription.title_part2')}</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6 px-4">
             {t('subscription.subtitle')}
@@ -332,7 +332,7 @@ export default function SubscriptionPage() {
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('subscription.for_candidates')}</h2>
                 <div className="flex items-baseline justify-center gap-2 mb-4">
-                  <span className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{t('subscription.free')}</span>
+                  <span className="text-5xl font-bold bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{t('subscription.free')}</span>
                 </div>
                 <p className="text-gray-600 dark:text-gray-400">
                   {t('subscription.always_free')}
@@ -375,7 +375,7 @@ export default function SubscriptionPage() {
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 cursor-pointer"
+                className="w-full bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 cursor-pointer"
                 onClick={() => router.push('/signup?type=candidate')}
               >
                 {t('subscription.get_started_free')}
@@ -453,7 +453,7 @@ export default function SubscriptionPage() {
               <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-gray-200 dark:border-gray-700">
                 For Employers Only
               </span>
-              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+              <span className="bg-linear-to-r from-emerald-600 to-teal-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
                 {t('subscription.save_percent')}
               </span>
             </div>
@@ -461,7 +461,7 @@ export default function SubscriptionPage() {
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('subscription.yearly')}</h2>
                 <div className="flex items-baseline justify-center gap-2 mb-2">
-                  <span className="text-5xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{formatPrice(currency.yearlyPrice, currency.code)}</span>
+                  <span className="text-5xl font-bold bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">{formatPrice(currency.yearlyPrice, currency.code)}</span>
                   <span className="text-gray-600 dark:text-gray-400">{t('subscription.per_year')}</span>
                 </div>
                 <p className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold mb-2">
@@ -508,7 +508,7 @@ export default function SubscriptionPage() {
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 cursor-pointer"
+                className="w-full bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 cursor-pointer"
                 onClick={handleSubscribe}
                 disabled={loading}
               >
@@ -525,7 +525,7 @@ export default function SubscriptionPage() {
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-linear-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
@@ -537,7 +537,7 @@ export default function SubscriptionPage() {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-linear-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -549,7 +549,7 @@ export default function SubscriptionPage() {
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-linear-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>

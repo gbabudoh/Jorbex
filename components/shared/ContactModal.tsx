@@ -70,7 +70,7 @@ export default function ContactModal({
       
       {/* Modal content */}
       <Card className="relative w-full max-w-lg border-0 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0066FF]/10 to-[#00D9A5]/10 rounded-full blur-2xl -mr-16 -mt-16" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-[#0066FF]/10 to-[#00D9A5]/10 rounded-full blur-2xl -mr-16 -mt-16" />
         
         <div className="p-6 md:p-8">
           <div className="flex items-center justify-between mb-6">
@@ -133,7 +133,7 @@ export default function ContactModal({
                 </Button>
                 <Button 
                   variant="primary" 
-                  className="flex-[1.5] h-12 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg disabled:opacity-50"
+                  className="flex-[1.5] h-12 rounded-xl bg-linear-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg disabled:opacity-50"
                   disabled={!message.trim() || isSending}
                   onClick={handleSendMessage}
                   isLoading={isSending}

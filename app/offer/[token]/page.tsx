@@ -74,7 +74,7 @@ export default function OfferPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
       <Card className="max-w-3xl w-full border-0 shadow-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] p-8 text-white relative overflow-hidden">
+        <div className="bg-linear-to-r from-[#0066FF] to-[#0052CC] p-8 text-white relative overflow-hidden">
            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
            <h1 className="text-3xl font-bold relative z-10">Job Offer</h1>
            <p className="text-blue-100 mt-2 relative z-10">from {offer.companyName}</p>

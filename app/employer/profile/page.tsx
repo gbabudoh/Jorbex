@@ -70,11 +70,9 @@ export default function EmployerProfilePage() {
     twitter: '',
   });
 
-  const [stats] = useState({
-    activeJobs: 12,
-    applications: 148,
-    interviews: 24,
-    offers: 8
+  const [stats, setStats] = useState({
+    activeJobs: 0,
+    applications: 0,
   });
 
   const fetchProfile = useCallback(async () => {
@@ -90,7 +88,15 @@ export default function EmployerProfilePage() {
           country: data.country || '',
           city: data.city || '',
           email: data.email || '',
+          industry: data.industry || 'Technology',
+          companySize: data.companySize || '10-50',
+          website: data.website || '',
+          linkedin: data.linkedin || '',
         }));
+        setStats({
+          activeJobs: data.activeJobsCount ?? 0,
+          applications: data.applicationsCount ?? 0,
+        });
       }
     } catch {
       setNotification({ isOpen: true, message: t('employer_profile.error_load'), type: 'error' });
@@ -127,10 +133,10 @@ export default function EmployerProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/30">
+      <div className="flex items-center justify-center py-32">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#0066FF] mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading company profile...</p>
+          <p className="text-gray-600 dark:text-gray-400">{t('employer_profile.loading')}</p>
         </div>
       </div>
     );
@@ -146,11 +152,11 @@ export default function EmployerProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/30 pb-12">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        
+    <div className="pb-12">
+      <div className="container mx-auto px-4 py-4 max-w-7xl">
+
         {/* Header Section */}
-        <motion.div 
+        <motion.div
           initial="hidden"
           animate="visible"
           variants={containerVariants}
@@ -161,14 +167,14 @@ export default function EmployerProfilePage() {
               {t('employer_profile.title')}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 text-lg">
-              Manage your company information and hiring presence
+              {t('employer_profile.subtitle')}
             </p>
           </div>
           <div className="flex items-center gap-3">
              <Button
                 onClick={handleSave}
                 isLoading={isSaving}
-                className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg hover:shadow-blue-500/20 text-white px-6 py-4 rounded-xl font-bold flex items-center gap-2 transform transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-lg text-sm"
+                className="bg-linear-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg hover:shadow-blue-500/20 text-white px-6 py-4 rounded-xl font-bold flex items-center gap-2 transform transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-lg text-sm"
               >
                 <SaveIcon />
                 {t('employer_profile.save_changes')}
@@ -186,11 +192,11 @@ export default function EmployerProfilePage() {
             className="lg:col-span-4 space-y-6"
           >
             {/* Branding Card */}
-            <Card className="border-0 shadow-2xl overflow-hidden bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-3xl group">
+            <Card className="shadow-2xl overflow-hidden bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-3xl group">
               <CardContent className="relative px-6 pb-8 pt-6">
                 <div className="flex justify-center mb-4">
                   <div className="w-24 h-24 rounded-2xl bg-white dark:bg-slate-800 p-1 shadow-xl group-hover:scale-105 transition-transform duration-500">
-                    <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#2ca9f8] to-[#0084d1] flex items-center justify-center text-white text-3xl font-black shadow-inner">
+                    <div className="w-full h-full rounded-xl bg-linear-to-br from-[#2ca9f8] to-[#0084d1] flex items-center justify-center text-white text-3xl font-black shadow-inner">
                       {formData.companyName?.charAt(0) || 'C'}
                     </div>
                   </div>
@@ -199,14 +205,14 @@ export default function EmployerProfilePage() {
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{formData.companyName}</h2>
                   <p className="text-blue-600 dark:text-blue-400 font-medium mb-4 flex items-center justify-center gap-1">
                     <StarIcon />
-                    Verified Employer
+                    {t('employer_profile.verified')}
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
                     <Badge className="rounded-full bg-blue-50/50 dark:bg-blue-900/20 text-blue-600 border border-blue-200/50">
                       {formData.industry}
                     </Badge>
                     <Badge className="rounded-full bg-emerald-50/50 dark:bg-emerald-900/20 text-emerald-600 border border-emerald-200/50">
-                      {formData.companySize} Employees
+                      {formData.companySize} {t('employer_profile.employees')}
                     </Badge>
                   </div>
                 </div>
@@ -215,52 +221,52 @@ export default function EmployerProfilePage() {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-4">
-              <Card className="border-0 shadow-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl">
+              <Card className="shadow-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl">
                 <CardContent className="p-4 text-center">
                   <p className="text-3xl font-black text-blue-600 dark:text-blue-400 mb-1">{stats.activeJobs}</p>
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest leading-tight">Active<br/>Jobs</p>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest leading-tight">{t('employer_profile.stat_active_jobs')}</p>
                 </CardContent>
               </Card>
-              <Card className="border-0 shadow-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl">
+              <Card className="shadow-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl">
                 <CardContent className="p-4 text-center">
                   <p className="text-3xl font-black text-indigo-600 dark:text-indigo-400 mb-1">{stats.applications}</p>
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest leading-tight">App<br/>Received</p>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest leading-tight">{t('employer_profile.stat_applications')}</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Subscription Card */}
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-3xl overflow-hidden relative">
+            <Card className="shadow-xl bg-linear-to-br from-blue-600 to-indigo-700 text-white rounded-3xl overflow-hidden relative">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
               <CardContent className="p-6 relative">
                 <div className="flex items-center justify-between mb-4">
                   <div className="bg-white/20 p-2 rounded-lg">
                     <BriefcaseIcon />
                   </div>
-                  <Badge className="bg-emerald-500 text-white border-0">ACTIVE</Badge>
+                  <Badge className="bg-emerald-500 text-white border-none">{t('employer_profile.plan_active')}</Badge>
                 </div>
-                <h3 className="text-xl font-bold mb-1">Professional Plan</h3>
-                <p className="text-blue-100 text-sm mb-4">Next billing: Oct 24, 2026</p>
+                <h3 className="text-xl font-bold mb-1">{t('employer_profile.plan_name')}</h3>
+                <p className="text-blue-100 text-sm mb-4">{t('employer_profile.plan_billing')}</p>
                 <div className="h-1.5 bg-white/20 rounded-full mb-2">
                   <div className="h-full bg-white w-3/4 rounded-full"></div>
                 </div>
-                <p className="text-xs text-blue-100 font-medium tracking-wide">7,500 Credits remaining</p>
+                <p className="text-xs text-blue-100 font-medium tracking-wide">{t('employer_profile.plan_credits')}</p>
               </CardContent>
             </Card>
 
-            {/* Social Links Form (UI only mockup for now) */}
-            <Card className="border-0 shadow-xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-3xl">
+            {/* Social Links */}
+            <Card className="shadow-xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-3xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-bold">Online Presence</CardTitle>
+                <CardTitle className="text-lg font-bold">{t('employer_profile.online_presence')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 px-3">
                     <GlobeIcon />
                   </div>
-                  <input 
-                    type="text" 
-                    placeholder="Website URL"
+                  <input
+                    type="text"
+                    placeholder={t('employer_profile.website_placeholder')}
                     value={formData.website}
                     onChange={e => setFormData({...formData, website: e.target.value})}
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-800 rounded-xl border-none focus:ring-2 focus:ring-blue-500/50 outline-none text-sm transition-all"
@@ -270,9 +276,9 @@ export default function EmployerProfilePage() {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 px-3">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                   </div>
-                  <input 
-                    type="text" 
-                    placeholder="LinkedIn Profile"
+                  <input
+                    type="text"
+                    placeholder={t('employer_profile.linkedin_placeholder')}
                     value={formData.linkedin}
                     onChange={e => setFormData({...formData, linkedin: e.target.value})}
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-800 rounded-xl border-none focus:ring-2 focus:ring-blue-500/50 outline-none text-sm transition-all"
@@ -290,7 +296,7 @@ export default function EmployerProfilePage() {
             className="lg:col-span-8 space-y-6"
           >
             {/* Main Information Card */}
-            <Card className="border-0 shadow-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-3xl overflow-hidden">
+            <Card className="shadow-2xl bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-3xl overflow-hidden">
                <CardHeader className="bg-slate-50/50 dark:bg-slate-800/50 p-6 border-b border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-xl">
@@ -298,7 +304,7 @@ export default function EmployerProfilePage() {
                     </div>
                     <div>
                       <CardTitle className="text-xl font-bold">{t('employer_profile.company_details')}</CardTitle>
-                      <CardDescription>Core details about your organization</CardDescription>
+                      <CardDescription>{t('employer_profile.company_details_desc')}</CardDescription>
                     </div>
                   </div>
                </CardHeader>
@@ -344,7 +350,7 @@ export default function EmployerProfilePage() {
                         disabled
                         className="h-14 bg-gray-100/50 dark:bg-slate-800/50 border-2 border-transparent text-gray-500 cursor-not-allowed rounded-2xl px-6"
                       />
-                      <p className="text-xs text-amber-600/70 font-medium">* Contact support to change company email</p>
+                      <p className="text-xs text-amber-600/70 font-medium">{t('employer_profile.email_note')}</p>
                     </div>
 
                     {/* Phone */}
@@ -364,7 +370,7 @@ export default function EmployerProfilePage() {
 
                   {/* Location Divider */}
                   <div className="flex items-center gap-4 py-4">
-                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">Headquarters & Location</span>
+                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">{t('employer_profile.location_section')}</span>
                      <div className="h-px bg-slate-100 dark:bg-slate-800 w-full"></div>
                   </div>
 
@@ -405,14 +411,14 @@ export default function EmployerProfilePage() {
 
                   {/* Industry Divider */}
                   <div className="flex items-center gap-4 py-4">
-                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">Company Profile details</span>
+                     <span className="text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">{t('employer_profile.profile_section')}</span>
                      <div className="h-px bg-slate-100 dark:bg-slate-800 w-full"></div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                      {/* Industry */}
                      <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Industry Sector</label>
+                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">{t('employer_profile.industry')}</label>
                          <select
                            value={formData.industry}
                            onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
@@ -429,7 +435,7 @@ export default function EmployerProfilePage() {
 
                      {/* Company Size */}
                      <div className="space-y-4">
-                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Team Size</label>
+                        <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">{t('employer_profile.team_size')}</label>
                         <select
                           value={formData.companySize}
                           onChange={(e) => setFormData({ ...formData, companySize: e.target.value })}
@@ -450,9 +456,9 @@ export default function EmployerProfilePage() {
                     onClick={handleSave}
                     isLoading={isSaving}
                     variant="primary"
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-blue-500/30 px-6 py-4 transform hover:scale-[1.02] active:scale-95 transition-all font-bold rounded-xl text-sm"
+                    className="bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-blue-500/30 px-6 py-4 transform hover:scale-[1.02] active:scale-95 transition-all font-bold rounded-xl text-sm"
                   >
-                    Save Company Profile
+                    {t('employer_profile.save_changes')}
                   </Button>
                </div>
             </Card>

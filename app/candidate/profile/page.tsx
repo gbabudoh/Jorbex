@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Notification } from '@/components/ui/Notification';
 import { AFRICAN_COUNTRIES } from '@/lib/locations';
+import { MobilePageHeader } from '@/components/mobile/PageHeader';
 
 // Icon Components
 const EditIcon = () => (
@@ -98,6 +99,8 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [notification, setNotification] = useState<{ isOpen: boolean; message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [deleteWorkConfirm, setDeleteWorkConfirm] = useState<number | null>(null);
+  const [deleteRefConfirm, setDeleteRefConfirm] = useState<number | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -210,7 +213,7 @@ export default function ProfilePage() {
   // Work History Management
   const handleSaveWork = () => {
     if (!workForm.company || !workForm.position || !workForm.startDate || !workForm.description) {
-      alert('Please fill in all required fields');
+      setNotification({ isOpen: true, message: t('candidate_profile.required_fields') || 'Please fill in all required fields', type: 'error' });
       return;
     }
 
@@ -251,9 +254,12 @@ export default function ProfilePage() {
   };
 
   const handleDeleteWork = (index: number) => {
-    if (confirm('Are you sure you want to delete this work experience?')) {
-      setFormData({ ...formData, workHistory: formData.workHistory.filter((_, i) => i !== index) });
-    }
+    setDeleteWorkConfirm(index);
+  };
+
+  const confirmDeleteWork = (index: number) => {
+    setFormData({ ...formData, workHistory: formData.workHistory.filter((_, i) => i !== index) });
+    setDeleteWorkConfirm(null);
   };
 
   // References Management
@@ -283,9 +289,12 @@ export default function ProfilePage() {
   };
 
   const handleDeleteReference = (index: number) => {
-    if (confirm(t('candidate_profile.confirm_delete'))) {
-      setFormData({ ...formData, references: formData.references.filter((_, i) => i !== index) });
-    }
+    setDeleteRefConfirm(index);
+  };
+
+  const confirmDeleteReference = (index: number) => {
+    setFormData({ ...formData, references: formData.references.filter((_, i) => i !== index) });
+    setDeleteRefConfirm(null);
   };
 
   const getProfileCompleteness = () => {
@@ -302,7 +311,7 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/30">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/30">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#0066FF] mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">{t('candidate_profile.loading')}</p>
@@ -314,19 +323,26 @@ export default function ProfilePage() {
   const completeness = getProfileCompleteness();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/30">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/30 pb-36 md:pb-0">
+      {/* Mobile native header — large title style */}
+      <MobilePageHeader
+        title={t('candidate_profile.title')}
+        subtitle={t('candidate_profile.subtitle')}
+        largeTitle
+      />
+
       <div className="container mx-auto px-4 py-4 md:py-8 max-w-7xl">
-        {/* Header */}
-        <div className="mb-2 md:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Desktop header — hidden on mobile */}
+        <div className="hidden md:flex mb-8 flex-row items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1 md:mb-2">{t('candidate_profile.title')}</h1>
-            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">{t('candidate_profile.subtitle')}</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('candidate_profile.title')}</h1>
+            <p className="text-base text-gray-600 dark:text-gray-400">{t('candidate_profile.subtitle')}</p>
           </div>
           <Button
             variant="primary"
             onClick={handleSaveProfile}
             isLoading={isSaving}
-            className="hidden md:flex bg-gradient-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg items-center cursor-pointer"
+            className="bg-linear-to-r from-[#0066FF] to-[#0052CC] hover:shadow-lg flex items-center cursor-pointer"
           >
             <SaveIcon />
             <span className="ml-2">{t('candidate_profile.save_all_changes')}</span>
@@ -338,10 +354,10 @@ export default function ProfilePage() {
           <div className="space-y-6">
             {/* Profile Card */}
             <Card className="border-0 shadow-xl overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0066FF]/20 to-[#00D9A5]/20 rounded-full blur-2xl -mr-16 -mt-16" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-[#0066FF]/20 to-[#00D9A5]/20 rounded-full blur-2xl -mr-16 -mt-16" />
               <CardContent className="relative p-4 md:p-6 text-center">
                 <div className="flex items-center md:flex-col gap-4 md:gap-0">
-                  <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-lg mb-0 md:mb-4 shrink-0">
+                  <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl bg-linear-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-lg mb-0 md:mb-4 shrink-0">
                     {profile?.name?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <div className="text-left md:text-center flex-1">
@@ -366,14 +382,30 @@ export default function ProfilePage() {
                     <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.phone')}</span>
                     <span className="font-medium text-right">{formData.phone || t('candidate_profile.not_set')}</span>
                   </div>
+                  {(formData.city || formData.country) && (
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-gray-600 dark:text-gray-400 shrink-0">Location</span>
+                      <span className="font-medium truncate text-right">{[formData.city, formData.country].filter(Boolean).join(', ')}</span>
+                    </div>
+                  )}
                 </div>
+                <a
+                  href="/candidate/profile/preview"
+                  className="mt-4 flex items-center justify-center gap-1.5 text-xs text-[#0066FF] hover:text-[#0052CC] font-medium transition-colors"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  View Public Profile
+                </a>
               </CardContent>
             </Card>
 
             {/* Aptitude Score */}
             {profile?.onboardingTestScore !== undefined && (
-              <Card className="border-0 shadow-xl bg-gradient-to-br from-white via-blue-50/30 to-white dark:from-gray-900 dark:via-blue-950/20 dark:to-gray-900 overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0066FF]/20 to-[#00D9A5]/20 rounded-full blur-2xl -mr-16 -mt-16" />
+              <Card className="border-0 shadow-xl bg-linear-to-br from-white via-blue-50/30 to-white dark:from-gray-900 dark:via-blue-950/20 dark:to-gray-900 overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-[#0066FF]/20 to-[#00D9A5]/20 rounded-full blur-2xl -mr-16 -mt-16" />
                 <CardContent className="relative p-6">
                   <div className="text-center mb-4">
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">{t('candidate_profile.aptitude_score')}</p>
@@ -420,69 +452,38 @@ export default function ProfilePage() {
                   </div>
                   <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-gradient-to-r from-[#0066FF] to-[#00D9A5] transition-all duration-1000"
+                      className="h-full bg-linear-to-r from-[#0066FF] to-[#00D9A5] transition-all duration-1000"
                       style={{ width: `${completeness}%` }}
                     />
                   </div>
                 </div>
                 
                 <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.personal_statement')}</span>
-                    {formData.personalStatement ? (
-                      <span className="text-green-600 dark:text-green-400">✓</span>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.skills')}</span>
-                    {formData.skills.length > 0 ? (
-                      <span className="text-green-600 dark:text-green-400">✓ {formData.skills.length}/5</span>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.work_history')}</span>
-                    {formData.workHistory.length > 0 ? (
-                      <span className="text-green-600 dark:text-green-400">✓ {formData.workHistory.length}</span>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.education')}</span>
-                    {formData.highestQualification ? (
-                      <span className="text-green-600 dark:text-green-400">✓</span>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.university')}</span>
-                    {formData.university ? (
-                      <span className="text-green-600 dark:text-green-400">✓</span>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.references')}</span>
-                    {formData.references.length > 0 ? (
-                      <span className="text-green-600 dark:text-green-400">✓ {formData.references.length}</span>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.hobbies')}</span>
-                    {formData.hobbies ? (
-                      <span className="text-green-600 dark:text-green-400">✓</span>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </div>
+                  {[
+                    { label: t('candidate_profile.personal_statement'), done: !!formData.personalStatement, tab: 'overview' },
+                    { label: t('candidate_profile.skills'), done: formData.skills.length > 0, count: formData.skills.length > 0 ? `${formData.skills.length}/5` : null, tab: 'overview' },
+                    { label: t('candidate_profile.work_history'), done: formData.workHistory.length > 0, count: formData.workHistory.length > 0 ? String(formData.workHistory.length) : null, tab: 'work' },
+                    { label: t('candidate_profile.education'), done: !!formData.highestQualification, tab: 'overview' },
+                    { label: t('candidate_profile.university'), done: !!formData.university, tab: 'overview' },
+                    { label: t('candidate_profile.references'), done: formData.references.length > 0, count: formData.references.length > 0 ? String(formData.references.length) : null, tab: 'references' },
+                    { label: t('candidate_profile.hobbies'), done: !!formData.hobbies, tab: 'overview' },
+                  ].map(({ label, done, count, tab }) => (
+                    <button
+                      key={label}
+                      onClick={() => setActiveTab(tab)}
+                      className="w-full flex items-center justify-between gap-2 group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg px-1 py-0.5 transition-colors"
+                    >
+                      <span className={`text-left transition-colors ${done ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400'}`}>{label}</span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {count && <span className="text-[10px] text-green-600 dark:text-green-400 font-semibold">{count}</span>}
+                        {done ? (
+                          <span className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white text-[8px] font-bold shrink-0">✓</span>
+                        ) : (
+                          <span className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 shrink-0" />
+                        )}
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -495,17 +496,54 @@ export default function ProfilePage() {
               <Card className="border-0 shadow-lg md:shadow-md">
                 <CardContent className="p-1 md:p-2">
                   <div className="flex gap-1 md:gap-2">
-                    {['overview', 'work', 'references'].map((tab) => (
+                    {[
+                      {
+                        key: 'overview',
+                        label: t('candidate_profile.overview'),
+                        icon: (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        ),
+                        count: null,
+                      },
+                      {
+                        key: 'work',
+                        label: t('candidate_profile.work'),
+                        icon: (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                        ),
+                        count: formData.workHistory.length || null,
+                      },
+                      {
+                        key: 'references',
+                        label: t('candidate_profile.references'),
+                        icon: (
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        ),
+                        count: formData.references.length || null,
+                      },
+                    ].map(({ key, label, icon, count }) => (
                       <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`flex-1 min-w-0 px-1 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl text-[11px] sm:text-[12px] md:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
-                          activeTab === tab
-                            ? 'bg-gradient-to-r from-[#0066FF] to-[#0052CC] text-white shadow-md'
+                        key={key}
+                        onClick={() => setActiveTab(key)}
+                        className={`flex-1 min-w-0 px-1 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl text-[11px] sm:text-[12px] md:text-sm font-bold transition-all whitespace-nowrap cursor-pointer flex items-center justify-center gap-1 md:gap-1.5 ${
+                          activeTab === key
+                            ? 'bg-linear-to-r from-[#0066FF] to-[#0052CC] text-white shadow-md'
                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                         }`}
                       >
-                        {t(`candidate_profile.${tab}`)}
+                        <span className="hidden sm:block">{icon}</span>
+                        <span>{label}</span>
+                        {count !== null && (
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${activeTab === key ? 'bg-white/25 text-white' : 'bg-[#0066FF]/10 text-[#0066FF] dark:bg-[#0066FF]/20 dark:text-[#4DA3FF]'}`}>
+                            {count}
+                          </span>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -520,7 +558,7 @@ export default function ProfilePage() {
                 <Card className="border-0 shadow-lg">
                   <CardHeader className="p-3 md:p-6 pb-1 md:pb-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
+                      <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
                         <UserIcon />
                       </div>
                       <CardTitle className="text-lg md:text-xl">{t('candidate_profile.basic_info')}</CardTitle>
@@ -583,7 +621,7 @@ export default function ProfilePage() {
                 <Card className="border-0 shadow-lg">
                   <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                      <div className="w-8 h-8 rounded-lg bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                         </svg>
@@ -610,7 +648,7 @@ export default function ProfilePage() {
                   <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
+                        <div className="w-8 h-8 rounded-lg bg-linear-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                           </svg>
@@ -629,7 +667,7 @@ export default function ProfilePage() {
                         placeholder="e.g., Python, React, Excel"
                         value={newSkill}
                         onChange={(e) => setNewSkill(e.target.value)}
-                        onKeyPress={(e) => {
+                        onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
                             handleAddSkill();
@@ -650,14 +688,15 @@ export default function ProfilePage() {
                       {formData.skills.map((skill) => (
                         <div
                           key={skill}
-                          className="px-4 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-xl border border-blue-200 dark:border-blue-800 flex items-center gap-2 group"
+                          className="px-3 py-1.5 bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-full border border-blue-200 dark:border-blue-800 flex items-center gap-1.5 group"
                         >
-                          <span className="font-medium text-blue-700 dark:text-blue-300">{skill}</span>
+                          <span className="font-medium text-blue-700 dark:text-blue-300 text-sm">{skill}</span>
                           <button
                             onClick={() => handleRemoveSkill(skill)}
-                            className="text-red-500 hover:text-red-700 transition-colors cursor-pointer"
+                            className="w-4 h-4 rounded-full flex items-center justify-center text-blue-400 hover:text-white hover:bg-blue-500 transition-all cursor-pointer text-sm font-bold leading-none"
+                            title="Remove skill"
                           >
-                            <TrashIcon />
+                            ×
                           </button>
                         </div>
                       ))}
@@ -669,7 +708,7 @@ export default function ProfilePage() {
                 <Card className="border-0 shadow-lg">
                   <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white">
+                      <div className="w-8 h-8 rounded-lg bg-linear-to-br from-[#0066FF] to-[#00D9A5] flex items-center justify-center text-white">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path d="M12 14l9-5-9-5-9 5 9 5z" />
                           <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
@@ -702,13 +741,13 @@ export default function ProfilePage() {
                         value={formData.university}
                         onChange={(e) => setFormData({ ...formData, university: e.target.value })}
                       />
+                      <Input
+                        label={t('candidate_profile.degree')}
+                        placeholder={t('candidate_profile.degree_placeholder')}
+                        value={formData.degree}
+                        onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
+                      />
                     </div>
-                    <Input
-                      label={t('candidate_profile.degree')}
-                      placeholder={t('candidate_profile.degree_placeholder')}
-                      value={formData.degree}
-                      onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
-                    />
                     <Textarea
                       label={t('candidate_profile.professional_qualifications')}
                       placeholder={t('candidate_profile.professional_qualifications_placeholder')}
@@ -723,7 +762,7 @@ export default function ProfilePage() {
                 <Card className="border-0 shadow-lg">
                   <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-white">
+                      <div className="w-8 h-8 rounded-lg bg-linear-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-white">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -750,7 +789,7 @@ export default function ProfilePage() {
                 <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-lg bg-linear-to-br from-orange-500 to-red-500 flex items-center justify-center">
                         <BriefcaseIcon />
                       </div>
                       <div>
@@ -758,24 +797,24 @@ export default function ProfilePage() {
                         <CardDescription className="text-[11px] md:text-sm">{t('candidate_profile.professional_history')}</CardDescription>
                       </div>
                     </div>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      className="px-2 py-1 h-8 text-[11px] cursor-pointer"
+                    <button
                       onClick={() => {
                         setShowWorkForm(true);
                         setEditingWorkIndex(null);
                         setWorkForm({ company: '', position: '', startDate: '', endDate: '', description: '', isCurrent: false });
                       }}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-linear-to-r from-[#0066FF] to-[#0052CC] text-white text-xs font-semibold shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/30 active:scale-95 transition-all cursor-pointer"
                     >
-                      <PlusIcon />
-                      <span className="ml-1">{t('candidate_profile.add_ref')}</span>
-                    </Button>
+                      <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                        <PlusIcon />
+                      </span>
+                      <span>{t('candidate_profile.add_work')}</span>
+                    </button>
                   </div>
                 </CardHeader>
                 <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
                   {showWorkForm && (
-                    <div className="mb-6 p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-2xl border border-blue-200 dark:border-blue-800 space-y-4">
+                    <div className="mb-6 p-6 bg-linear-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 rounded-2xl border border-blue-200 dark:border-blue-800 space-y-4">
                       <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
                         {editingWorkIndex !== null ? t('candidate_profile.edit_work') : t('candidate_profile.add_work_exp')}
                       </h3>
@@ -841,39 +880,69 @@ export default function ProfilePage() {
                   )}
 
                   {/* Work History List */}
-                  <div className="space-y-4">
+                  <div className="relative pl-5 border-l-2 border-[#0066FF]/20 dark:border-[#0066FF]/15 space-y-4">
                     {formData.workHistory.length === 0 ? (
-                      <div className="text-center py-12">
-                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                      <div className="text-center py-10 pl-0 border-0">
+                        <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center mx-auto mb-3 text-orange-400">
                           <BriefcaseIcon />
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400">{t('candidate_profile.no_work_experience')}</p>
+                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">No work experience yet</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mb-5">{t('candidate_profile.no_work_experience')}</p>
+                        <button
+                          onClick={() => {
+                            setShowWorkForm(true);
+                            setEditingWorkIndex(null);
+                            setWorkForm({ company: '', position: '', startDate: '', endDate: '', description: '', isCurrent: false });
+                          }}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-linear-to-r from-[#0066FF] to-[#0052CC] text-white text-sm font-semibold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 active:scale-95 transition-all cursor-pointer"
+                        >
+                          <PlusIcon />
+                          <span>Add Work Experience</span>
+                        </button>
                       </div>
                     ) : (
                       formData.workHistory.map((work, index) => (
-                        <div
-                          key={index}
-                          className="p-5 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all"
-                        >
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <h3 className="text-lg font-bold text-gray-900 dark:text-white">{work.position}</h3>
-                              <p className="text-[#0066FF] dark:text-[#4DA3FF] font-semibold">{work.company}</p>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                {new Date(work.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} -{' '}
-                                {work.endDate ? new Date(work.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : t('candidate_profile.present')}
-                              </p>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm" onClick={() => handleEditWork(index)} className="cursor-pointer">
-                                <EditIcon />
-                              </Button>
-                              <Button variant="outline" size="sm" onClick={() => handleDeleteWork(index)} className="cursor-pointer">
-                                <TrashIcon />
-                              </Button>
-                            </div>
+                        <div key={index} className="relative">
+                          {/* Timeline dot */}
+                          <div className="absolute -left-[25px] top-5 w-3 h-3 rounded-full bg-[#0066FF] border-2 border-white dark:border-gray-900 shadow-sm" />
+                          <div className="p-5 bg-linear-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all">
+                            {deleteWorkConfirm === index ? (
+                              <div className="flex items-center justify-between gap-3 py-1">
+                                <p className="text-sm text-gray-700 dark:text-gray-300">Delete this work experience?</p>
+                                <div className="flex gap-2 shrink-0">
+                                  <Button variant="outline" size="sm" onClick={() => setDeleteWorkConfirm(null)} className="cursor-pointer">Cancel</Button>
+                                  <button
+                                    onClick={() => confirmDeleteWork(index)}
+                                    className="px-3 py-1.5 text-xs font-semibold bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors cursor-pointer"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex items-start justify-between mb-3">
+                                  <div className="flex-1">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">{work.position}</h3>
+                                    <p className="text-[#0066FF] dark:text-[#4DA3FF] font-semibold">{work.company}</p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                      {new Date(work.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} -{' '}
+                                      {work.endDate ? new Date(work.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : t('candidate_profile.present')}
+                                    </p>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => handleEditWork(index)} className="cursor-pointer">
+                                      <EditIcon />
+                                    </Button>
+                                    <Button variant="outline" size="sm" onClick={() => handleDeleteWork(index)} className="cursor-pointer">
+                                      <TrashIcon />
+                                    </Button>
+                                  </div>
+                                </div>
+                                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{work.description}</p>
+                              </>
+                            )}
                           </div>
-                          <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{work.description}</p>
                         </div>
                       ))
                     )}
@@ -888,7 +957,7 @@ export default function ProfilePage() {
                 <CardHeader className="p-3 md:p-6 pb-2 md:pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
+                      <div className="w-8 h-8 rounded-lg bg-linear-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
@@ -915,7 +984,7 @@ export default function ProfilePage() {
                 </CardHeader>
                 <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
                   {showRefForm && (
-                    <div className="mb-6 p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-2xl border border-green-200 dark:border-green-800 space-y-4">
+                    <div className="mb-6 p-6 bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-2xl border border-green-200 dark:border-green-800 space-y-4">
                       <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
                         {editingRefIndex !== null ? t('candidate_profile.edit_ref') : t('candidate_profile.add_ref')}
                       </h3>
@@ -978,43 +1047,58 @@ export default function ProfilePage() {
                       formData.references.map((ref, index) => (
                         <div
                           key={index}
-                          className="p-5 bg-gradient-to-br from-white to-green-50/30 dark:from-gray-800 dark:to-green-950/20 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all"
+                          className="p-5 bg-linear-to-br from-white to-green-50/30 dark:from-gray-800 dark:to-green-950/20 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all"
                         >
-                          <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold text-lg shadow-md flex-shrink-0">
-                              {ref.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between mb-2">
-                                <div>
-                                  <h3 className="font-bold text-lg text-gray-900 dark:text-white">{ref.name}</h3>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">{ref.relationship}</p>
-                                </div>
-                                <div className="flex gap-2">
-                                  <Button variant="outline" size="sm" onClick={() => handleEditReference(index)} className="cursor-pointer">
-                                    <EditIcon />
-                                  </Button>
-                                  <Button variant="outline" size="sm" onClick={() => handleDeleteReference(index)} className="cursor-pointer">
-                                    <TrashIcon />
-                                  </Button>
-                                </div>
-                              </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                                <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                  </svg>
-                                  <span className="truncate">{ref.email}</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                  </svg>
-                                  <span>{ref.phone}</span>
-                                </div>
+                          {deleteRefConfirm === index ? (
+                            <div className="flex items-center justify-between gap-3 py-1">
+                              <p className="text-sm text-gray-700 dark:text-gray-300">Remove <strong>{ref.name}</strong> as a reference?</p>
+                              <div className="flex gap-2 shrink-0">
+                                <Button variant="outline" size="sm" onClick={() => setDeleteRefConfirm(null)} className="cursor-pointer">Cancel</Button>
+                                <button
+                                  onClick={() => confirmDeleteReference(index)}
+                                  className="px-3 py-1.5 text-xs font-semibold bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors cursor-pointer"
+                                >
+                                  Remove
+                                </button>
                               </div>
                             </div>
-                          </div>
+                          ) : (
+                            <div className="flex items-start gap-4">
+                              <div className="w-12 h-12 rounded-xl bg-linear-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold text-lg shadow-md shrink-0">
+                                {ref.name.charAt(0).toUpperCase()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between mb-2">
+                                  <div>
+                                    <h3 className="font-bold text-lg text-gray-900 dark:text-white">{ref.name}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">{ref.relationship}</p>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => handleEditReference(index)} className="cursor-pointer">
+                                      <EditIcon />
+                                    </Button>
+                                    <Button variant="outline" size="sm" onClick={() => handleDeleteReference(index)} className="cursor-pointer">
+                                      <TrashIcon />
+                                    </Button>
+                                  </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    <span className="truncate">{ref.email}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                    </svg>
+                                    <span>{ref.phone}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))
                     )}
@@ -1025,6 +1109,30 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      {/* Full-width save bar — sits above bottom nav, mobile only */}
+      <div className="fixed bottom-14 left-0 right-0 md:hidden z-50 px-4 pb-2">
+        <button
+          onClick={handleSaveProfile}
+          disabled={isSaving}
+          className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl font-bold text-base text-white bg-linear-to-r from-[#0066FF] to-[#0052CC] shadow-2xl shadow-blue-600/40 active:scale-[0.98] transition-transform disabled:opacity-60 cursor-pointer"
+        >
+          {isSaving ? (
+            <>
+              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+              <span>Saving…</span>
+            </>
+          ) : (
+            <>
+              <SaveIcon />
+              <span>{t('candidate_profile.save_all_changes')}</span>
+            </>
+          )}
+        </button>
+      </div>
+
       <Notification
         isOpen={!!notification}
         message={notification?.message || ''}

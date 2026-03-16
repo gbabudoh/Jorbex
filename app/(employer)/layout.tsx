@@ -38,6 +38,6 @@ export default function EmployerLayout({
     return null;
   }
 
-  return <div className="min-h-screen bg-gradient-to-br from-[#0066FF]/5 via-white to-[#00D9A5]/5">{children}</div>;
+  return <div className="min-h-screen bg-linear-to-br from-[#0066FF]/5 via-white to-[#00D9A5]/5">{children}</div>;
 }
 

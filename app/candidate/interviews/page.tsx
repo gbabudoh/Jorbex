@@ -60,7 +60,7 @@ export default function InterviewsPage() {
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
             {t('interviews.candidate_title')}
           </h1>
           <p className="text-gray-500 mt-1">{t('interviews.candidate_subtitle')}</p>
@@ -190,7 +190,7 @@ function InterviewCard({ interview, isUpcoming }: { interview: Interview; isUpco
                 href={interview.meetingUrl}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center w-full px-6 py-3 text-sm font-bold text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-gradient-to-r from-blue-600 to-blue-500 focus:ring-blue-600"
+                className="inline-flex items-center justify-center w-full px-6 py-3 text-sm font-bold text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-linear-to-r from-blue-600 to-blue-500 focus:ring-blue-600"
               >
                 {t('interviews.join_meeting')}
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,7 +202,7 @@ function InterviewCard({ interview, isUpcoming }: { interview: Interview; isUpco
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(interview.location)}`}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center w-full px-6 py-3 text-sm font-bold text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-gradient-to-r from-emerald-600 to-emerald-500 focus:ring-emerald-600"
+                className="inline-flex items-center justify-center w-full px-6 py-3 text-sm font-bold text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 bg-linear-to-r from-emerald-600 to-emerald-500 focus:ring-emerald-600"
               >
                 {t('interviews.get_directions')}
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -127,7 +127,7 @@ export default function ResultDetailPage() {
             <div className={`h-3 w-full ${result.passed ? 'bg-emerald-500' : 'bg-rose-500'}`} />
             <CardContent className="p-8">
               <div className="flex flex-col items-center text-center mb-8">
-                <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-4xl font-black text-white shadow-xl shadow-blue-500/20 mb-6">
+                <div className="w-24 h-24 rounded-[2rem] bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-4xl font-black text-white shadow-xl shadow-blue-500/20 mb-6">
                   {result.candidateId.name.charAt(0)}
                 </div>
                 <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1">{result.candidateId.name}</h2>

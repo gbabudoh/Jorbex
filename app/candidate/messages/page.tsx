@@ -402,7 +402,7 @@ export default function MessagesPage() {
                 </Button>
                 <Button 
                   variant="primary"
-                  className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] px-8 h-10 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer"
+                  className="bg-linear-to-r from-[#0066FF] to-[#0052CC] px-8 h-10 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer"
                   disabled={!newRecipient || !replyContent.trim() || isSending}
                   onClick={() => handleSendMessage(true)}
                   isLoading={isSending}
@@ -493,7 +493,7 @@ export default function MessagesPage() {
                       </Button>
                       <Button 
                         variant="primary" 
-                        className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] px-4 md:px-8 h-9 md:h-10 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 text-xs md:text-sm"
+                        className="bg-linear-to-r from-[#0066FF] to-[#0052CC] px-4 md:px-8 h-9 md:h-10 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 text-xs md:text-sm"
                         onClick={() => handleSendMessage()}
                         disabled={!replyContent.trim() || isSending}
                         isLoading={isSending}

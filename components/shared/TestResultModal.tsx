@@ -59,8 +59,8 @@ export default function TestResultModal({ isOpen, score, passed, onAction }: Tes
             {/* Header / Background Decoration */}
             <div className={`absolute top-0 left-0 right-0 h-32 ${
               passed 
-                ? 'bg-gradient-to-br from-emerald-500/20 to-teal-500/20' 
-                : 'bg-gradient-to-br from-red-500/20 to-orange-500/20'
+                ? 'bg-linear-to-br from-emerald-500/20 to-teal-500/20' 
+                : 'bg-linear-to-br from-red-500/20 to-orange-500/20'
             }`} />
             
             <div className="relative p-8 text-center">
@@ -129,7 +129,7 @@ export default function TestResultModal({ isOpen, score, passed, onAction }: Tes
                 onClick={onAction}
                 className={`w-full h-12 rounded-xl font-bold text-lg shadow-lg cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] ${
                   passed 
-                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-500/20'
+                    ? 'bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-500/20'
                     : 'border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
                 }`}
               >

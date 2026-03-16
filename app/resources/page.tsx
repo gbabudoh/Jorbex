@@ -7,7 +7,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 export default function ResourcesPage() {
   const { t } = useLanguage();
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 py-16">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-slate-900 dark:to-indigo-950 py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
@@ -22,7 +22,7 @@ export default function ResourcesPage() {
           {/* For Candidates */}
           <Card className="border-2 border-blue-200 dark:border-blue-800 hover:shadow-xl transition-all">
             <CardContent className="p-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-linear-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
@@ -60,7 +60,7 @@ export default function ResourcesPage() {
           {/* For Employers */}
           <Card className="border-2 border-emerald-200 dark:border-emerald-800 hover:shadow-xl transition-all">
             <CardContent className="p-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-linear-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mb-6">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
@@ -197,7 +197,7 @@ export default function ResourcesPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+          <Card className="bg-linear-to-r from-blue-600 to-indigo-600 text-white">
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold mb-4">{t('resources.help.title')}</h2>
               <p className="mb-6">

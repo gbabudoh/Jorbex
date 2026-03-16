@@ -115,7 +115,7 @@ function SignupForm() {
   return (
     <Card className="w-full max-w-md animate-fade-in">
       <CardHeader className="text-center">
-        <div className="w-16 h-16 bg-gradient-to-r from-[#0066FF] to-[#00D9A5] rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-linear-to-r from-[#0066FF] to-[#00D9A5] rounded-2xl flex items-center justify-center mx-auto mb-4">
           <span className="text-white font-bold text-2xl">J</span>
         </div>
         <CardTitle className="text-2xl">{t('signup.title')}</CardTitle>

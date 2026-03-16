@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Notification } from '@/components/ui/Notification';
 import { useLanguage } from '@/lib/LanguageContext';
 import Image from 'next/image';
+import { MobilePageHeader } from '@/components/mobile/PageHeader';
 
 interface Job {
   _id: string;
@@ -95,18 +96,29 @@ export default function JobDetailsPage() {
   if (!job) return null;
 
   return (
-    <div className="container mx-auto py-10 px-4 max-w-4xl">
-      <Button 
-        variant="ghost" 
-        onClick={() => router.back()} 
-        className="mb-6 hover:bg-gray-100"
-      >
-        <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-        {t('jobs.back_to_search')}
-      </Button>
+    <div className="max-w-4xl mx-auto">
+      {/* Mobile native header with back button */}
+      <MobilePageHeader
+        title={job.title}
+        subtitle={job.employerId?.companyName}
+        backHref="/candidate/jobs"
+      />
 
+      {/* Desktop back button — hidden on mobile */}
+      <div className="hidden md:block py-6 px-4">
+        <Button
+          variant="ghost"
+          onClick={() => router.back()}
+          className="hover:bg-gray-100"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          {t('jobs.back_to_search')}
+        </Button>
+      </div>
+
+      <div className="px-4 pb-6 md:px-0">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <Card className="overflow-hidden border-none shadow-sm bg-white">
@@ -199,6 +211,7 @@ export default function JobDetailsPage() {
           onClose={() => setNotification(null)}
         />
       )}
+      </div> {/* /px-4 wrapper */}
     </div>
   );
 }

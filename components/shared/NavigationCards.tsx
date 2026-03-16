@@ -195,11 +195,11 @@ export const NavigationCards: React.FC = () => {
                   : 'bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 shadow-sm'}`}>
                 
                 {/* Background Glow */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${item.color} rounded-xl transition-opacity duration-300
+                <div className={`absolute inset-0 bg-linear-to-br ${item.color} rounded-xl transition-opacity duration-300
                   ${isActive ? 'opacity-10' : 'opacity-0 group-hover:opacity-5'}`} />
                 
                 {/* Icon Container */}
-                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center text-white shadow-md transform transition-transform duration-300 shrink-0
+                <div className={`w-10 h-10 rounded-lg bg-linear-to-br ${item.color} flex items-center justify-center text-white shadow-md transform transition-transform duration-300 shrink-0
                   ${isActive ? 'scale-110' : 'group-hover:rotate-3'}`}>
                   {item.icon}
                 </div>
@@ -211,7 +211,7 @@ export const NavigationCards: React.FC = () => {
                 
                 {/* Active Indicator */}
                 {isActive && (
-                  <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-gradient-to-r ${item.color}`} />
+                  <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-linear-to-r ${item.color}`} />
                 )}
               </div>
             </Link>

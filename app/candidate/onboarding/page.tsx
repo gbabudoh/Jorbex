@@ -161,7 +161,7 @@ export default function OnboardingPage() {
   const allAnswered = answeredQuestions === questions.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/10 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/10 pb-24">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/10 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/10 pb-24">
       <div className="container mx-auto px-4 py-6 md:py-8 max-w-4xl">
       <Card className="mb-6">
         <CardHeader className="p-4 md:p-6 pb-2 md:pb-4 border-b border-gray-100 dark:border-gray-800">
@@ -185,7 +185,7 @@ export default function OnboardingPage() {
             </div>
             <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-1.5 md:h-2">
               <div
-                className="bg-gradient-to-r from-[#0066FF] to-[#00D9A5] h-1.5 md:h-2 rounded-full transition-all duration-300 shadow-sm"
+                className="bg-linear-to-r from-[#0066FF] to-[#00D9A5] h-1.5 md:h-2 rounded-full transition-all duration-300 shadow-sm"
                 style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
               />
             </div>
@@ -275,7 +275,7 @@ export default function OnboardingPage() {
               onClick={handleSubmit}
               disabled={!allAnswered || isSubmitting}
               isLoading={isSubmitting}
-              className="flex-[2] h-12 rounded-xl font-bold bg-gradient-to-r from-[#0066FF] to-[#0052CC]"
+              className="flex-[2] h-12 rounded-xl font-bold bg-linear-to-r from-[#0066FF] to-[#0052CC]"
             >
               {t('onboarding.submit_test')}
             </Button>
@@ -284,7 +284,7 @@ export default function OnboardingPage() {
               variant="primary"
               onClick={handleNext}
               disabled={!answers[question.id]}
-              className="flex-[2] h-12 rounded-xl font-bold bg-gradient-to-r from-[#0066FF] to-[#0052CC] cursor-pointer"
+              className="flex-[2] h-12 rounded-xl font-bold bg-linear-to-r from-[#0066FF] to-[#0052CC] cursor-pointer"
             >
               {t('onboarding.next_question')}
             </Button>

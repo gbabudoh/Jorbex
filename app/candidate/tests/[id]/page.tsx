@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useLanguage } from '@/lib/LanguageContext';
+import { MobilePageHeader } from '@/components/mobile/PageHeader';
 
 interface Question {
   _id: string; // From custom tests
@@ -111,7 +112,11 @@ export default function TakeTestPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <MobilePageHeader
+        title={test.title}
+        backHref="/candidate/tests"
+      />
+      <div className="container mx-auto px-4 py-4 md:py-8 max-w-4xl">
         {/* Header Card */}
         <Card className="mb-6 border-0 shadow-xl bg-white dark:bg-gray-900">
           <CardHeader className="p-6 md:p-8 flex flex-row items-center justify-between">
@@ -132,7 +137,7 @@ export default function TakeTestPage() {
             </div>
             <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3 overflow-hidden">
               <div 
-                className="bg-gradient-to-r from-[#0066FF] to-[#00D9A5] h-full transition-all duration-500 rounded-full"
+                className="bg-linear-to-r from-[#0066FF] to-[#00D9A5] h-full transition-all duration-500 rounded-full"
                 style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
               />
             </div>

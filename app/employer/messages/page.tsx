@@ -51,6 +51,7 @@ export default function EmployerMessagesPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [messageType, setMessageType] = useState<'inbox' | 'sent'>('inbox');
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<{ id: string, name: string, expertise?: string }[]>([]);
@@ -114,8 +115,7 @@ export default function EmployerMessagesPage() {
   };
 
   const handleDelete = async (messageId: string) => {
-    if (!confirm(t('messages.confirm_delete'))) return;
-    
+    setShowDeleteConfirm(false);
     setIsDeleting(true);
     try {
       const response = await fetch('/api/v1/messages', {
@@ -142,6 +142,7 @@ export default function EmployerMessagesPage() {
 
   const handleSelectMessage = (message: Message) => {
     setSelectedMessage(message);
+    setShowDeleteConfirm(false);
     setIsCreating(false);
     if (messageType === 'inbox' && !message.isRead) {
       markAsRead(message.id);
@@ -223,15 +224,15 @@ export default function EmployerMessagesPage() {
 
   if (isLoading && messages.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-12 flex items-center justify-center">
+      <div className="flex items-center justify-center py-32">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0066FF]"></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="flex flex-col md:flex-row gap-6 h-[calc(100vh-12rem)]">
+    <div className="container mx-auto px-4 py-4 max-w-6xl">
+      <div className="flex flex-col md:flex-row gap-6 h-[calc(100vh-10rem)]">
         {/* Messages List */}
         <div className="w-full md:w-1/3 flex flex-col gap-4 overflow-y-auto pr-2">
           <div className="flex flex-col gap-4 mb-2">
@@ -289,8 +290,8 @@ export default function EmployerMessagesPage() {
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-bold text-sm truncate pr-2">
-                        {messageType === 'sent' 
-                          ? `${t('messages.to')}${selectedMessage?.receiverCandidate?.name || selectedMessage?.receiverEmployer?.companyName || selectedMessage?.receiverEmployer?.name || t('messages.recipient')}`
+                        {messageType === 'sent'
+                          ? `${t('messages.to')}${message.receiverCandidate?.name || message.receiverEmployer?.companyName || message.receiverEmployer?.name || t('messages.recipient')}`
                           : (message.senderCandidate?.name || message.senderEmployer?.companyName || message.senderEmployer?.name || t('messages.sender'))}
                       </span>
                       <span className="text-[10px] text-gray-500 shrink-0">
@@ -357,7 +358,7 @@ export default function EmployerMessagesPage() {
                           onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         {isSearching && (
-                          <div className="absolute right-4 top-[3.25rem]">
+                          <div className="absolute right-4 top-13">
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#0066FF]"></div>
                           </div>
                         )}
@@ -402,7 +403,7 @@ export default function EmployerMessagesPage() {
                 </Button>
                 <Button 
                   variant="primary"
-                  className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] px-8 h-10 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer text-xs md:text-sm"
+                  className="bg-linear-to-r from-[#0066FF] to-[#0052CC] px-8 h-10 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer text-xs md:text-sm"
                   disabled={!newRecipient || !replyContent.trim() || isSending}
                   onClick={() => handleSendMessage(true)}
                   isLoading={isSending}
@@ -435,16 +436,35 @@ export default function EmployerMessagesPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 md:gap-4">
-                    <button 
-                      onClick={() => handleDelete(selectedMessage.id)}
-                      disabled={isDeleting}
-                      className="p-1.5 md:p-2 text-gray-400 hover:text-red-500 transition-colors bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer"
-                      title={t('messages.delete_tooltip')}
-                    >
-                      <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                    {showDeleteConfirm ? (
+                      <div className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-xl border border-red-100 dark:border-red-800">
+                        <span className="text-xs font-semibold text-red-600 dark:text-red-400 whitespace-nowrap">{t('messages.confirm_delete')}</span>
+                        <button
+                          onClick={() => handleDelete(selectedMessage.id)}
+                          disabled={isDeleting}
+                          className="px-2.5 py-1 rounded-lg bg-red-500 text-white text-xs font-bold hover:bg-red-600 active:scale-95 transition-all cursor-pointer"
+                        >
+                          {t('jobs.yes')}
+                        </button>
+                        <button
+                          onClick={() => setShowDeleteConfirm(false)}
+                          className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
+                        >
+                          {t('jobs.no')}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        disabled={isDeleting}
+                        className="p-1.5 md:p-2 text-gray-400 hover:text-red-500 transition-colors bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 cursor-pointer"
+                        title={t('messages.delete_tooltip')}
+                      >
+                        <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
                     <div className="hidden sm:flex items-center gap-2 text-[10px] md:text-xs text-gray-500">
                       <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -459,11 +479,14 @@ export default function EmployerMessagesPage() {
                   <div className="prose dark:prose-invert max-w-none">
                     {selectedMessage.senderEmployer && (
                       <div className="mb-6 p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Employer Details</p>
-                        <p className="text-base font-bold text-[#0066FF]">Employer [{selectedMessage.senderEmployer.companyName || selectedMessage.senderEmployer.name}]</p>
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{t('messages.employer')}</p>
+                        <p className="text-base font-bold text-[#0066FF]">{selectedMessage.senderEmployer.companyName || selectedMessage.senderEmployer.name}</p>
                         {(selectedMessage.senderEmployer.country || selectedMessage.senderEmployer.city) && (
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Location: {[selectedMessage.senderEmployer.country, selectedMessage.senderEmployer.city].filter(Boolean).join(' | ')}
+                          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1.5 mt-1">
+                            <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            {[selectedMessage.senderEmployer.city, selectedMessage.senderEmployer.country].filter(Boolean).join(', ')}
                           </p>
                         )}
                       </div>
@@ -493,7 +516,7 @@ export default function EmployerMessagesPage() {
                       </Button>
                       <Button 
                         variant="primary" 
-                        className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] px-4 md:px-8 h-9 md:h-10 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 text-xs md:text-sm"
+                        className="bg-linear-to-r from-[#0066FF] to-[#0052CC] px-4 md:px-8 h-9 md:h-10 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 text-xs md:text-sm"
                         onClick={() => handleSendMessage()}
                         disabled={!replyContent.trim() || isSending}
                         isLoading={isSending}
