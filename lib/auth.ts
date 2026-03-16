@@ -29,6 +29,11 @@ export const authOptions: NextAuthOptions = {
               where: { email: normalizedEmail },
               select: { id: true, email: true, name: true, password: true },
             });
+          } else if (credentials.userType === 'admin') {
+            user = await prisma.admin.findUnique({
+              where: { email: normalizedEmail },
+              select: { id: true, email: true, name: true, password: true },
+            });
           } else {
             user = await prisma.employer.findUnique({
               where: { email: normalizedEmail },

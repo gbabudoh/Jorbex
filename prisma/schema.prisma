@@ -16,6 +16,7 @@ model Employer {
   phone                    String
   country                  String?
   city                     String?
+  isSuspended              Boolean            @default(false)
   subscriptionStatus       SubscriptionStatus @default(TRIAL)
   subscriptionStartDate    DateTime?
   subscriptionEndDate      DateTime?
@@ -69,6 +70,7 @@ model Candidate {
   phone                      String
   country                    String?
   city                       String?
+  isSuspended                Boolean   @default(false)
   expertise                  String    // e.g., Finance, IT, Marketing
   skills                     String[]  // Max 5 skills handled in app logic or Prisma
   personalStatement          String?   @db.Text
@@ -460,4 +462,26 @@ enum NotificationStatus {
   SENT
   DELIVERED
   FAILED
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+  isSuperAdmin Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SiteContent {
+  id        String   @id @default(uuid())
+  section   String
+  key       String
+  value     String   @db.Text
+  updatedBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([section, key])
 }

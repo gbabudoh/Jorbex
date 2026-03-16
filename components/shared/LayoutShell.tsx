@@ -8,9 +8,14 @@ import CookieConsent from '@/components/shared/CookieConsent';
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isInterviewPage = pathname?.startsWith('/interview');
+  const isAdminPage = pathname?.startsWith('/admin');
   const isProfilePage = pathname?.startsWith('/candidate/profile') || pathname?.startsWith('/employer');
 
   if (isInterviewPage) {
+    return <>{children}</>;
+  }
+
+  if (isAdminPage) {
     return <>{children}</>;
   }
 
