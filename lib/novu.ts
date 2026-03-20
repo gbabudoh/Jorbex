@@ -1,7 +1,10 @@
-import { Novu, MessagesStatusEnum } from '@novu/node';
+import { Novu } from '@novu/api';
 
-// Novu server-side client (v2)
-export const novu = new Novu(process.env.NOVU_SECRET_KEY || '');
+// Novu server-side client — @novu/api pointing at self-hosted instance
+export const novu = new Novu({
+  secretKey: process.env.NOVU_SECRET_KEY || '',
+  serverURL: process.env.NOVU_API_URL,
+});
 
 // ─── Workflow IDs ────────────────────────────────────────────────────────────
 // Must match the Workflow Trigger Identifier set in your Novu dashboard
@@ -30,7 +33,8 @@ export async function syncSubscriber(params: {
 
   const [firstName, ...rest] = params.name.trim().split(' ');
   try {
-    await novu.subscribers.identify(params.subscriberId, {
+    await novu.subscribers.create({
+      subscriberId: params.subscriberId,
       firstName,
       lastName: rest.join(' ') || undefined,
       email: params.email || undefined,
@@ -58,7 +62,8 @@ export async function triggerNotification(params: {
   const { workflowId, subscriberId, to, payload } = params;
 
   try {
-    await novu.trigger(workflowId, {
+    await novu.trigger({
+      workflowId,
       to: {
         subscriberId,
         ...(to?.email     && { email: to.email }),
@@ -79,23 +84,25 @@ export async function getInAppFeed(subscriberId: string, page = 0) {
   if (!process.env.NOVU_SECRET_KEY) return [];
 
   try {
-    const res = await novu.subscribers.getNotificationsFeed(subscriberId, {
+    const res = await novu.subscribers.notifications.feed({
+      subscriberId,
       page,
       limit: 20,
     });
+    // @novu/api response shape: { result: { data: [...], ... } }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (res.data as any)?.data ?? [];
+    return (res as any)?.result?.data ?? (res as any)?.data ?? [];
   } catch (err) {
     console.error('[Novu] getInAppFeed failed:', err);
     return [];
   }
 }
 
-// Mark all in-app notifications as read for a subscriber
+// ─── Mark all in-app notifications as read ───────────────────────────────────
 export async function markAllAsRead(subscriberId: string) {
   if (!process.env.NOVU_SECRET_KEY) return;
   try {
-    await novu.subscribers.markAllMessagesAs(subscriberId, MessagesStatusEnum.READ);
+    await novu.subscribers.messages.markAll({ markAs: 'read' }, subscriberId);
   } catch (err) {
     console.error('[Novu] markAllAsRead failed:', err);
   }

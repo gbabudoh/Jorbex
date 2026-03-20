@@ -815,6 +815,8 @@
     "send_reply": "Send Reply",
     "select_message": "Select a message to read its content",
     "confirm_delete": "Are you sure you want to delete this message?",
+    "delete_warning": "This action cannot be undone.",
+    "delete": "Delete",
     "delete_tooltip": "Delete Message",
     "delete_success": "Message deleted",
     "send_success": "Reply sent successfully!",

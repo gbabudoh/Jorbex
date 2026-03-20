@@ -78,7 +78,7 @@ export async function PATCH(
     const body = await request.json();
 
     // Only update allowed fields
-    const { title, description, passingScore, timeLimit, isActive } = body;
+    const { title, description, passingScore, timeLimit, isActive, deadline } = body;
 
     const updatedTest = await prisma.aptitudeTest.updateMany({
       where: { id, employerId: session.user.id },
@@ -90,6 +90,14 @@ export async function PATCH(
         ...(isActive !== undefined && { isActive }),
       },
     });
+
+    // Save deadline via raw SQL
+    if (deadline !== undefined) {
+      const deadlineVal = deadline ? new Date(deadline) : null;
+      await prisma.$executeRaw`
+        UPDATE "AptitudeTest" SET deadline = ${deadlineVal} WHERE id = ${id} AND "employerId" = ${session.user.id}
+      `;
+    }
 
     if (updatedTest.count === 0) {
       return NextResponse.json({ error: 'Test not found or unauthorized' }, { status: 404 });

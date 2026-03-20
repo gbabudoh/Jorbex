@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { sendPushNotification } from '@/lib/ntfy';
+import { notifyOfferReceived } from '@/lib/notifications';
 
 export async function POST(req: Request) {
   try {
@@ -27,6 +27,7 @@ export async function POST(req: Request) {
     // 2. Find Application
     const application = await prisma.application.findFirst({
       where: { candidateId, employerId: employer.id, jobId },
+      include: { job: { select: { title: true } } },
     });
 
     if (!application) {
@@ -64,16 +65,19 @@ export async function POST(req: Request) {
     const offerLink = `${process.env.NEXTAUTH_URL}/offer/${offer.token}`;
     const candidate = await prisma.candidate.findUnique({ where: { id: candidateId } });
 
-    if (candidate?.ntfyTopic) {
-      await sendPushNotification({
-        topic: candidate.ntfyTopic,
-        title: '🎉 Job Offer Received!',
-        message: `Congratulations! ${employer.companyName} has sent you a job offer.`,
-        click: offerLink,
-        userId: candidate.id,
-        userType: 'candidate',
-        tags: ['tada', 'moneybag'],
-      });
+    if (candidate) {
+      try {
+        await notifyOfferReceived(
+          candidate.id,
+          candidate.email,
+          candidate.name,
+          employer.companyName,
+          application.job?.title ?? 'Position',
+          offerLink,
+        );
+      } catch (notifyErr) {
+        console.warn('Notification failed (non-fatal):', notifyErr);
+      }
     }
 
     return NextResponse.json({ success: true, offerId: offer.id, token: offer.token });

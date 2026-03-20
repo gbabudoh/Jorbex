@@ -1,8 +1,9 @@
-// Unified notification service — Novu (email, SMS, push, chat, in-app) + Mattermost (internal)
+// Unified notification service — Novu (email, SMS, push, chat, in-app) + Mattermost (internal) + ntfy (push)
 
 import { createInterviewMeeting, InterviewMeeting } from './livekit';
 import prisma from '@/lib/prisma';
 import { triggerNotification, syncSubscriber, WORKFLOWS } from './novu';
+import { pushToCandidate as webPushToCandidate } from './webpush';
 import { RoleType } from '@prisma/client';
 
 import {
@@ -75,6 +76,15 @@ async function logNotification(params: {
     });
   } catch (err) {
     console.error('[Notification] log failed:', err);
+  }
+}
+
+// ─── Helper: web push for a candidate ───────────────────────────────────────
+async function pushToCandidate(candidateId: string, title: string, body: string, url?: string) {
+  try {
+    await webPushToCandidate(candidateId, { title, body, url });
+  } catch (err) {
+    console.error('[WebPush] push failed:', err);
   }
 }
 
@@ -161,7 +171,15 @@ export async function scheduleInterview({
     novuSent = true;
   } catch { novuSent = false; }
 
-  // 2. Internal Mattermost (team visibility)
+  // 2. ntfy push
+  await pushToCandidate(
+    candidateId,
+    `Interview Scheduled — ${position} at ${companyName}`,
+    `${formattedDate}\nJoin: ${meeting.candidateUrl}`,
+    meeting.candidateUrl,
+  );
+
+  // 3. Internal Mattermost (team visibility)
   try {
     if (MM.INTERVIEWS) {
       await mattermostInterviewScheduled(
@@ -206,6 +224,13 @@ export async function sendInterviewReminders(
     sent = true;
   } catch { sent = false; }
 
+  await pushToCandidate(
+    candidateId,
+    `Reminder: Interview in ${minutesUntil} minutes`,
+    `${position} at ${companyName}\nJoin: ${meetingUrl}`,
+    meetingUrl,
+  );
+
   return { emailSent: sent, pushSent: sent };
 }
 
@@ -233,6 +258,12 @@ export async function cancelInterview(
     });
     sent = true;
   } catch { sent = false; }
+
+  await pushToCandidate(
+    candidateId,
+    `Interview Cancelled — ${position} at ${companyName}`,
+    `Reason: ${reason || 'Not specified'}`,
+  );
 
   try {
     if (MM.INTERVIEWS) {
@@ -282,6 +313,13 @@ export async function rescheduleInterview(
     sent = true;
   } catch { sent = false; }
 
+  await pushToCandidate(
+    candidateId,
+    `Interview Rescheduled — ${position} at ${companyName}`,
+    `New date: ${formattedDate}\nJoin: ${meeting.candidateUrl}`,
+    meeting.candidateUrl,
+  );
+
   try {
     if (MM.INTERVIEWS) {
       await sendMessage(
@@ -326,6 +364,12 @@ export async function notifyNewApplication(
     });
     candidateSent = true;
   } catch { candidateSent = false; }
+
+  await pushToCandidate(
+    candidateId,
+    `Application Received — ${position} at ${companyName}`,
+    `Your application has been submitted successfully.`,
+  );
 
   // Notify employer
   try {
@@ -376,6 +420,13 @@ export async function notifyAssessmentAssigned(
     sent = true;
   } catch { sent = false; }
 
+  await pushToCandidate(
+    candidateId,
+    `New Assessment from ${companyName}`,
+    `${assessmentTitle}${deadline ? ` — Due: ${deadline.toLocaleDateString()}` : ''}`,
+    `${process.env.NEXT_PUBLIC_APP_URL}/candidate/tests`,
+  );
+
   return { sent };
 }
 
@@ -401,6 +452,13 @@ export async function notifyOfferReceived(
     });
     sent = true;
   } catch { sent = false; }
+
+  await pushToCandidate(
+    candidateId,
+    `Job Offer from ${companyName} — ${position}`,
+    `You have received a job offer. Tap to review.`,
+    offerUrl,
+  );
 
   return { sent };
 }
@@ -428,6 +486,15 @@ export async function notifyNewMessage(
     });
     sent = true;
   } catch { sent = false; }
+
+  if (recipientType === 'candidate') {
+    await pushToCandidate(
+      recipientId,
+      `New message from ${senderName}`,
+      messagePreview,
+      inboxUrl,
+    );
+  }
 
   return { sent };
 }

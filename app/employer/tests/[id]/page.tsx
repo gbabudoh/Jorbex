@@ -189,7 +189,7 @@ export default function EditTestPage() {
               <label className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Description</label>
               <textarea 
                 className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 min-h-[100px] outline-none"
-                value={test.description}
+                value={test.description ?? ''}
                 onChange={(e) => setTest({...test, description: e.target.value})}
               />
             </div>

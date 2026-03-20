@@ -2,29 +2,26 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { useLanguage } from '@/lib/LanguageContext';
 
 interface Application {
-  _id: string;
-  candidateId: {
-    _id: string;
+  id: string;
+  candidateId: string;
+  candidate: {
     name: string;
     email: string;
-    headshot?: string;
   };
-  jobId: {
-    _id: string;
+  jobId: string;
+  job: {
     title: string;
   };
   status: string;
   createdAt: string;
-  testResultId?: {
+  testResult?: {
     score: number;
-    status: string;
   };
 }
 
@@ -155,9 +152,9 @@ export default function EmployerApplicationsPage() {
         <div className="grid gap-4">
           {applications.map((app) => (
             <Card
-              key={app._id}
+              key={app.id}
               className={`border-l-4 ${getStatusBorderColor(app.status)} shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-3xl cursor-pointer group`}
-              onClick={() => router.push(`/employer/candidates/${app.candidateId._id}`)}
+              onClick={() => router.push(`/employer/candidates/${app.candidateId}`)}
             >
               <CardContent className="p-6 md:p-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -165,25 +162,17 @@ export default function EmployerApplicationsPage() {
                   {/* Candidate info */}
                   <div className="flex items-center gap-4 min-w-0">
                     <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-blue-500 to-blue-400 flex items-center justify-center overflow-hidden shrink-0 shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
-                      {app.candidateId.headshot ? (
-                        <Image
-                          src={app.candidateId.headshot}
-                          alt={app.candidateId.name}
-                          width={56}
-                          height={56}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-xl font-black text-white">{app.candidateId.name.charAt(0).toUpperCase()}</span>
-                      )}
+                      <span className="text-xl font-black text-white">
+                        {app.candidate?.name?.charAt(0)?.toUpperCase() ?? '?'}
+                      </span>
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
-                        {app.candidateId.name}
+                        {app.candidate?.name ?? '—'}
                       </h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
                         {t('employer_applications.applied_for')}{' '}
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">{app.jobId.title}</span>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">{app.job?.title ?? '—'}</span>
                       </p>
                       <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                         {new Date(app.createdAt).toLocaleDateString()}
@@ -197,9 +186,9 @@ export default function EmployerApplicationsPage() {
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(app.status)}`}>
                         {getStatusLabel(app.status)}
                       </span>
-                      {app.testResultId && (
+                      {app.testResult && (
                         <Badge className="text-xs border border-purple-200 bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800">
-                          {t('employer_applications.test_score')}: {app.testResultId.score}%
+                          {t('employer_applications.test_score')}: {app.testResult.score}%
                         </Badge>
                       )}
                     </div>
@@ -209,7 +198,7 @@ export default function EmployerApplicationsPage() {
                       className="rounded-xl font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-100 dark:border-blue-800 cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
-                        router.push(`/employer/candidates/${app.candidateId._id}`);
+                        router.push(`/employer/candidates/${app.candidateId}`);
                       }}
                     >
                       {t('employer_applications.review_profile')}

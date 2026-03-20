@@ -11,15 +11,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Find tests assigned to this candidate (cloned tests with originalTestId set)
+    // Find tests cloned specifically for this candidate
+    // Raw SQL used because Prisma client was not regenerated after candidateId was added to schema
+    const rows = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT id FROM "AptitudeTest"
+      WHERE "candidateId" = ${session.user.id}
+        AND "isActive" = true
+        AND "testType" = 'EMPLOYER_CUSTOM'
+        AND "originalTestId" IS NOT NULL
+    `;
     const tests = await prisma.aptitudeTest.findMany({
-      where: {
-        // Tests cloned for this candidate have originalTestId set
-        // We find employer_custom tests linked to this candidate via results or by convention
-        isActive: true,
-        testType: 'EMPLOYER_CUSTOM',
-        originalTestId: { not: null },
-      },
+      where: { id: { in: rows.map((r) => r.id) } },
       include: { questions: true },
     });
 

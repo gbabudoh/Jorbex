@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, description, location, type, salary } = body;
+    const { title, description, country, city, type, salary, salaryRate, expiresAt } = body;
 
     if (!title || !description) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
@@ -44,18 +44,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Employer not found' }, { status: 404 });
     }
 
+    // Compose location string for backward-compat display
+    const location = city && country
+      ? `${city}, ${country}`
+      : (country || city || null);
+
     const job = await prisma.job.create({
       data: {
         employerId: employer.id,
         title,
         description,
         location,
+        country: country || null,
+        city: city || null,
         type,
         ...(salary && {
-          salaryMin: salary.min,
-          salaryMax: salary.max,
-          currency: salary.currency,
+          salaryMin: salary.min ? Number(salary.min) : null,
+          salaryMax: salary.max ? Number(salary.max) : null,
+          currency: salary.currency || null,
+          salaryRate: salaryRate || null,
         }),
+        ...(expiresAt && { expiresAt: new Date(expiresAt) }),
         status: 'ACTIVE',
       },
     });

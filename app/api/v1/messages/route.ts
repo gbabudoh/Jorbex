@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { notifyNewMessage } from '@/lib/notifications';
 
 export async function GET(request: Request) {
   try {
@@ -104,6 +105,25 @@ export async function POST(request: Request) {
         ...(targetIsEmployer ? { receiverEmployerId: receiverId } : { receiverCandidateId: receiverId }),
       },
     });
+
+    // Notify recipient
+    try {
+      const senderName = session.user.name || 'Someone';
+      const inboxUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${receiverType === 'employer' ? 'employer' : 'candidate'}/messages`;
+      const preview = content.trim().slice(0, 120);
+
+      if (targetIsEmployer) {
+        const employer = await prisma.employer.findUnique({ where: { id: receiverId }, select: { id: true, name: true, email: true } });
+        if (employer) {
+          notifyNewMessage(employer.id, employer.email, employer.name, 'employer', senderName, preview, inboxUrl).catch(() => {});
+        }
+      } else {
+        const candidate = await prisma.candidate.findUnique({ where: { id: receiverId }, select: { id: true, name: true, email: true } });
+        if (candidate) {
+          notifyNewMessage(candidate.id, candidate.email, candidate.name, 'candidate', senderName, preview, inboxUrl).catch(() => {});
+        }
+      }
+    } catch { /* non-blocking */ }
 
     return NextResponse.json({ success: true, message: 'Message sent successfully', data: message }, { status: 201 });
   } catch (error: unknown) {

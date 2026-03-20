@@ -26,7 +26,6 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
     employerName: interview.employer.companyName,
     candidateName: interview.candidate.name,
     dateTime: interview.dateTime.toISOString(),
-    // @ts-expect-error - interviewers field pending prisma sync
     interviewers: (interview.interviewers as { name: string; email: string }[]) || [],
   };
 

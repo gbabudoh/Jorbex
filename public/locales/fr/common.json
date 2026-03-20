@@ -815,6 +815,8 @@
     "send_reply": "Envoyer la réponse",
     "select_message": "Sélectionnez un message pour lire son contenu",
     "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce message ?",
+    "delete_warning": "Cette action est irréversible.",
+    "delete": "Supprimer",
     "delete_tooltip": "Supprimer le message",
     "delete_success": "Message supprimé",
     "send_success": "Réponse envoyée avec succès !",

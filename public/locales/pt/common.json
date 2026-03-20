@@ -829,6 +829,8 @@
     "send_reply": "Enviar resposta",
     "select_message": "Selecione uma mensagem para ler o seu conteúdo",
     "confirm_delete": "Tem certeza que deseja excluir esta mensagem?",
+    "delete_warning": "Esta ação não pode ser desfeita.",
+    "delete": "Excluir",
     "delete_tooltip": "Excluir mensagem",
     "delete_success": "Mensagem excluída",
     "send_success": "Resposta enviada com sucesso!",

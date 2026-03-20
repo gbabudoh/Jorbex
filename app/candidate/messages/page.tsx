@@ -49,6 +49,8 @@ export default function MessagesPage() {
   const [replyContent, setReplyContent] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<'inbox' | 'sent'>('inbox');
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -113,20 +115,25 @@ export default function MessagesPage() {
     }
   };
 
-  const handleDelete = async (messageId: string) => {
-    if (!confirm(t('messages.confirm_delete'))) return;
-    
+  const handleDelete = (messageId: string) => {
+    setPendingDeleteId(messageId);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) return;
+    setDeleteModalOpen(false);
     setIsDeleting(true);
     try {
       const response = await fetch('/api/v1/messages', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messageId }),
+        body: JSON.stringify({ messageId: pendingDeleteId }),
       });
 
       if (response.ok) {
         setNotification({ type: 'success', message: t('messages.delete_success') });
-        setMessages(prev => prev.filter(m => m.id !== messageId));
+        setMessages(prev => prev.filter(m => m.id !== pendingDeleteId));
         setSelectedMessage(null);
       } else {
         const data = await response.json();
@@ -137,6 +144,7 @@ export default function MessagesPage() {
       setNotification({ type: 'error', message: t('messages.error_delete') });
     } finally {
       setIsDeleting(false);
+      setPendingDeleteId(null);
     }
   };
 
@@ -524,6 +532,43 @@ export default function MessagesPage() {
           )}
         </div>
       </div>
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setDeleteModalOpen(false)} />
+          <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-slate-100 dark:border-slate-800">
+            {/* Icon */}
+            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-red-50 dark:bg-red-950/40 mx-auto mb-5">
+              <svg className="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            {/* Text */}
+            <h3 className="text-center text-lg font-bold text-slate-900 dark:text-white mb-2">
+              {t('messages.confirm_delete')}
+            </h3>
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400 mb-6">
+              {t('messages.delete_warning') || 'This action cannot be undone.'}
+            </p>
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteModalOpen(false)}
+                className="flex-1 h-11 rounded-xl border-2 border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                {t('messages.cancel')}
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 h-11 rounded-xl bg-red-500 hover:bg-red-600 active:bg-red-700 text-sm font-bold text-white transition-colors cursor-pointer shadow-lg shadow-red-500/20"
+              >
+                {t('messages.delete') || 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {notification && (
         <Notification
           isOpen={!!notification}

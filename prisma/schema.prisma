@@ -86,7 +86,6 @@ model Candidate {
   degree                     String?
   professionalQualifications String?
   hobbies                    String?
-  ntfyTopic                  String?
   mattermostUserId           String?
 
   // Relations
@@ -99,11 +98,22 @@ model Candidate {
   assignedTests              AptitudeTest[]     @relation("CandidateAssignedTests")
   messagesSent               Message[]          @relation("CandidateMessagesSent")
   messagesReceived           Message[]          @relation("CandidateMessagesReceived")
-  notificationLogs           NotificationLog[]  // Generic notification logs for this candidate
+  notificationLogs           NotificationLog[]
   notificationPreferences    CandidateNotificationPreference?
+  pushSubscriptions          PushSubscription[]
 
   createdAt                  DateTime  @default(now())
   updatedAt                  DateTime  @updatedAt
+}
+
+model PushSubscription {
+  id          String    @id @default(uuid())
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  endpoint    String    @unique
+  p256dh      String
+  auth        String
+  createdAt   DateTime  @default(now())
 }
 
 model CandidateNotificationPreference {
@@ -251,9 +261,11 @@ model Interview {
   feedback            String?         @db.Text
   rating              Int?
   status              InterviewStatus @default(PENDING)
-  cancelledAt         DateTime?
-  cancelReason        String?
-  mattermostChannelId String?
+  cancelledAt              DateTime?
+  cancelReason             String?
+  mattermostChannelId      String?
+  candidateArchivedAt      DateTime?   // set when candidate archives — auto-deleted after 30 days
+  candidateRemovedAt       DateTime?   // set when candidate removes — hidden permanently
   
   // Relations
   reminders           Reminder[]

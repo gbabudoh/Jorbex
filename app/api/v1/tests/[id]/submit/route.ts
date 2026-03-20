@@ -15,7 +15,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { answers } = await request.json();
+    const { answers, violations = [] } = await request.json();
 
     if (!answers) {
       return NextResponse.json({ error: 'Missing answers' }, { status: 400 });
@@ -51,8 +51,16 @@ export async function POST(
     const score = Math.round((correctCount / test.questions.length) * 100);
     const passed = score >= (test.passingScore || 70);
 
+    // Build proctor summary from violations array
+    const proctorStats = {
+      noFaceCount:        (violations as {type:string}[]).filter(v => v.type === 'no_face').length,
+      tabSwitchCount:     (violations as {type:string}[]).filter(v => v.type === 'tab_switch').length,
+      multipleFaceCount:  (violations as {type:string}[]).filter(v => v.type === 'multiple_faces').length,
+      violations,
+    };
+
     // Save result with answers
-    const newResult = await prisma.testResult.create({
+    const result = await prisma.testResult.create({
       data: {
         testId,
         candidateId: session.user.id,
@@ -70,6 +78,12 @@ export async function POST(
         },
       },
     });
+
+    // Save proctorStats via raw SQL (column added after Prisma client generation)
+    await prisma.$executeRaw`
+      UPDATE "TestResult" SET "proctorStats" = ${JSON.stringify(proctorStats)}::jsonb
+      WHERE id = ${result.id}
+    `;
 
     return NextResponse.json({
       success: true,

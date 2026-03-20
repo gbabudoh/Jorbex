@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { sendNotification } from '@/lib/notifications';
-import { TEMPLATE_IDS } from '@/lib/listmonk';
+import { sendInterviewReminders } from '@/lib/notifications';
 
 export async function GET(request: Request) {
   try {
@@ -44,23 +43,15 @@ export async function GET(request: Request) {
         const minutesUntil = Math.max(0, Math.floor(timeDiff / 60000));
 
         try {
-          await sendNotification(
-            { ...interview.candidate, _id: interview.candidate.id, userType: 'candidate' },
-            {
-              title: `Interview Reminder: ${interview.employer.companyName}`,
-              message: `You have an interview with ${interview.employer.companyName} at ${new Date(interview.dateTime).toLocaleTimeString()}.`,
-              emailTemplateId: TEMPLATE_IDS.INTERVIEW_REMINDER,
-              emailData: {
-                candidateName: interview.candidate.name,
-                position: interview.job?.title || 'Candidate',
-                companyName: interview.employer.companyName,
-                time: new Date(interview.dateTime).toLocaleTimeString(),
-                minutesUntil,
-                meetingUrl: interview.meetingUrl,
-              },
-              type: 'interviews',
-              actionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/interview/${interview.id}`,
-            }
+          await sendInterviewReminders(
+            interview.candidate.id,
+            interview.candidate.email,
+            interview.candidate.name,
+            interview.employer.companyName,
+            interview.job?.title || 'Position',
+            new Date(interview.dateTime),
+            interview.meetingUrl || '',
+            minutesUntil,
           );
 
           await prisma.reminder.update({

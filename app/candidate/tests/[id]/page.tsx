@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { useLanguage } from '@/lib/LanguageContext';
 import { MobilePageHeader } from '@/components/mobile/PageHeader';
+import ProctorMonitor from '@/components/shared/ProctorMonitor';
 
 interface Question {
-  _id: string; // From custom tests
-  id?: string; // From onboarding
+  id: string;
+  _id?: string; // legacy alias
   question: string;
   options: string[];
   correctAnswer: string;
@@ -35,6 +36,9 @@ export default function TakeTestPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ score: number; passed: boolean } | null>(null);
+  const [submitError, setSubmitError] = useState('');
+  const violationsRef = useRef<{ type: string; timestamp: number }[]>([]);
 
   useEffect(() => {
     if (testId) {
@@ -59,19 +63,18 @@ export default function TakeTestPage() {
       const response = await fetch(`/api/v1/tests/${testId}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers, violations: violationsRef.current }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert(`Test submitted! You scored ${data.score}%.`);
-        router.push('/candidate/tests');
+        setResult({ score: data.score, passed: data.passed });
       } else {
-        alert(data.error || 'Submission failed');
+        setSubmitError(data.error || 'Submission failed. Please try again.');
       }
     } catch {
-      alert('An error occurred during submission');
+      setSubmitError('An error occurred during submission.');
     } finally {
       setIsSubmitting(false);
     }
@@ -106,11 +109,12 @@ export default function TakeTestPage() {
 
   const questions = test.questions;
   const question = questions[currentQuestion];
-  const qId = question._id || question.id || `q-${currentQuestion}`;
-  const answeredCount = Object.keys(answers).length;
-  const isComplete = answeredCount === questions.length;
+  const getQId = (q: Question, idx: number) => q.id || q._id || `q-${idx}`;
+  const qId = getQId(question, currentQuestion);
+  const isComplete = questions.every((q, idx) => !!answers[getQId(q, idx)]);
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24">
       <MobilePageHeader
         title={test.title}
@@ -119,7 +123,7 @@ export default function TakeTestPage() {
       <div className="container mx-auto px-4 py-4 md:py-8 max-w-4xl">
         {/* Header Card */}
         <Card className="mb-6 border-0 shadow-xl bg-white dark:bg-gray-900">
-          <CardHeader className="p-6 md:p-8 flex flex-row items-center justify-between">
+          <CardHeader className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="min-w-0">
               <Badge variant="info" className="mb-2 bg-blue-50 text-blue-600 dark:bg-blue-900/20">{t('candidate_tests.official_assessment')}</Badge>
               <CardTitle className="text-2xl font-black text-gray-900 dark:text-white leading-tight">
@@ -129,10 +133,15 @@ export default function TakeTestPage() {
                 {test.description}
               </CardDescription>
             </div>
+            <div className="shrink-0">
+              <ProctorMonitor
+                onViolation={(v) => { violationsRef.current = v; }}
+              />
+            </div>
           </CardHeader>
           <CardContent className="px-6 md:px-8 pb-6">
             <div className="flex items-center justify-between text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">
-              <span>{t('candidate_tests.progress')}: {answeredCount} / {questions.length} {t('candidate_tests.answered')}</span>
+              <span>{t('candidate_tests.progress')}: {questions.filter((q, idx) => !!answers[getQId(q, idx)]).length} / {questions.length} {t('candidate_tests.answered')}</span>
               <span>{t('onboarding.question')} {currentQuestion + 1} {t('onboarding.question_of')} {questions.length}</span>
             </div>
             <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3 overflow-hidden">
@@ -212,5 +221,98 @@ export default function TakeTestPage() {
         </Card>
       </div>
     </div>
+
+    {/* ── Success Modal ── */}
+    {result && (
+      <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-gray-950/70 backdrop-blur-sm" />
+        <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+          {/* top accent bar */}
+          <div className={`h-1.5 w-full ${result.passed ? 'bg-linear-to-r from-[#00D9A5] to-[#0066FF]' : 'bg-linear-to-r from-orange-400 to-rose-500'}`} />
+
+          <div className="p-8 text-center">
+            {/* score ring */}
+            <div className="relative inline-flex items-center justify-center mb-6">
+              <svg className="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" strokeWidth="8"
+                  className="text-gray-100 dark:text-gray-800" />
+                <circle cx="60" cy="60" r="52" fill="none" strokeWidth="8" strokeLinecap="round"
+                  stroke={result.passed ? '#00D9A5' : '#f97316'}
+                  strokeDasharray={`${(result.score / 100) * 326.7} 326.7`}
+                  className="transition-all duration-1000" />
+              </svg>
+              <div className="absolute flex flex-col items-center">
+                <span className={`text-3xl font-black leading-none ${result.passed ? 'text-[#00D9A5]' : 'text-orange-500'}`}>
+                  {result.score}%
+                </span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Score</span>
+              </div>
+            </div>
+
+            {/* badge */}
+            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-4 ${
+              result.passed
+                ? 'bg-[#00D9A5]/10 text-[#00D9A5]'
+                : 'bg-orange-50 dark:bg-orange-950/30 text-orange-500'
+            }`}>
+              {result.passed ? (
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 9v2m0 4h.01" />
+                </svg>
+              )}
+              {result.passed ? 'Assessment Passed' : 'Below Passing Score'}
+            </div>
+
+            <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">
+              {result.passed ? 'Well done!' : 'Assessment Complete'}
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-8">
+              {result.passed
+                ? 'Your result has been recorded and sent to the employer for review.'
+                : 'Your submission has been saved. The employer will be in touch with next steps.'}
+            </p>
+
+            <Button
+              variant="primary"
+              className="w-full h-12 rounded-2xl bg-linear-to-r from-[#0066FF] to-[#0052CC] font-black text-sm shadow-xl shadow-blue-500/20 hover:shadow-2xl transition-all cursor-pointer"
+              onClick={() => router.push('/candidate/tests')}
+            >
+              Back to My Assessments
+            </Button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* ── Error Modal ── */}
+    {submitError && (
+      <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-gray-950/70 backdrop-blur-sm" onClick={() => setSubmitError('')} />
+        <div className="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+          <div className="h-1.5 w-full bg-linear-to-r from-rose-400 to-rose-600" />
+          <div className="p-8 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center mx-auto mb-4 text-rose-500">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-black text-gray-900 dark:text-white mb-2">Submission Failed</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">{submitError}</p>
+            <Button
+              variant="primary"
+              className="w-full h-11 rounded-2xl bg-rose-500 hover:bg-rose-600 font-bold cursor-pointer"
+              onClick={() => setSubmitError('')}
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

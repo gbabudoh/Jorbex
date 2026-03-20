@@ -7,20 +7,20 @@ import { Badge } from '@/components/ui/Badge';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
+interface ProctorStats {
+  noFaceCount: number;
+  tabSwitchCount: number;
+  multipleFaceCount: number;
+}
+
 interface TestResult {
-  _id: string;
-  candidateId: {
-    name: string;
-    email: string;
-    expertise: string;
-  };
-  testId: {
-    title: string;
-    description: string;
-  };
+  id: string;
+  candidate: { name: string; email: string; expertise: string };
+  test: { title: string; description: string };
   score: number;
   passed: boolean;
   completedAt: string;
+  proctorStats: ProctorStats | null;
 }
 
 export default function ResultsBucketPage() {
@@ -98,15 +98,15 @@ export default function ResultsBucketPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              key={result._id}
+              key={result.id}
             >
               <Card className="group border-0 shadow-lg hover:shadow-xl transition-all duration-500 rounded-3xl overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-100 dark:border-white/5 h-full">
                 <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${result.passed ? 'bg-emerald-500' : 'bg-rose-500'}`} />
                 <CardHeader className="pb-3 pl-6 pt-6">
                   <div className="flex items-center justify-between mb-3">
                     <Badge className={`px-3 py-0.5 rounded-full font-black text-[9px] uppercase tracking-widest ${
-                      result.passed 
-                        ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400' 
+                      result.passed
+                        ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'
                         : 'bg-rose-100 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400'
                     }`}>
                       {result.passed ? 'PASSED' : 'FAILED'}
@@ -117,26 +117,52 @@ export default function ResultsBucketPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-linear-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center text-lg font-black text-slate-400 dark:text-slate-500 shadow-inner group-hover:scale-105 transition-transform duration-500">
-                      {result.candidateId.name.charAt(0)}
+                      {result.candidate.name.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-black text-slate-900 dark:text-white truncate group-hover:text-blue-600 transition-colors">
-                        {result.candidateId.name}
+                        {result.candidate.name}
                       </h3>
                       <p className="text-sm font-bold text-blue-500 dark:text-blue-400 truncate opacity-80 uppercase tracking-tight">
-                        {result.candidateId.expertise}
+                        {result.candidate.expertise}
                       </p>
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="pl-6 pr-6 pb-6 pt-0">
                   <div className="bg-slate-50/50 dark:bg-slate-800/30 rounded-xl p-3 mb-4 border border-slate-100 dark:border-white/5">
                     <p className="text-xs uppercase font-black text-slate-400 dark:text-slate-500 mb-0.5 tracking-tighter">Assessment</p>
                     <h4 className="font-bold text-slate-700 dark:text-slate-300 text-sm leading-tight line-clamp-1">
-                      {result.testId.title}
+                      {result.test.title}
                     </h4>
                   </div>
+
+                  {/* Proctor stats */}
+                  {result.proctorStats && (
+                    <div className="flex gap-2 mb-4">
+                      <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black ${
+                        result.proctorStats.tabSwitchCount > 0
+                          ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400'
+                          : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400'
+                      }`}>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
+                        </svg>
+                        {result.proctorStats.tabSwitchCount} tab switch{result.proctorStats.tabSwitchCount !== 1 ? 'es' : ''}
+                      </div>
+                      <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-black ${
+                        result.proctorStats.noFaceCount > 0
+                          ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'
+                          : 'bg-slate-50 dark:bg-slate-800/50 text-slate-400'
+                      }`}>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        {result.proctorStats.noFaceCount} absence{result.proctorStats.noFaceCount !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex items-end justify-between gap-3">
                     <div className="flex flex-col">
@@ -145,8 +171,8 @@ export default function ResultsBucketPage() {
                         {result.score}%
                       </span>
                     </div>
-                    
-                    <Link href={`/employer/results/${result._id}`} className="flex-1 max-w-[110px]">
+
+                    <Link href={`/employer/results/${result.id}`} className="flex-1 max-w-[110px]">
                       <Button variant="outline" className="w-full h-9 rounded-lg text-xs font-black border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-all group/btn">
                         Report
                         <svg className="w-3 h-3 ml-1.5 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

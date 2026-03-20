@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { EXPERTISE_OPTIONS } from '@/lib/constants';
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -132,13 +133,9 @@ export default function ProfilePage() {
                   onChange={(e) => setFormData({ ...formData, expertise: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700"
                 >
-                  <option value="Finance">Finance</option>
-                  <option value="IT">IT</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Sales">Sales</option>
-                  <option value="HR">HR</option>
-                  <option value="Operations">Operations</option>
-                  <option value="Other">Other</option>
+                  {EXPERTISE_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
                 </select>
               </div>
               <div>

@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/lib/LanguageContext';
 
 interface Test {
-  _id: string;
+  id: string;
   title: string;
   description: string;
   completed: boolean;
@@ -20,6 +20,7 @@ interface Test {
 export default function TestsPage() {
   const [tests, setTests] = useState<Test[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState('');
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -32,9 +33,14 @@ export default function TestsPage() {
       if (response.ok) {
         const data = await response.json();
         setTests(data.tests || []);
+      } else {
+        const data = await response.json().catch(() => ({}));
+        setApiError(data.error || `Error ${response.status}`);
+        console.error('Failed to fetch tests:', response.status, data);
       }
     } catch (error) {
       console.error('Failed to fetch tests:', error);
+      setApiError('Network error');
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +71,13 @@ export default function TestsPage() {
           </p>
         </div>
 
-        {tests.length === 0 ? (
+        {apiError ? (
+          <Card className="border-0 shadow-sm rounded-3xl overflow-hidden bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm">
+            <CardContent className="py-20 text-center">
+              <p className="text-red-500 font-medium">{apiError}</p>
+            </CardContent>
+          </Card>
+        ) : tests.length === 0 ? (
           <Card className="border-0 shadow-sm rounded-3xl overflow-hidden bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm">
             <CardContent className="py-20 text-center">
               <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -80,7 +92,7 @@ export default function TestsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {tests.map((test) => (
-              <Card key={test._id} className="group relative border-0 shadow-lg hover:shadow-2xl transition-all duration-500 rounded-3xl overflow-hidden bg-white dark:bg-gray-900 border-b-4 border-transparent hover:border-[#0066FF]">
+              <Card key={test.id} className="group relative border-0 shadow-lg hover:shadow-2xl transition-all duration-500 rounded-3xl overflow-hidden bg-white dark:bg-gray-900 border-b-4 border-transparent hover:border-[#0066FF]">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-[#0066FF]/5 to-transparent rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-[#0066FF]/10 transition-colors" />
                 
                 <CardHeader className="p-6 pb-2">
@@ -150,10 +162,10 @@ export default function TestsPage() {
                       </div>
                     </div>
                   ) : (
-                    <Link href={`/candidate/tests/${test._id}`}>
+                    <Link href={`/candidate/tests/${test.id}`}>
                       <Button 
                         variant="primary" 
-                        className="w-full py-7 rounded-2xl bg-linear-to-r from-[#0066FF] to-[#0052CC] hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 font-black text-sm uppercase tracking-widest group/btn overflow-hidden relative"
+                        className="w-full py-7 rounded-2xl bg-linear-to-r from-[#0066FF] to-[#0052CC] hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 font-black text-sm uppercase tracking-widest group/btn overflow-hidden relative cursor-pointer"
                       >
                         <span className="relative z-10 flex items-center justify-center gap-2">
                           {t('candidate_tests.take_assessment')}

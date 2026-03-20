@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { sendPushNotification } from '@/lib/ntfy';
+import { notifyAssessmentAssigned } from '@/lib/notifications';
 
 export async function POST(req: Request) {
   try {
@@ -97,18 +97,15 @@ export async function POST(req: Request) {
 
     // 7. Notify Candidate (non-fatal — don't let this fail the whole request)
     try {
-      if (candidate.ntfyTopic) {
-        const testLink = `${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || ''}/candidate/tests`;
-        await sendPushNotification({
-          topic: candidate.ntfyTopic,
-          userType: 'candidate',
-          userId: candidate.id,
-          title: '📝 New Assessment Assigned',
-          message: `${employer.companyName} has sent you an aptitude test: "${templateTest.title}".`,
-          click: testLink,
-          priority: 3,
-        });
-      }
+      await notifyAssessmentAssigned(
+        candidate.id,
+        candidate.email,
+        candidate.name,
+        employer.companyName,
+        templateTest.title,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (templateTest as any).deadline ?? null,
+      );
     } catch (notifyErr) {
       console.warn('Notification failed (non-fatal):', notifyErr);
     }

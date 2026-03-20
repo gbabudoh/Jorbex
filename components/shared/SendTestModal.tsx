@@ -76,7 +76,7 @@ export default function SendTestModal({ isOpen, onClose, candidateId, candidateN
       // For bulk, we'll send multiple requests for now as our API is designed for single assignment
       // Alternatively, we could update the API to handle bulk
       const results = await Promise.all(
-        targets.map(id => 
+        targets.map(id =>
           fetch('/api/v1/tests/assign', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -85,15 +85,17 @@ export default function SendTestModal({ isOpen, onClose, candidateId, candidateN
         )
       );
 
-      const allOk = results.every(res => res.ok);
-      
-      if (allOk) {
+      const failed = results.filter(res => !res.ok);
+
+      if (failed.length === 0) {
         setSuccess(true);
         setTimeout(() => {
           onClose();
         }, 2000);
       } else {
-        setError('Some tests failed to send. Please check your connection.');
+        // Read the actual error from the first failed response
+        const errData = await failed[0].json().catch(() => ({}));
+        setError(errData.error || 'Failed to send test. Please try again.');
       }
     } catch (err) {
       console.error('Error sending test:', err);

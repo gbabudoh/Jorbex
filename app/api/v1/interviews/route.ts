@@ -12,7 +12,7 @@ export async function GET() {
 
     const where = session.user.userType === 'employer'
       ? { employerId: session.user.id }
-      : { candidateId: session.user.id };
+      : { candidateId: session.user.id, candidateRemovedAt: null };
 
     const interviews = await prisma.interview.findMany({
       where,

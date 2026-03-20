@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { useLanguage } from '@/lib/LanguageContext';
 import { Notification } from '@/components/ui/Notification';
 import { AFRICAN_COUNTRIES } from '@/lib/locations';
+import { EXPERTISE_OPTIONS, expertiseKey } from '@/lib/constants';
 import { MobilePageHeader } from '@/components/mobile/PageHeader';
 
 // Icon Components
@@ -605,13 +606,11 @@ export default function ProfilePage() {
                         className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 outline-none transition-all"
                       >
                         <option value="">{t('signup.selectExpertise')}</option>
-                        <option value="Finance">{t('signup.expertise.finance')}</option>
-                        <option value="IT">{t('signup.expertise.it')}</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Sales">Sales</option>
-                        <option value="HR">HR</option>
-                        <option value="Operations">Operations</option>
-                        <option value="Other">Other</option>
+                        {EXPERTISE_OPTIONS.map((opt) => (
+                          <option key={opt} value={opt}>
+                            {t(`expertise_options.${expertiseKey(opt)}`) || opt}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </CardContent>

@@ -815,6 +815,8 @@
     "send_reply": "إرسال الرد",
     "select_message": "اختر رسالة لقراءة محتواها",
     "confirm_delete": "هل أنت متأكد من حذف هذه الرسالة؟",
+    "delete_warning": "لا يمكن التراجع عن هذا الإجراء.",
+    "delete": "حذف",
     "delete_tooltip": "حذف الرسالة",
     "delete_success": "تم حذف الرسالة",
     "send_success": "تم إرسال الرد بنجاح!",

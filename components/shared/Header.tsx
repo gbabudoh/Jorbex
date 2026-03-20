@@ -10,6 +10,7 @@ import { useLanguage } from '@/lib/LanguageContext';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationDropdown from './NotificationDropdown';
+import { CandidateInbox } from './CandidateInbox';
 
 const NavLink = ({ href, pathname, children, icon }: { href: string; pathname: string; children: React.ReactNode; icon?: React.ReactNode }) => {
   const isActive = pathname === href;
@@ -129,7 +130,11 @@ export const Header: React.FC = () => {
             </div>
 
             <div className="flex items-center ml-4 space-x-3">
-              {session && <NotificationDropdown />}
+              {session && session.user?.userType === 'candidate' ? (
+                <CandidateInbox subscriberId={session.user.id} />
+              ) : session ? (
+                <NotificationDropdown />
+              ) : null}
               <LanguageSwitcher />
               
               {status === 'loading' ? (
@@ -165,7 +170,11 @@ export const Header: React.FC = () => {
 
           {/* Mobile menu button */}
           <div className="lg:hidden flex items-center gap-2 pr-2">
-            {session && <NotificationDropdown />}
+            {session && session.user?.userType === 'candidate' ? (
+              <CandidateInbox subscriberId={session.user.id} />
+            ) : session ? (
+              <NotificationDropdown />
+            ) : null}
             <LanguageSwitcher />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}

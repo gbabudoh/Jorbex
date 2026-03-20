@@ -20,7 +20,18 @@ export async function GET() {
       orderBy: { completedAt: 'desc' },
     });
 
-    return NextResponse.json({ results }, { status: 200 });
+    // Fetch proctorStats via raw SQL (column added after Prisma client generation)
+    const ids = results.map(r => r.id);
+    const proctorRows = ids.length > 0
+      ? await prisma.$queryRaw<{ id: string; proctorStats: unknown }[]>`
+          SELECT id, "proctorStats" FROM "TestResult" WHERE id = ANY(${ids}::uuid[])
+        `
+      : [];
+
+    const proctorMap = new Map(proctorRows.map(r => [r.id, r.proctorStats]));
+    const enriched = results.map(r => ({ ...r, proctorStats: proctorMap.get(r.id) ?? null }));
+
+    return NextResponse.json({ results: enriched }, { status: 200 });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     console.error('Failed to fetch test results:', error);
