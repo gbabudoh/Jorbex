@@ -44,6 +44,13 @@ export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
 
+  // Sync Novu subscriber once per authenticated session
+  React.useEffect(() => {
+    if (status === 'authenticated' && session?.user?.id) {
+      fetch('/api/v1/novu/subscriber', { method: 'POST' }).catch(() => {});
+    }
+  }, [status, session?.user?.id]);
+
   React.useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);

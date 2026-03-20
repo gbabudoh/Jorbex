@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { getInAppFeed, markAllAsRead as novuMarkAllAsRead } from '@/lib/novu';
 
+// GET /api/v1/notifications — returns Novu in-app feed for the current user
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -10,19 +11,22 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userType = session.user.userType;
     const userId = session.user.id;
 
-    const notifications = await prisma.notificationLog.findMany({
-      where: {
-        channel: 'IN_APP',
-        ...(userType === 'employer'
-          ? { employerId: userId }
-          : { candidateId: userId }),
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-    });
+    // Fetch from Novu in-app channel
+    const feed = await getInAppFeed(userId);
+
+    // Normalise to the shape the NotificationDropdown expects
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const notifications = feed.map((item: any) => ({
+      _id:         item._id ?? item.id,
+      type:        item.payload?.type?.toUpperCase() ?? 'SYSTEM',
+      content:     item.content ?? item.payload?.message ?? '',
+      status:      item.read ? 'DELIVERED' : 'SENT',
+      createdAt:   item.createdAt,
+      referenceId: item.payload?.referenceId ?? null,
+      actionUrl:   item.cta?.action?.buttons?.[0]?.url ?? item.payload?.actionUrl ?? null,
+    }));
 
     return NextResponse.json({ notifications }, { status: 200 });
   } catch (error: unknown) {
@@ -31,6 +35,7 @@ export async function GET() {
   }
 }
 
+// PATCH /api/v1/notifications — mark all as read via Novu
 export async function PATCH(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -38,31 +43,11 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { notificationIds, markAllAsRead } = await request.json();
-    const userType = session.user.userType;
+    const { markAllAsRead } = await request.json();
     const userId = session.user.id;
 
     if (markAllAsRead) {
-      await prisma.notificationLog.updateMany({
-        where: {
-          channel: 'IN_APP',
-          status: 'SENT',
-          ...(userType === 'employer'
-            ? { employerId: userId }
-            : { candidateId: userId }),
-        },
-        data: { status: 'DELIVERED' },
-      });
-    } else if (notificationIds && Array.isArray(notificationIds)) {
-      await prisma.notificationLog.updateMany({
-        where: {
-          id: { in: notificationIds },
-          ...(userType === 'employer'
-            ? { employerId: userId }
-            : { candidateId: userId }),
-        },
-        data: { status: 'DELIVERED' },
-      });
+      await novuMarkAllAsRead(userId);
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

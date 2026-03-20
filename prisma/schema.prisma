@@ -22,6 +22,10 @@ model Employer {
   subscriptionEndDate      DateTime?
   paystackCustomerCode     String?
   paystackSubscriptionCode String?
+  stripeCustomerId         String?
+  stripeSubscriptionId     String?
+  billingPeriod            String?  // "monthly" | "yearly"
+  paymentProvider          String?  // "paystack" | "stripe"
   mattermostTeamId         String?
   
   // Relations
@@ -92,6 +96,7 @@ model Candidate {
   interviews                 Interview[]
   offers                     Offer[]
   testResults                TestResult[]
+  assignedTests              AptitudeTest[]     @relation("CandidateAssignedTests")
   messagesSent               Message[]          @relation("CandidateMessagesSent")
   messagesReceived           Message[]          @relation("CandidateMessagesReceived")
   notificationLogs           NotificationLog[]  // Generic notification logs for this candidate
@@ -144,10 +149,18 @@ model Job {
   type        String?
   status      JobStatus  @default(ACTIVE)
 
+  // Location (granular)
+  country     String?
+  city        String?
+
   // Salary embedded structure (optional range with currency)
   salaryMin   Float?
   salaryMax   Float?
   currency    String?
+  salaryRate  String?   // "hourly" | "daily" | "weekly" | "monthly" | "annual"
+
+  // Posting lifecycle
+  expiresAt   DateTime?
 
   // Relations
   applications        Application[]
@@ -294,13 +307,18 @@ model AptitudeTest {
   
   employerId     String?
   employer       Employer?  @relation("EmployerTests", fields: [employerId], references: [id])
-  
+
+  // Set on cloned (assigned) tests to track which candidate received it
+  candidateId    String?
+  candidate      Candidate? @relation("CandidateAssignedTests", fields: [candidateId], references: [id])
+
   originalTestId String?
   originalTest   AptitudeTest?  @relation("TestTemplate", fields: [originalTestId], references: [id])
   derivedTests   AptitudeTest[] @relation("TestTemplate")
   
   passingScore   Float      @default(70)
   timeLimit      Int?       // In minutes
+  deadline       DateTime?  // Deadline for candidate to complete the assignment
   isActive       Boolean    @default(true)
   
   questions      Question[]
@@ -332,6 +350,7 @@ model TestResult {
   passingScore Float
   passed       Boolean
   timeSpent    Int?         // In seconds
+  proctorStats Json?        // { noFaceCount, tabSwitchCount, multipleFaceCount, violations[] }
   completedAt  DateTime     @default(now())
   
   answers      Answer[]

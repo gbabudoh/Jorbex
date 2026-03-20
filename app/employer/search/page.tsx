@@ -530,7 +530,7 @@ export default function SearchPage() {
                       <div className="flex-1" />
 
                       <Button
-                        className="w-full h-14 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 group-hover:shadow-2xl shadow-slate-900/10 gap-2 cursor-pointer"
+                        className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 group-hover:shadow-2xl shadow-blue-600/20 gap-2 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           router.push(`/employer/candidates/${candidate.id || candidate._id}`);

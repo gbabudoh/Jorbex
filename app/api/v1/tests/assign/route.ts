@@ -43,7 +43,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Candidate not found' }, { status: 404 });
     }
 
-    // 4. Clone the Test for the Candidate
+    // 4. Prevent duplicate assignment (same template → same candidate)
+    // Raw SQL used because Prisma client was not regenerated after candidateId was added to schema
+    const existing = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT id FROM "AptitudeTest"
+      WHERE "originalTestId" = ${templateTest.id} AND "candidateId" = ${candidate.id}
+      LIMIT 1
+    `;
+    if (existing.length > 0) {
+      return NextResponse.json({ error: 'This test has already been sent to this candidate' }, { status: 409 });
+    }
+
+    // 5. Clone the Test for the Candidate (create without candidateId, then set via raw SQL)
     const assignedTest = await prisma.aptitudeTest.create({
       data: {
         title: templateTest.title,
@@ -66,12 +77,14 @@ export async function POST(req: Request) {
       },
     });
 
-    // 5. Update Application Status (if exists)
+    // Set candidateId via raw SQL (column exists in DB but not yet in Prisma client)
+    await prisma.$executeRaw`
+      UPDATE "AptitudeTest" SET "candidateId" = ${candidate.id} WHERE id = ${assignedTest.id}
+    `;
+
+    // 6. Update Application Status (if exists)
     const application = await prisma.application.findFirst({
-      where: {
-        candidateId: candidateId,
-        employerId: employer.id,
-      },
+      where: { candidateId, employerId: employer.id },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -82,24 +95,28 @@ export async function POST(req: Request) {
       });
     }
 
-    // 6. Notify Candidate
-    const testLink = `${process.env.NEXTAUTH_URL}/dashboard/tests/${assignedTest.id}`;
-
-    if (candidate.ntfyTopic) {
-      await sendPushNotification({
-        topic: candidate.ntfyTopic,
-        userType: 'candidate',
-        userId: candidate.id,
-        title: '📝 New Assessment Assigned',
-        message: `${employer.companyName} has sent you an aptitude test: "${templateTest.title}".`,
-        click: testLink,
-        priority: 3,
-      });
+    // 7. Notify Candidate (non-fatal — don't let this fail the whole request)
+    try {
+      if (candidate.ntfyTopic) {
+        const testLink = `${process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || ''}/candidate/tests`;
+        await sendPushNotification({
+          topic: candidate.ntfyTopic,
+          userType: 'candidate',
+          userId: candidate.id,
+          title: '📝 New Assessment Assigned',
+          message: `${employer.companyName} has sent you an aptitude test: "${templateTest.title}".`,
+          click: testLink,
+          priority: 3,
+        });
+      }
+    } catch (notifyErr) {
+      console.warn('Notification failed (non-fatal):', notifyErr);
     }
 
     return NextResponse.json({ success: true, testId: assignedTest.id });
   } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
     console.error('Error assigning test:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

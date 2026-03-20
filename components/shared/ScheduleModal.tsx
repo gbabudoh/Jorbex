@@ -29,6 +29,8 @@ export default function ScheduleModal(props: ScheduleModalProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sessionUser = session?.user as any;
   const employerId = propEmployerId || sessionUser?.id;
+  const [timeHour, setTimeHour] = useState('00');
+  const [timeMinute, setTimeMinute] = useState('00');
   const [formData, setFormData] = useState({
     date: '',
     time: '',
@@ -45,7 +47,7 @@ export default function ScheduleModal(props: ScheduleModalProps) {
   const [error, setError] = useState('');
   
   // Jobs state
-  const [jobs, setJobs] = useState<{ _id: string; title: string }[]>([]);
+  const [jobs, setJobs] = useState<{ id?: string; _id?: string; title: string }[]>([]);
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
 
   // Fetch jobs when modal opens
@@ -68,7 +70,7 @@ export default function ScheduleModal(props: ScheduleModalProps) {
           setJobs(data.jobs || []);
           // Auto-select first job if available
           if (data.jobs && data.jobs.length > 0) {
-             setFormData(prev => ({ ...prev, jobId: data.jobs[0]._id, manualJob: false }));
+             setFormData(prev => ({ ...prev, jobId: data.jobs[0].id || data.jobs[0]._id, manualJob: false }));
           } else {
              // No jobs found, switch to manual
              setFormData(prev => ({ ...prev, manualJob: true }));
@@ -127,6 +129,8 @@ export default function ScheduleModal(props: ScheduleModalProps) {
         setTimeout(() => {
           onClose();
           setFormData({ date: '', time: '', type: 'virtual', location: '', notes: '', duration: 30, jobId: '', jobTitle: '', manualJob: false });
+          setTimeHour('00');
+          setTimeMinute('00');
           setSuccess(false);
         }, 2000);
       } else {
@@ -232,7 +236,7 @@ export default function ScheduleModal(props: ScheduleModalProps) {
                       <option disabled>Loading jobs...</option>
                     ) : jobs.length > 0 ? (
                       jobs.map(job => (
-                        <option key={job._id} value={job._id}>{job.title}</option>
+                        <option key={job.id || job._id} value={job.id || job._id}>{job.title}</option>
                       ))
                     ) : (
                       <option disabled>No active jobs found</option>
@@ -255,12 +259,33 @@ export default function ScheduleModal(props: ScheduleModalProps) {
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Time</label>
-                  <Input 
-                    type="time"
-                    className="rounded-lg h-9 text-sm text-gray-900 dark:text-gray-100 cursor-pointer"
-                    value={formData.time}
-                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                  />
+                  <div className="flex items-center gap-1.5">
+                    <select
+                      className="flex-1 px-2 h-9 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/20 outline-none transition-all text-sm text-center text-gray-900 dark:text-gray-100 cursor-pointer"
+                      value={timeHour}
+                      onChange={(e) => {
+                        setTimeHour(e.target.value);
+                        setFormData({ ...formData, time: `${e.target.value}:${timeMinute}` });
+                      }}
+                    >
+                      {Array.from({ length: 24 }, (_, h) => (
+                        <option key={h} value={String(h).padStart(2, '0')}>{String(h).padStart(2, '0')}</option>
+                      ))}
+                    </select>
+                    <span className="text-lg font-bold text-gray-400 dark:text-gray-500">:</span>
+                    <select
+                      className="flex-1 px-2 h-9 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/20 outline-none transition-all text-sm text-center text-gray-900 dark:text-gray-100 cursor-pointer"
+                      value={timeMinute}
+                      onChange={(e) => {
+                        setTimeMinute(e.target.value);
+                        setFormData({ ...formData, time: `${timeHour}:${e.target.value}` });
+                      }}
+                    >
+                      {['00','05','10','15','20','25','30','35','40','45','50','55'].map(m => (
+                        <option key={m} value={m}>{m}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 

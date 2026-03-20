@@ -133,8 +133,6 @@ export default function LiveKitMeeting({
         onError={handleError}
         className="h-full"
         connect={true}
-        video={true}
-        audio={true}
         options={{
           adaptiveStream: true, 
           dynacast: true,

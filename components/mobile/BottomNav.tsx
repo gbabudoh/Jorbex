@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useLanguage } from '@/lib/LanguageContext';
 
 const tabs = [
   {
     href: '/candidate/profile',
-    label: 'Profile',
+    key: 'profile',
     icon: (active: boolean) => (
       <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -15,7 +16,7 @@ const tabs = [
   },
   {
     href: '/candidate/jobs',
-    label: 'Search',
+    key: 'search',
     icon: (active: boolean) => (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={active ? 2.5 : 1.8} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -24,7 +25,7 @@ const tabs = [
   },
   {
     href: '/candidate/applications',
-    label: 'Applied',
+    key: 'applied_box',
     icon: (active: boolean) => (
       <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -33,7 +34,7 @@ const tabs = [
   },
   {
     href: '/candidate/interviews',
-    label: 'Interviews',
+    key: 'interviews',
     icon: (active: boolean) => (
       <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -42,7 +43,7 @@ const tabs = [
   },
   {
     href: '/candidate/messages',
-    label: 'Messages',
+    key: 'messages',
     icon: (active: boolean) => (
       <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -51,7 +52,7 @@ const tabs = [
   },
   {
     href: '/candidate/tests',
-    label: 'Tests',
+    key: 'tests',
     icon: (active: boolean) => (
       <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8} viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -62,6 +63,7 @@ const tabs = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   return (
     <nav
@@ -81,12 +83,11 @@ export function BottomNav() {
                   : 'text-gray-400 dark:text-gray-500'
               }`}
             >
-              {/* Active pip */}
               <div className={`transition-all duration-200 ${active ? 'scale-110' : ''}`}>
                 {tab.icon(active)}
               </div>
               <span className={`text-[10px] font-semibold tracking-tight leading-none transition-all ${active ? 'text-[#0066FF]' : 'text-gray-400 dark:text-gray-500'}`}>
-                {tab.label}
+                {t(`nav.${tab.key}`)}
               </span>
             </Link>
           );

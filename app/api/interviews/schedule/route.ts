@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { sendNotification } from '@/lib/notifications';
-import { TEMPLATE_IDS } from '@/lib/listmonk';
+import { scheduleInterview as notifyScheduleInterview } from '@/lib/notifications';
 import { mattermost } from '@/lib/mattermost';
 
 export async function POST(request: Request) {
@@ -93,7 +92,6 @@ export async function POST(request: Request) {
         employerMeetingUrl: type === 'virtual' ? placeholderMeetingUrl : undefined,
         interviewerName,
         interviewerEmail,
-        // @ts-expect-error: the interviewers field is not yet in the generated Prisma client
         interviewers: interviewers || undefined,
         notes,
         status: 'CONFIRMED',
@@ -113,25 +111,17 @@ export async function POST(request: Request) {
     }
 
     // 6. Notifications
-    await sendNotification(
-      { ...candidate, _id: candidate.id, userType: 'candidate' },
-      {
-        title: 'Interview Scheduled',
-        message: `An interview with ${employer.companyName} has been scheduled for ${scheduledDate.toLocaleString()}.`,
-        emailTemplateId: TEMPLATE_IDS.INTERVIEW_INVITATION,
-        emailData: {
-          candidateName: candidate.name,
-          position: positionTitle,
-          companyName: employer.companyName,
-          date: scheduledDate.toLocaleDateString(),
-          time: scheduledDate.toLocaleTimeString(),
-          meetingUrl,
-          interviewId: interview.id,
-        },
-        type: 'interviews',
-        actionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/interview/${interview.id}`,
-      }
-    );
+    await notifyScheduleInterview({
+      interviewId:    interview.id,
+      candidateId:    candidate.id,
+      candidateEmail: candidate.email,
+      candidateName:  candidate.name,
+      employerName:   employer.name,
+      companyName:    employer.companyName,
+      position:       positionTitle,
+      interviewDate:  scheduledDate,
+      interviewerName: interviewerName || employer.name,
+    }).catch((err: unknown) => console.error('[Schedule] Notification error:', err));
 
     // Update Application Status
     if (applicationId) {

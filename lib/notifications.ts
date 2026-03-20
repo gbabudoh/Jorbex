@@ -1,14 +1,9 @@
-// Combined notification service for email + push + internal (Mattermost)
-
-// Mattermost imports
-
-import {
-  sendEmailNotification,
-  TEMPLATE_IDS
-} from './listmonk';
+// Unified notification service — Novu (email, SMS, push, chat, in-app) + Mattermost (internal)
 
 import { createInterviewMeeting, InterviewMeeting } from './livekit';
 import prisma from '@/lib/prisma';
+import { triggerNotification, syncSubscriber, WORKFLOWS } from './novu';
+import { RoleType } from '@prisma/client';
 
 import {
   sendMessage,
@@ -19,58 +14,111 @@ import {
   notifyNewEmployerSignup as mattermostNewEmployerSignup,
 } from './mattermost';
 
-export { TEMPLATE_IDS } from './listmonk';
-import { sendPushNotification } from './ntfy';
-
-// ============================================
-// Mattermost Channel IDs (configure these)
-// ============================================
-
-const MATTERMOST_CHANNELS = {
+// ─── Mattermost channel IDs ──────────────────────────────────────────────────
+const MM = {
   INTERVIEWS: process.env.MATTERMOST_CHANNEL_INTERVIEWS || '',
-  HIRING: process.env.MATTERMOST_CHANNEL_HIRING || '',
-  SALES: process.env.MATTERMOST_CHANNEL_SALES || '',
-  SUPPORT: process.env.MATTERMOST_CHANNEL_SUPPORT || '',
+  HIRING:     process.env.MATTERMOST_CHANNEL_HIRING     || '',
+  SALES:      process.env.MATTERMOST_CHANNEL_SALES      || '',
   DEV_ALERTS: process.env.MATTERMOST_CHANNEL_DEV_ALERTS || '',
-  MANAGEMENT: process.env.MATTERMOST_CHANNEL_MANAGEMENT || '',
 };
 
-// ============================================
-// Types
-// ============================================
-
+// ─── Types ───────────────────────────────────────────────────────────────────
 export interface ScheduleInterviewParams {
-  interviewId: string;
-  candidateId: string;
+  interviewId:    string;
+  candidateId:    string;
   candidateEmail: string;
-  candidateName: string;
-  employerId: string;
-  employerEmail: string;
-  employerName: string;
-  companyName: string;
-  position: string;
-  interviewDate: Date;
+  candidateName:  string;
+  employerId:     string;
+  employerEmail:  string;
+  employerName:   string;
+  companyName:    string;
+  position:       string;
+  interviewDate:  Date;
   interviewerName?: string;
 }
 
-export interface NotificationUser {
-  _id?: string | { toString(): string };
-  email?: string | null;
-  ntfyTopic?: string | null;
-  userType?: 'candidate' | 'employer' | 'admin';
-}
-
 export interface InterviewResult extends InterviewMeeting {
-  interviewId: string;
-  emailSent: boolean;
-  pushSent: boolean;
+  interviewId:    string;
+  emailSent:      boolean;
+  pushSent:       boolean;
   mattermostSent: boolean;
 }
 
-// ============================================
-// Interview Scheduling
-// ============================================
+// ─── Helper: log notification ────────────────────────────────────────────────
+async function logNotification(params: {
+  userId:    string;
+  userType:  'candidate' | 'employer';
+  email?:    string | null;
+  type:      string;
+  channel:   'EMAIL' | 'PUSH' | 'SMS' | 'IN_APP' | 'MATTERMOST';
+  subject:   string;
+  content:   string;
+  status:    'SENT' | 'FAILED';
+  error?:    string;
+}) {
+  try {
+    await prisma.notificationLog.create({
+      data: {
+        userType:  params.userType.toUpperCase() as RoleType,
+        ...(params.userType === 'employer'
+          ? { employerId: params.userId }
+          : { candidateId: params.userId }),
+        email:   params.email || undefined,
+        type:    params.type,
+        channel: params.channel,
+        subject: params.subject,
+        content: params.content,
+        status:  params.status,
+        sentAt:  params.status === 'SENT' ? new Date() : undefined,
+        error:   params.error,
+      },
+    });
+  } catch (err) {
+    console.error('[Notification] log failed:', err);
+  }
+}
 
+// ─── Helper: trigger via Novu + log ─────────────────────────────────────────
+async function sendViaNovu(params: {
+  workflowId:   (typeof WORKFLOWS)[keyof typeof WORKFLOWS];
+  userId:       string;
+  userType:     'candidate' | 'employer';
+  email?:       string | null;
+  phone?:       string | null;
+  name?:        string;
+  subject:      string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload:      Record<string, any>;
+}) {
+  const { workflowId, userId, userType, email, phone, name, subject, payload } = params;
+
+  // Ensure subscriber exists in Novu
+  if (name) {
+    await syncSubscriber({ subscriberId: userId, name, email, phone });
+  }
+
+  try {
+    await triggerNotification({
+      workflowId,
+      subscriberId: userId,
+      to: { email, phone, firstName: name?.split(' ')[0] },
+      payload,
+    });
+
+    await logNotification({
+      userId, userType, email, type: workflowId.toUpperCase().replace(/-/g, '_'),
+      channel: 'EMAIL', subject, content: JSON.stringify(payload), status: 'SENT',
+    });
+  } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    await logNotification({
+      userId, userType, email, type: workflowId.toUpperCase().replace(/-/g, '_'),
+      channel: 'EMAIL', subject, content: JSON.stringify(payload), status: 'FAILED', error,
+    });
+  }
+}
+
+// ─── Interview Scheduling ────────────────────────────────────────────────────
 export async function scheduleInterview({
   interviewId,
   candidateId,
@@ -82,522 +130,371 @@ export async function scheduleInterview({
   interviewDate,
   interviewerName,
 }: ScheduleInterviewParams): Promise<InterviewResult> {
-  // Generate meeting URLs
   const meeting = createInterviewMeeting(interviewId, candidateName, employerName);
 
-  let emailSent = false;
-  let pushSent = false;
-  let mattermostSent = false;
-
-  const formattedDate = interviewDate.toLocaleString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric', 
-    year: 'numeric',
-    hour: 'numeric', 
-    minute: '2-digit',
-    timeZoneName: 'short'
+  const formattedDate = interviewDate.toLocaleString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric',
+    year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short',
   });
 
-  // 1. Notify Candidate via sendNotification (handles Preferences)
-  const results = await sendNotification(
-    { _id: candidateId, email: candidateEmail, userType: 'candidate' },
-    {
-      title: 'Interview Scheduled',
-      message: `An interview with ${companyName} for ${position} has been scheduled for ${formattedDate}.`,
-      emailTemplateId: TEMPLATE_IDS.INTERVIEW_INVITATION,
-      emailData: {
-        candidate_name: candidateName,
-        company_name: companyName,
-        position: position,
-        interview_date: formattedDate,
-        meeting_url: meeting.candidateUrl,
-        interviewer_name: interviewerName || employerName
-      },
-      type: 'interviews',
-      actionUrl: meeting.candidateUrl,
-      priority: 4,
-      tags: ['calendar', 'briefcase'],
-    }
-  );
+  let novuSent = false;
+  let mattermostSent = false;
 
-  // Map results (order: email then push if both enabled)
-  // This mapping is simplified as it depends on enabled channels
-  emailSent = results.some(r => r.status === 'fulfilled'); 
-  pushSent = results.some(r => r.status === 'fulfilled');
-
-  // 2. Send internal Mattermost notification
+  // 1. Notify candidate via Novu (email + SMS + push + chat + in-app)
   try {
-    if (MATTERMOST_CHANNELS.INTERVIEWS) {
-      await mattermostInterviewScheduled(
-        MATTERMOST_CHANNELS.INTERVIEWS,
+    await sendViaNovu({
+      workflowId:  WORKFLOWS.INTERVIEW_SCHEDULED,
+      userId:      candidateId,
+      userType:    'candidate',
+      email:       candidateEmail,
+      name:        candidateName,
+      subject:     `Interview Scheduled — ${position} at ${companyName}`,
+      payload: {
         candidateName,
+        companyName,
         position,
-        interviewDate,
-        interviewerName || employerName,
-        meeting.meetingUrl
+        interviewDate: formattedDate,
+        meetingUrl:    meeting.candidateUrl,
+        interviewerName: interviewerName || employerName,
+      },
+    });
+    novuSent = true;
+  } catch { novuSent = false; }
+
+  // 2. Internal Mattermost (team visibility)
+  try {
+    if (MM.INTERVIEWS) {
+      await mattermostInterviewScheduled(
+        MM.INTERVIEWS, candidateName, position, interviewDate,
+        interviewerName || employerName, meeting.meetingUrl
       );
       mattermostSent = true;
     }
-  } catch (error) {
-    console.error('Failed to send Mattermost notification:', error);
-  }
+  } catch (err) { console.error('[Mattermost] interview scheduled:', err); }
 
   return {
-    interviewId,
-    ...meeting,
-    emailSent,
-    pushSent,
-    mattermostSent,
+    interviewId, ...meeting,
+    emailSent: novuSent, pushSent: novuSent, mattermostSent,
   };
 }
 
-// ============================================
-// Interview Reminders
-// ============================================
-
+// ─── Interview Reminders ─────────────────────────────────────────────────────
 export async function sendInterviewReminders(
-  candidateId: string,
+  candidateId:    string,
   candidateEmail: string,
-  candidateName: string,
-  companyName: string,
-  position: string,
-  interviewDate: Date,
-  meetingUrl: string,
-  minutesUntil: number
+  candidateName:  string,
+  companyName:    string,
+  position:       string,
+  interviewDate:  Date,
+  meetingUrl:     string,
+  minutesUntil:   number,
 ): Promise<{ emailSent: boolean; pushSent: boolean }> {
-  const results = await sendNotification(
-    { _id: candidateId, email: candidateEmail, userType: 'candidate' },
-    {
-      title: `Interview in ${minutesUntil} mins`,
-      message: `Prepare for your ${position} interview with ${companyName}.`,
-      emailTemplateId: TEMPLATE_IDS.INTERVIEW_REMINDER,
-      emailData: {
-        candidate_name: candidateName,
-        company_name: companyName,
-        position: position,
-        minutes_until: minutesUntil,
-        meeting_url: meetingUrl
+  let sent = false;
+  try {
+    await sendViaNovu({
+      workflowId: WORKFLOWS.INTERVIEW_REMINDER,
+      userId:     candidateId,
+      userType:   'candidate',
+      email:      candidateEmail,
+      name:       candidateName,
+      subject:    `Reminder: Interview in ${minutesUntil} minutes`,
+      payload: {
+        candidateName, companyName, position, minutesUntil,
+        meetingUrl, interviewDate: new Date(interviewDate).toISOString(),
       },
-      type: 'interviews',
-      actionUrl: meetingUrl,
-      priority: 5,
-      tags: ['alarm_clock', 'video_camera'],
-    }
-  );
+    });
+    sent = true;
+  } catch { sent = false; }
 
-  return {
-    emailSent: results.some(r => r.status === 'fulfilled'),
-    pushSent: results.some(r => r.status === 'fulfilled'),
-  };
+  return { emailSent: sent, pushSent: sent };
 }
 
-// ============================================
-// Interview Cancellation
-// ============================================
-
+// ─── Interview Cancellation ──────────────────────────────────────────────────
 export async function cancelInterview(
-  candidateId: string,
+  candidateId:    string,
   candidateEmail: string,
-  candidateName: string,
-  companyName: string,
-  position: string,
-  reason?: string
+  candidateName:  string,
+  companyName:    string,
+  position:       string,
+  reason?:        string,
 ): Promise<{ emailSent: boolean; pushSent: boolean; mattermostSent: boolean }> {
+  let sent = false;
   let mattermostSent = false;
 
-  const results = await sendNotification(
-    { _id: candidateId, email: candidateEmail, userType: 'candidate' },
-    {
-      title: 'Interview Cancelled',
-      message: `${companyName} cancelled the interview for ${position}. Reason: ${reason || 'Not specified'}`,
-      emailTemplateId: TEMPLATE_IDS.INTERVIEW_CANCELLED,
-      emailData: {
-        candidate_name: candidateName,
-        company_name: companyName,
-        position: position,
-        reason: reason || 'Not specified'
-      },
-      type: 'interviews',
-      priority: 4,
-      tags: ['x', 'warning'],
-    }
-  );
-
-  // Send internal Mattermost notification
   try {
-    if (MATTERMOST_CHANNELS.INTERVIEWS) {
+    await sendViaNovu({
+      workflowId: WORKFLOWS.INTERVIEW_CANCELLED,
+      userId:     candidateId,
+      userType:   'candidate',
+      email:      candidateEmail,
+      name:       candidateName,
+      subject:    `Interview Cancelled — ${position} at ${companyName}`,
+      payload: { candidateName, companyName, position, reason: reason || 'Not specified' },
+    });
+    sent = true;
+  } catch { sent = false; }
+
+  try {
+    if (MM.INTERVIEWS) {
       await sendMessage(
-        MATTERMOST_CHANNELS.INTERVIEWS,
+        MM.INTERVIEWS,
         `❌ **Interview Cancelled**\n\n**Candidate:** ${candidateName}\n**Position:** ${position} at ${companyName}\n**Reason:** ${reason || 'Not specified'}`
       );
       mattermostSent = true;
     }
-  } catch (error) {
-    console.error('Failed to send Mattermost cancellation notification:', error);
-  }
+  } catch (err) { console.error('[Mattermost] interview cancelled:', err); }
 
-  return { 
-    emailSent: results.some(r => r.status === 'fulfilled'), 
-    pushSent: results.some(r => r.status === 'fulfilled'), 
-    mattermostSent 
-  };
+  return { emailSent: sent, pushSent: sent, mattermostSent };
 }
 
-// ============================================
-// Interview Rescheduling
-// ============================================
-
+// ─── Interview Rescheduling ──────────────────────────────────────────────────
 export async function rescheduleInterview(
-  interviewId: string,
-  candidateId: string,
+  interviewId:    string,
+  candidateId:    string,
   candidateEmail: string,
-  candidateName: string,
-  companyName: string,
-  position: string,
-  newDate: Date,
-  interviewerName?: string
+  candidateName:  string,
+  companyName:    string,
+  position:       string,
+  newDate:        Date,
+  interviewerName?: string,
 ): Promise<InterviewResult> {
-  // Generate new meeting URLs
   const meeting = createInterviewMeeting(interviewId, candidateName, 'Employer');
-
+  let sent = false;
   let mattermostSent = false;
 
   const formattedDate = newDate.toLocaleString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    weekday: 'long', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 
-  const results = await sendNotification(
-    { _id: candidateId, email: candidateEmail, userType: 'candidate' },
-    {
-      title: 'Interview Rescheduled',
-      message: `New time: ${formattedDate} for ${position} at ${companyName}.`,
-      emailTemplateId: TEMPLATE_IDS.INTERVIEW_INVITATION,
-      emailData: {
-        candidate_name: candidateName,
-        company_name: companyName,
-        position: position,
-        interview_date: formattedDate,
-        meeting_url: meeting.candidateUrl,
-        interviewer_name: interviewerName || 'Hiring Manager'
-      },
-      type: 'interviews',
-      actionUrl: meeting.candidateUrl,
-      priority: 4,
-      tags: ['rotating_light', 'calendar'],
-    }
-  );
-
-  // Send internal Mattermost notification
   try {
-    if (MATTERMOST_CHANNELS.INTERVIEWS) {
+    await sendViaNovu({
+      workflowId: WORKFLOWS.INTERVIEW_RESCHEDULED,
+      userId:     candidateId,
+      userType:   'candidate',
+      email:      candidateEmail,
+      name:       candidateName,
+      subject:    `Interview Rescheduled — ${position} at ${companyName}`,
+      payload: {
+        candidateName, companyName, position, interviewDate: formattedDate,
+        meetingUrl: meeting.candidateUrl, interviewerName: interviewerName || 'Hiring Manager',
+      },
+    });
+    sent = true;
+  } catch { sent = false; }
+
+  try {
+    if (MM.INTERVIEWS) {
       await sendMessage(
-        MATTERMOST_CHANNELS.INTERVIEWS,
-        `🔄 **Interview Rescheduled**\n\n**Candidate:** ${candidateName}\n**Position:** ${position} at ${companyName}\n**New Date:** ${formattedDate}\n**Interviewer:** ${interviewerName || 'TBD'}`
+        MM.INTERVIEWS,
+        `🔄 **Interview Rescheduled**\n\n**Candidate:** ${candidateName}\n**Position:** ${position} at ${companyName}\n**New Date:** ${formattedDate}`
       );
       mattermostSent = true;
     }
-  } catch (error) {
-    console.error('Failed to send Mattermost reschedule notification:', error);
-  }
+  } catch (err) { console.error('[Mattermost] interview rescheduled:', err); }
 
   return {
-    interviewId,
-    ...meeting,
-    emailSent: results.some(r => r.status === 'fulfilled'),
-    pushSent: results.some(r => r.status === 'fulfilled'),
-    mattermostSent,
+    interviewId, ...meeting,
+    emailSent: sent, pushSent: sent, mattermostSent,
   };
 }
 
-// ============================================
-// Application Notifications
-// ============================================
-
+// ─── New Application ─────────────────────────────────────────────────────────
 export async function notifyNewApplication(
-  candidateId: string,
+  candidateId:    string,
   candidateEmail: string,
-  candidateName: string,
-  employerId: string,
-  companyName: string,
-  position: string,
-  applicationId: string,
-  applicationUrl: string
+  candidateName:  string,
+  employerId:     string,
+  companyName:    string,
+  position:       string,
+  applicationId:  string,
+  applicationUrl: string,
 ): Promise<{ candidateEmailSent: boolean; employerPushSent: boolean; mattermostSent: boolean }> {
+  let candidateSent = false;
+  let employerSent = false;
   let mattermostSent = false;
 
-  // 1. Notify Candidate (Email confirmation)
-  const candidateResults = await sendNotification(
-    { _id: candidateId, email: candidateEmail, userType: 'candidate' },
-    {
-      title: 'Application Received',
-      message: `Your application for ${position} at ${companyName} has been received.`,
-      emailTemplateId: TEMPLATE_IDS.APPLICATION_CONFIRMATION,
-      emailData: {
-        candidate_name: candidateName,
-        company_name: companyName,
-        position: position,
-        application_id: applicationId
-      },
-      type: 'applications',
-      priority: 3,
-    }
-  );
-
-  // 2. Notify Employer (Push notification)
-  const employerResults = await sendNotification(
-    { _id: employerId, userType: 'employer' },
-    {
-      title: '📥 New Application',
-      message: `${candidateName} applied for ${position}.`,
-      type: 'applications',
-      actionUrl: applicationUrl,
-      priority: 3,
-      tags: ['inbox_tray', 'star'],
-    }
-  );
-
-  // Send internal Mattermost notification
+  // Notify candidate
   try {
-    if (MATTERMOST_CHANNELS.HIRING) {
-      await mattermostNewApplication(
-        MATTERMOST_CHANNELS.HIRING,
-        candidateName,
-        position,
-        applicationUrl
-      );
+    await sendViaNovu({
+      workflowId: WORKFLOWS.NEW_APPLICATION,
+      userId:     candidateId,
+      userType:   'candidate',
+      email:      candidateEmail,
+      name:       candidateName,
+      subject:    `Application Received — ${position} at ${companyName}`,
+      payload:    { candidateName, companyName, position, applicationId },
+    });
+    candidateSent = true;
+  } catch { candidateSent = false; }
+
+  // Notify employer
+  try {
+    await sendViaNovu({
+      workflowId: WORKFLOWS.NEW_APPLICATION,
+      userId:     employerId,
+      userType:   'employer',
+      subject:    `New Application — ${position}`,
+      payload:    { candidateName, position, applicationUrl, isEmployerNotification: true },
+    });
+    employerSent = true;
+  } catch { employerSent = false; }
+
+  try {
+    if (MM.HIRING) {
+      await mattermostNewApplication(MM.HIRING, candidateName, position, applicationUrl);
       mattermostSent = true;
     }
-  } catch (error) {
-    console.error('Failed to send Mattermost application notification:', error);
-  }
+  } catch (err) { console.error('[Mattermost] new application:', err); }
 
-  return { 
-    candidateEmailSent: candidateResults.some(r => r.status === 'fulfilled'), 
-    employerPushSent: employerResults.some(r => r.status === 'fulfilled'), 
-    mattermostSent 
-  };
+  return { candidateEmailSent: candidateSent, employerPushSent: employerSent, mattermostSent };
 }
 
-// ============================================
-// Interview Completion (Internal Only)
-// ============================================
+// ─── Assessment Assigned ─────────────────────────────────────────────────────
+export async function notifyAssessmentAssigned(
+  candidateId:    string,
+  candidateEmail: string,
+  candidateName:  string,
+  companyName:    string,
+  assessmentTitle: string,
+  deadline?:      Date | null,
+): Promise<{ sent: boolean }> {
+  let sent = false;
+  try {
+    await sendViaNovu({
+      workflowId: WORKFLOWS.ASSESSMENT_ASSIGNED,
+      userId:     candidateId,
+      userType:   'candidate',
+      email:      candidateEmail,
+      name:       candidateName,
+      subject:    `New Assessment from ${companyName}`,
+      payload: {
+        candidateName, companyName, assessmentTitle,
+        deadline: deadline ? deadline.toISOString() : null,
+        assessmentUrl: `${process.env.NEXT_PUBLIC_APP_URL}/candidate/tests`,
+      },
+    });
+    sent = true;
+  } catch { sent = false; }
 
+  return { sent };
+}
+
+// ─── Offer Received ──────────────────────────────────────────────────────────
+export async function notifyOfferReceived(
+  candidateId:    string,
+  candidateEmail: string,
+  candidateName:  string,
+  companyName:    string,
+  position:       string,
+  offerUrl:       string,
+): Promise<{ sent: boolean }> {
+  let sent = false;
+  try {
+    await sendViaNovu({
+      workflowId: WORKFLOWS.OFFER_RECEIVED,
+      userId:     candidateId,
+      userType:   'candidate',
+      email:      candidateEmail,
+      name:       candidateName,
+      subject:    `Job Offer from ${companyName} — ${position}`,
+      payload:    { candidateName, companyName, position, offerUrl },
+    });
+    sent = true;
+  } catch { sent = false; }
+
+  return { sent };
+}
+
+// ─── New Message ─────────────────────────────────────────────────────────────
+export async function notifyNewMessage(
+  recipientId:    string,
+  recipientEmail: string,
+  recipientName:  string,
+  recipientType:  'candidate' | 'employer',
+  senderName:     string,
+  messagePreview: string,
+  inboxUrl:       string,
+): Promise<{ sent: boolean }> {
+  let sent = false;
+  try {
+    await sendViaNovu({
+      workflowId: WORKFLOWS.NEW_MESSAGE,
+      userId:     recipientId,
+      userType:   recipientType,
+      email:      recipientEmail,
+      name:       recipientName,
+      subject:    `New message from ${senderName}`,
+      payload:    { recipientName, senderName, messagePreview, inboxUrl },
+    });
+    sent = true;
+  } catch { sent = false; }
+
+  return { sent };
+}
+
+// ─── Internal-only helpers (Mattermost) ──────────────────────────────────────
 export async function notifyInterviewCompleted(
   candidateName: string,
-  companyName: string,
-  position: string,
+  companyName:   string,
+  position:      string,
   interviewerName: string,
-  rating?: number,
-  feedback?: string
+  rating?:       number,
+  feedback?:     string,
 ): Promise<{ mattermostSent: boolean }> {
   let mattermostSent = false;
-
   try {
-    if (MATTERMOST_CHANNELS.INTERVIEWS) {
+    if (MM.INTERVIEWS) {
       await mattermostInterviewCompleted(
-        MATTERMOST_CHANNELS.INTERVIEWS,
-        candidateName,
-        position,
-        interviewerName,
-        rating,
-        feedback
+        MM.INTERVIEWS, candidateName, position, interviewerName, rating, feedback
       );
       mattermostSent = true;
     }
-  } catch (error) {
-    console.error('Failed to send Mattermost completion notification:', error);
-  }
-
+  } catch (err) { console.error(`[Mattermost] interview completed for ${companyName}:`, err); }
   return { mattermostSent };
 }
-
-// ============================================
-// Candidate Hired (Internal Only)
-// ============================================
 
 export async function notifyCandidateHired(
   candidateName: string,
-  companyName: string,
-  position: string
+  companyName:   string,
+  position:      string,
 ): Promise<{ mattermostSent: boolean }> {
   let mattermostSent = false;
-
   try {
-    if (MATTERMOST_CHANNELS.HIRING) {
-      await mattermostCandidateHired(
-        MATTERMOST_CHANNELS.HIRING,
-        candidateName,
-        position
-      );
+    if (MM.HIRING) {
+      await mattermostCandidateHired(MM.HIRING, candidateName, position);
       mattermostSent = true;
     }
-  } catch (error) {
-    console.error('Failed to send Mattermost hired notification:', error);
-  }
-
+  } catch (err) { console.error(`[Mattermost] candidate hired at ${companyName}:`, err); }
   return { mattermostSent };
 }
-
-// ============================================
-// System Alerts (Internal Only)
-// ============================================
 
 export async function sendSystemAlert(
-  message: string,
-  severity: 'info' | 'warning' | 'error' = 'info'
+  message:  string,
+  severity: 'info' | 'warning' | 'error' = 'info',
 ): Promise<{ mattermostSent: boolean }> {
+  const icons = { info: 'ℹ️', warning: '⚠️', error: '🚨' };
   let mattermostSent = false;
-
-  const icons = {
-    info: 'ℹ️',
-    warning: '⚠️',
-    error: '🚨',
-  };
-
   try {
-    if (MATTERMOST_CHANNELS.DEV_ALERTS) {
-      await sendMessage(
-        MATTERMOST_CHANNELS.DEV_ALERTS,
-        `${icons[severity]} **System Alert**\n\n${message}`
-      );
+    if (MM.DEV_ALERTS) {
+      await sendMessage(MM.DEV_ALERTS, `${icons[severity]} **System Alert**\n\n${message}`);
       mattermostSent = true;
     }
-  } catch (error) {
-    console.error('Failed to send system alert:', error);
-  }
-
+  } catch (err) { console.error('[Mattermost] system alert:', err); }
   return { mattermostSent };
 }
-
-// ============================================
-// New Employer Signup (Sales Team)
-// ============================================
 
 export async function notifyNewEmployerSignup(
-  companyName: string,
-  contactName: string,
-  contactEmail: string,
-  companySize?: string
+  companyName:   string,
+  contactName:   string,
+  contactEmail:  string,
+  companySize?:  string,
 ): Promise<{ mattermostSent: boolean }> {
   let mattermostSent = false;
-
   try {
-    if (MATTERMOST_CHANNELS.SALES) {
-      await mattermostNewEmployerSignup(
-        MATTERMOST_CHANNELS.SALES,
-        companyName,
-        contactName,
-        contactEmail,
-        companySize
-      );
+    if (MM.SALES) {
+      await mattermostNewEmployerSignup(MM.SALES, companyName, contactName, contactEmail, companySize);
       mattermostSent = true;
     }
-  } catch (error) {
-    console.error('Failed to send employer signup notification:', error);
-  }
-
+  } catch (err) { console.error('[Mattermost] employer signup:', err); }
   return { mattermostSent };
 }
-
-// ============================================
-// Generic Notification Utility
-// ============================================
-
-export interface NotificationOptions {
-  title: string;
-  message: string;
-  emailTemplateId?: number;
-  emailData?: Record<string, unknown>;
-  type: 'messages' | 'applications' | 'interviews' | 'tests';
-  actionUrl?: string;
-  priority?: 1 | 2 | 3 | 4 | 5;
-  tags?: string[];
-}
-
-/**
- * Generic notification function used across the app (Email + Push)
- * Enforces user preferences.
- */
-export async function sendNotification(user: NotificationUser, options: NotificationOptions) {
-  const userId = user._id?.toString();
-  if (!userId) {
-    console.error('sendNotification: No userId provided');
-    return [];
-  }
-
-  await Promise.resolve(); // no-op, replaced dbConnect
-
-  // Fetch or create preferences based on user type
-  let emailEnabled = true;
-  let pushEnabled = true;
-
-  if (user.userType === 'employer' && userId) {
-    let prefs = await prisma.employerNotificationPreference.findUnique({ where: { employerId: userId } });
-    if (!prefs) {
-      prefs = await prisma.employerNotificationPreference.create({ data: { employerId: userId } });
-    }
-    emailEnabled = prefs.email;
-    pushEnabled = prefs.push;
-  } else if (userId) {
-    let prefs = await prisma.candidateNotificationPreference.findUnique({ where: { candidateId: userId } });
-    if (!prefs) {
-      prefs = await prisma.candidateNotificationPreference.create({ data: { candidateId: userId } });
-    }
-    emailEnabled = prefs.email;
-    pushEnabled = prefs.push;
-  }
-
-  const tasks: Promise<unknown>[] = [];
-
-  // 2. Send Email Notification if enabled
-  if (options.emailTemplateId && user.email && emailEnabled) {
-    tasks.push(
-      sendEmailNotification({
-        email: user.email,
-        templateId: options.emailTemplateId,
-        data: options.emailData || {},
-        userId: userId,
-        userType: user.userType,
-        subject: options.title,
-      })
-    );
-  }
-
-  // 3. Send Push Notification if enabled
-  if (pushEnabled) {
-    const pushTopic = user.ntfyTopic || `user_${userId}`;
-    if (pushTopic) {
-      tasks.push(
-        sendPushNotification({
-          topic: pushTopic,
-          title: options.title,
-          message: options.message,
-          priority: options.priority || 3,
-          tags: options.tags || [],
-          click: options.actionUrl,
-          userId: userId,
-          userType: user.userType,
-        })
-      );
-    }
-  }
-
-  // Wait for all notification attempts
-  const results = await Promise.allSettled(tasks);
-  
-  // Log any failures
-  results.forEach((result, index) => {
-    if (result.status === 'rejected') {
-      console.error(`Notification task ${index} failed:`, result.reason);
-    }
-  });
-
-  return results;
-}
-
-// End of notification service
