@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -21,6 +21,7 @@ interface OfferDetails {
 
 export default function OfferPage() {
   const params    = useParams();
+  const router    = useRouter();
   const token     = params.token as string;
 
   const [offer, setOffer]           = useState<OfferDetails | null>(null);
@@ -75,8 +76,7 @@ export default function OfferPage() {
         body:    JSON.stringify({ status: 'accepted' }),
       });
       if (!res.ok) throw new Error('Failed to accept offer');
-      setOffer(prev => prev ? { ...prev, status: 'accepted' } : null);
-      setShowSign(false);
+      router.push('/candidate/applications');
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
