@@ -40,7 +40,8 @@ model Employer {
   mattermostChannels       MattermostChannel[]
   notificationLogs         NotificationLog[]  // Generic notification logs for this employer
   notificationPreferences  EmployerNotificationPreference?
-  
+  employmentRecords        EmploymentRecord[]
+
   createdAt                DateTime           @default(now())
   updatedAt                DateTime           @updatedAt
 }
@@ -87,6 +88,7 @@ model Candidate {
   professionalQualifications String?
   hobbies                    String?
   mattermostUserId           String?
+  paystackRecipientCode      String?   // for salary disbursement via Paystack Transfer
 
   // Relations
   workHistory                WorkHistory[]
@@ -101,6 +103,8 @@ model Candidate {
   notificationLogs           NotificationLog[]
   notificationPreferences    CandidateNotificationPreference?
   pushSubscriptions          PushSubscription[]
+  employmentRecords          EmploymentRecord[]
+  payslips                   Payslip[]
 
   createdAt                  DateTime  @default(now())
   updatedAt                  DateTime  @updatedAt
@@ -306,6 +310,14 @@ model Offer {
   token         String      @unique
   expiresAt     DateTime
 
+  // EOR fields — set when employer requests payroll onboarding at hire
+  eorRequested  Boolean     @default(false)
+  eorStatus     String?     // "pending" | "active" | "terminated"
+  eorContractId String?     // Frappe HR employee name e.g. "HR-EMP-00001"
+
+  // Relations
+  employmentRecord EmploymentRecord?
+
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }
@@ -406,6 +418,82 @@ model NotificationLog {
   updatedAt     DateTime           @updatedAt
 }
 
+// ─── EOR / Payroll Models ─────────────────────────────────────────────────────
+
+model EmploymentRecord {
+  id                  String    @id @default(uuid())
+
+  // Links
+  offerId             String    @unique
+  offer               Offer     @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  employerId          String
+  employer            Employer  @relation(fields: [employerId], references: [id], onDelete: Cascade)
+  candidateId         String
+  candidate           Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  // Frappe HR
+  frappeEmployeeName  String?   // e.g. "HR-EMP-00001" — assigned by Frappe on creation
+  frappeCompany       String?
+
+  // Employment details
+  country             String    // ISO2 country code e.g. NG, KE
+  grossSalary         Float
+  currency            String
+  payrollCycle        String    @default("monthly")  // "monthly" | "biweekly"
+  startDate           DateTime
+  endDate             DateTime?
+
+  // Status
+  status              EorStatus @default(PENDING)
+
+  // Paystack disbursement
+  lastDisbursementAt  DateTime?
+  lastDisbursementRef String?
+
+  payslips            Payslip[]
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model Payslip {
+  id                  String           @id @default(uuid())
+  employmentRecordId  String
+  employmentRecord    EmploymentRecord @relation(fields: [employmentRecordId], references: [id], onDelete: Cascade)
+  candidateId         String
+  candidate           Candidate        @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  // Frappe reference
+  frappeSlipName      String?   // e.g. "Salary Slip/00001"
+
+  // Pay period
+  periodMonth         Int       // 1-12
+  periodYear          Int
+
+  // Amounts
+  grossPay            Float
+  totalDeductions     Float
+  netPay              Float
+  currency            String
+
+  // Breakdown stored as JSON array: [{ salary_component, amount }]
+  components          Json?
+
+  // PDF stored in S3
+  pdfUrl              String?
+
+  // Paystack transfer
+  transferCode        String?   // Paystack transfer_code
+  disbursedAt         DateTime?
+
+  status              PayslipStatus @default(GENERATED)
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@unique([employmentRecordId, periodMonth, periodYear])
+}
+
 // Enums definition
 enum SubscriptionStatus {
   TRIAL
@@ -493,6 +581,19 @@ enum NotificationStatus {
   SENT
   DELIVERED
   FAILED
+}
+
+enum EorStatus {
+  PENDING       // offer accepted, EOR onboarding not yet started
+  ONBOARDING    // Frappe employee record created, salary structure assigned
+  ACTIVE        // first payroll run completed
+  TERMINATED    // employment ended
+}
+
+enum PayslipStatus {
+  GENERATED     // salary slip created in Frappe
+  DISBURSED     // salary transferred via Paystack
+  FAILED        // disbursement failed
 }
 
 model Admin {
