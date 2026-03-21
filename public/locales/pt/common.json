@@ -18,7 +18,8 @@
     "payslips": "Holerites",
     "employment": "Emprego",
     "records": "Registros",
-    "payroll_calc": "Folha"
+    "payroll_calc": "Folha",
+    "programmes": "Programas"
   },
   "common": {
     "select": "Selecionar",
@@ -722,16 +723,41 @@
     "section2": {
       "title": "2. Informações que Coletamos",
       "candidates_title": "Para Candidatos:",
-      "candidates": ["Informações pessoais (nome, email, número de telefone, localização)", "Informações profissionais (habilidades, experiência profissional, educação)", "Resultados e pontuações de testes de aptidão", "Referências e informações de contato", "Foto de perfil (opcional)"],
+      "candidates": [
+        "Informações pessoais (nome, email, número de telefone, localização)",
+        "Informações profissionais (habilidades, experiência profissional, educação)",
+        "Resultados e pontuações de testes de aptidão",
+        "Referências e informações de contato",
+        "Foto de perfil (opcional)"
+      ],
       "employers_title": "Para Empregadores:",
-      "employers": ["Informações da empresa (nome, setor, tamanho)", "Detalhes da pessoa de contato", "Informações de pagamento (processadas com segurança através do Paystack)", "Atividade de busca e contratação"],
+      "employers": [
+        "Informações da empresa (nome, setor, tamanho)",
+        "Detalhes da pessoa de contato",
+        "Informações de pagamento (processadas com segurança através do Paystack)",
+        "Atividade de busca e contratação"
+      ],
       "auto_title": "Coletadas Automaticamente:",
-      "auto": ["Endereço IP e informações do dispositivo", "Tipo e versão do navegador", "Dados de uso e análises", "Cookies e tecnologias de rastreamento similares"]
+      "auto": [
+        "Endereço IP e informações do dispositivo",
+        "Tipo e versão do navegador",
+        "Dados de uso e análises",
+        "Cookies e tecnologias de rastreamento similares"
+      ]
     },
     "section3": {
       "title": "3. Como Usamos Suas Informações",
       "intro": "Usamos as informações coletadas para:",
-      "items": ["Fornecer e manter nossos serviços", "Combinar candidatos com empregadores", "Processar pagamentos e assinaturas", "Enviar notificações e atualizações", "Melhorar nossa plataforma e experiência do usuário", "Prevenir fraudes e garantir segurança", "Cumprir obrigações legais", "Análises e monitoramento de desempenho"]
+      "items": [
+        "Fornecer e manter nossos serviços",
+        "Combinar candidatos com empregadores",
+        "Processar pagamentos e assinaturas",
+        "Enviar notificações e atualizações",
+        "Melhorar nossa plataforma e experiência do usuário",
+        "Prevenir fraudes e garantir segurança",
+        "Cumprir obrigações legais",
+        "Análises e monitoramento de desempenho"
+      ]
     },
     "section4": {
       "title": "4. Compartilhamento de Informações",
@@ -749,12 +775,25 @@
     "section5": {
       "title": "5. Segurança de Dados",
       "intro": "Implementamos medidas de segurança apropriadas para proteger suas informações:",
-      "items": ["Criptografia de dados em trânsito e em repouso", "Autenticação segura com NextAuth.js", "Auditorias e atualizações de segurança regulares", "Controles de acesso e monitoramento", "Processamento seguro de pagamentos através do Paystack"]
+      "items": [
+        "Criptografia de dados em trânsito e em repouso",
+        "Autenticação segura com NextAuth.js",
+        "Auditorias e atualizações de segurança regulares",
+        "Controles de acesso e monitoramento",
+        "Processamento seguro de pagamentos através do Paystack"
+      ]
     },
     "section6": {
       "title": "6. Seus Direitos",
       "intro": "Sob o Regulamento Nigeriano de Proteção de Dados (NDPR) e outras leis aplicáveis, você tem o direito de:",
-      "items": ["Acessar seus dados pessoais", "Corrigir informações imprecisas", "Solicitar exclusão de seus dados", "Objetar ao processamento de seus dados", "Portabilidade de dados", "Retirar consentimento a qualquer momento"]
+      "items": [
+        "Acessar seus dados pessoais",
+        "Corrigir informações imprecisas",
+        "Solicitar exclusão de seus dados",
+        "Objetar ao processamento de seus dados",
+        "Portabilidade de dados",
+        "Retirar consentimento a qualquer momento"
+      ]
     },
     "section7": {
       "title": "7. Retenção de Dados",

@@ -18,7 +18,8 @@
     "payslips": "Payslips",
     "employment": "Employment",
     "records": "Records",
-    "payroll_calc": "Payroll"
+    "payroll_calc": "Payroll",
+    "programmes": "Programmes"
   },
   "common": {
     "select": "Select",
@@ -708,16 +709,41 @@
     "section2": {
       "title": "2. Information We Collect",
       "candidates_title": "For Candidates:",
-      "candidates": ["Personal information (name, email, phone number, location)", "Professional information (skills, work experience, education)", "Aptitude test results and scores", "References and contact information", "Profile photo (optional)"],
+      "candidates": [
+        "Personal information (name, email, phone number, location)",
+        "Professional information (skills, work experience, education)",
+        "Aptitude test results and scores",
+        "References and contact information",
+        "Profile photo (optional)"
+      ],
       "employers_title": "For Employers:",
-      "employers": ["Company information (name, industry, size)", "Contact person details", "Payment information (processed securely through Paystack)", "Search and hiring activity"],
+      "employers": [
+        "Company information (name, industry, size)",
+        "Contact person details",
+        "Payment information (processed securely through Paystack)",
+        "Search and hiring activity"
+      ],
       "auto_title": "Automatically Collected:",
-      "auto": ["IP address and device information", "Browser type and version", "Usage data and analytics", "Cookies and similar tracking technologies"]
+      "auto": [
+        "IP address and device information",
+        "Browser type and version",
+        "Usage data and analytics",
+        "Cookies and similar tracking technologies"
+      ]
     },
     "section3": {
       "title": "3. How We Use Your Information",
       "intro": "We use the collected information for:",
-      "items": ["Providing and maintaining our services", "Matching candidates with employers", "Processing payments and subscriptions", "Sending notifications and updates", "Improving our platform and user experience", "Preventing fraud and ensuring security", "Complying with legal obligations", "Analytics and performance monitoring"]
+      "items": [
+        "Providing and maintaining our services",
+        "Matching candidates with employers",
+        "Processing payments and subscriptions",
+        "Sending notifications and updates",
+        "Improving our platform and user experience",
+        "Preventing fraud and ensuring security",
+        "Complying with legal obligations",
+        "Analytics and performance monitoring"
+      ]
     },
     "section4": {
       "title": "4. Information Sharing",
@@ -735,12 +761,25 @@
     "section5": {
       "title": "5. Data Security",
       "intro": "We implement appropriate security measures to protect your information:",
-      "items": ["Encryption of data in transit and at rest", "Secure authentication with NextAuth.js", "Regular security audits and updates", "Access controls and monitoring", "Secure payment processing through Paystack"]
+      "items": [
+        "Encryption of data in transit and at rest",
+        "Secure authentication with NextAuth.js",
+        "Regular security audits and updates",
+        "Access controls and monitoring",
+        "Secure payment processing through Paystack"
+      ]
     },
     "section6": {
       "title": "6. Your Rights",
       "intro": "Under Nigerian Data Protection Regulation (NDPR) and other applicable laws, you have the right to:",
-      "items": ["Access your personal data", "Correct inaccurate information", "Request deletion of your data", "Object to processing of your data", "Data portability", "Withdraw consent at any time"]
+      "items": [
+        "Access your personal data",
+        "Correct inaccurate information",
+        "Request deletion of your data",
+        "Object to processing of your data",
+        "Data portability",
+        "Withdraw consent at any time"
+      ]
     },
     "section7": {
       "title": "7. Data Retention",

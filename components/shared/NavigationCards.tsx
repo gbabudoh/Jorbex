@@ -205,6 +205,17 @@ const employerItems: NavItem[] = [
     ),
     color: 'from-violet-600 to-purple-700',
     hoverColor: 'shadow-violet-600/20'
+  },
+  {
+    key: 'nav.programmes',
+    href: '/employer/programmes',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    ),
+    color: 'from-rose-500 to-pink-600',
+    hoverColor: 'shadow-rose-500/20'
   }
 ];
 
@@ -219,7 +230,7 @@ export const NavigationCards: React.FC = () => {
   return (
     <div className={`grid gap-2 p-2 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-slate-800/20 shadow-xl
       ${userType === 'employer'
-        ? 'grid-cols-3 md:grid-cols-9'
+        ? 'grid-cols-3 md:grid-cols-10'
         : 'grid-cols-2 md:grid-cols-8'}`}>
       {items.map((item, index) => {
         const isActive = pathname === item.href;

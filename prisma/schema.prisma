@@ -30,6 +30,7 @@ model Employer {
   
   // Relations
   jobs                     Job[]
+  programmes               Programme[]
   applications             Application[]
   interviews               Interview[]
   offers                   Offer[]
@@ -105,6 +106,7 @@ model Candidate {
   pushSubscriptions          PushSubscription[]
   employmentRecords          EmploymentRecord[]
   payslips                   Payslip[]
+  programmeEnrolments        ProgrammeMember[]
 
   createdAt                  DateTime  @default(now())
   updatedAt                  DateTime  @updatedAt
@@ -181,6 +183,7 @@ model Job {
   interviews          Interview[]
   offers              Offer[]
   mattermostChannels  MattermostChannel[]
+  programmeJobs       ProgrammeJob[]
   
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -630,6 +633,107 @@ enum PayslipStatus {
   GENERATED     // salary slip created in Frappe
   DISBURSED     // salary transferred via Paystack
   FAILED        // disbursement failed
+}
+
+// ─── Programmes ───────────────────────────────────────────────────────────────
+
+model Programme {
+  id              String                @id @default(uuid())
+  slug            String                @unique   // URL slug e.g. "nysc-2026"
+  name            String
+  description     String?               @db.Text
+  type            ProgrammeType
+
+  // Institution managing this programme (registered as an Employer)
+  ownerId         String
+  owner           Employer              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Programme details
+  country         String?
+  city            String?
+  startDate       DateTime?
+  endDate         DateTime?
+  maxParticipants Int?
+
+  // Access control
+  inviteOnly      Boolean               @default(true)
+  allowedDomains  String[]              // e.g. ["unilag.edu.ng"] restricts by email domain
+
+  // Branding
+  logoUrl         String?
+  bannerUrl       String?
+  primaryColour   String                @default("#10b981")
+  welcomeMessage  String?               @db.Text
+
+  // Billing
+  billingModel    String                @default("FLAT")   // "FLAT" | "PER_SEAT" | "PER_PLACEMENT"
+  billingAmount   Float?
+  billingCurrency String                @default("NGN")
+
+  status          ProgrammeStatus       @default(DRAFT)
+
+  // Relations
+  members         ProgrammeMember[]
+  inviteCodes     ProgrammeInviteCode[]
+  programmeJobs   ProgrammeJob[]
+
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+}
+
+model ProgrammeMember {
+  id          String                @id @default(uuid())
+  programmeId String
+  programme   Programme             @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+  candidateId String
+  candidate   Candidate             @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  status      ProgrammeMemberStatus @default(ACTIVE)
+  enrolledAt  DateTime              @default(now())
+  completedAt DateTime?
+
+  @@unique([programmeId, candidateId])
+}
+
+model ProgrammeInviteCode {
+  id          String    @id @default(uuid())
+  programmeId String
+  programme   Programme @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+  code        String    @unique
+  maxUses     Int?      // null = unlimited
+  usedCount   Int       @default(0)
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model ProgrammeJob {
+  id          String    @id @default(uuid())
+  programmeId String
+  programme   Programme @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+  jobId       String
+  job         Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  addedAt     DateTime  @default(now())
+
+  @@unique([programmeId, jobId])
+}
+
+enum ProgrammeType {
+  GOVERNMENT
+  UNIVERSITY
+  CORPORATE
+}
+
+enum ProgrammeStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  SUSPENDED
+}
+
+enum ProgrammeMemberStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  REMOVED
 }
 
 model Admin {

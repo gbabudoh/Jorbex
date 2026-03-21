@@ -18,7 +18,8 @@
     "payslips": "Fiches de paie",
     "employment": "Emploi",
     "records": "Dossiers",
-    "payroll_calc": "Paie"
+    "payroll_calc": "Paie",
+    "programmes": "Programmes"
   },
   "common": {
     "select": "Sélectionner",
@@ -708,16 +709,41 @@
     "section2": {
       "title": "2. Informations que Nous Collectons",
       "candidates_title": "Pour les Candidats:",
-      "candidates": ["Informations personnelles (nom, email, numéro de téléphone, localisation)", "Informations professionnelles (compétences, expérience professionnelle, éducation)", "Résultats et scores des tests d'aptitude", "Références et informations de contact", "Photo de profil (optionnel)"],
+      "candidates": [
+        "Informations personnelles (nom, email, numéro de téléphone, localisation)",
+        "Informations professionnelles (compétences, expérience professionnelle, éducation)",
+        "Résultats et scores des tests d'aptitude",
+        "Références et informations de contact",
+        "Photo de profil (optionnel)"
+      ],
       "employers_title": "Pour les Employeurs:",
-      "employers": ["Informations sur l'entreprise (nom, secteur, taille)", "Détails de la personne de contact", "Informations de paiement (traitées en toute sécurité via Paystack)", "Activité de recherche et d'embauche"],
+      "employers": [
+        "Informations sur l'entreprise (nom, secteur, taille)",
+        "Détails de la personne de contact",
+        "Informations de paiement (traitées en toute sécurité via Paystack)",
+        "Activité de recherche et d'embauche"
+      ],
       "auto_title": "Collectées Automatiquement:",
-      "auto": ["Adresse IP et informations sur l'appareil", "Type et version du navigateur", "Données d'utilisation et analyses", "Cookies et technologies de suivi similaires"]
+      "auto": [
+        "Adresse IP et informations sur l'appareil",
+        "Type et version du navigateur",
+        "Données d'utilisation et analyses",
+        "Cookies et technologies de suivi similaires"
+      ]
     },
     "section3": {
       "title": "3. Comment Nous Utilisons Vos Informations",
       "intro": "Nous utilisons les informations collectées pour:",
-      "items": ["Fournir et maintenir nos services", "Faire correspondre les candidats avec les employeurs", "Traiter les paiements et les abonnements", "Envoyer des notifications et des mises à jour", "Améliorer notre plateforme et l'expérience utilisateur", "Prévenir la fraude et assurer la sécurité", "Respecter les obligations légales", "Analyses et surveillance des performances"]
+      "items": [
+        "Fournir et maintenir nos services",
+        "Faire correspondre les candidats avec les employeurs",
+        "Traiter les paiements et les abonnements",
+        "Envoyer des notifications et des mises à jour",
+        "Améliorer notre plateforme et l'expérience utilisateur",
+        "Prévenir la fraude et assurer la sécurité",
+        "Respecter les obligations légales",
+        "Analyses et surveillance des performances"
+      ]
     },
     "section4": {
       "title": "4. Partage d'Informations",
@@ -735,12 +761,25 @@
     "section5": {
       "title": "5. Sécurité des Données",
       "intro": "Nous mettons en œuvre des mesures de sécurité appropriées pour protéger vos informations:",
-      "items": ["Chiffrement des données en transit et au repos", "Authentification sécurisée avec NextAuth.js", "Audits et mises à jour de sécurité réguliers", "Contrôles d'accès et surveillance", "Traitement sécurisé des paiements via Paystack"]
+      "items": [
+        "Chiffrement des données en transit et au repos",
+        "Authentification sécurisée avec NextAuth.js",
+        "Audits et mises à jour de sécurité réguliers",
+        "Contrôles d'accès et surveillance",
+        "Traitement sécurisé des paiements via Paystack"
+      ]
     },
     "section6": {
       "title": "6. Vos Droits",
       "intro": "En vertu du Règlement Nigérian sur la Protection des Données (NDPR) et d'autres lois applicables, vous avez le droit de:",
-      "items": ["Accéder à vos données personnelles", "Corriger les informations inexactes", "Demander la suppression de vos données", "Vous opposer au traitement de vos données", "Portabilité des données", "Retirer votre consentement à tout moment"]
+      "items": [
+        "Accéder à vos données personnelles",
+        "Corriger les informations inexactes",
+        "Demander la suppression de vos données",
+        "Vous opposer au traitement de vos données",
+        "Portabilité des données",
+        "Retirer votre consentement à tout moment"
+      ]
     },
     "section7": {
       "title": "7. Conservation des Données",
