@@ -33,6 +33,7 @@ export default function OfferPage() {
   const [showSign, setShowSign]     = useState(false);
   const [signedName, setSignedName] = useState('');
   const [agreed, setAgreed]         = useState(false);
+  const [signed, setSigned]         = useState(false);
 
   useEffect(() => { fetchOffer(); }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -76,7 +77,8 @@ export default function OfferPage() {
         body:    JSON.stringify({ status: 'accepted' }),
       });
       if (!res.ok) throw new Error('Failed to accept offer');
-      router.push('/candidate/applications');
+      setSigned(true);
+      setTimeout(() => router.push('/candidate/applications'), 3000);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
@@ -107,6 +109,26 @@ export default function OfferPage() {
   );
   if (error)  return <div className="text-center p-20 text-red-500 font-bold">{error}</div>;
   if (!offer) return null;
+
+  if (signed) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+      <div className="text-center space-y-4">
+        <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mx-auto">
+          <svg className="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-black text-gray-900 dark:text-white">Offer Accepted!</h2>
+        <p className="text-gray-500 dark:text-gray-400">
+          Congratulations! Your signed offer has been saved.<br />Redirecting you to your dashboard...
+        </p>
+        <div className="h-1 w-48 mx-auto bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-full bg-emerald-500 rounded-full animate-[grow_3s_linear_forwards]" />
+        </div>
+      </div>
+      <style>{`@keyframes grow { from { width: 0% } to { width: 100% } }`}</style>
+    </div>
+  );
 
   const isPending = offer.status === 'pending';
 
