@@ -150,7 +150,7 @@ export default function OfferPage() {
             {isPending && !showSign && (
               <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100 dark:border-gray-800">
                 <Button
-                  className="flex-1 bg-[#0066FF] hover:bg-[#0052CC] h-12 text-base font-bold"
+                  className="flex-1 bg-[#0066FF] hover:bg-[#0052CC] h-12 text-base font-bold cursor-pointer"
                   onClick={handleAccept}
                   isLoading={processing}
                 >
@@ -158,7 +158,7 @@ export default function OfferPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex-1 h-12 text-base border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400"
+                  className="flex-1 h-12 text-base border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 cursor-pointer"
                   onClick={handleDecline}
                   isLoading={processing}
                 >
@@ -223,7 +223,7 @@ export default function OfferPage() {
                 {/* Confirm/Cancel buttons */}
                 <div className="flex gap-3">
                   <Button
-                    className="flex-1 bg-[#0066FF] hover:bg-[#0052CC] h-12 font-bold"
+                    className="flex-1 bg-[#0066FF] hover:bg-[#0052CC] h-12 font-bold cursor-pointer"
                     onClick={handleConfirmSign}
                     isLoading={processing}
                     disabled={!signedName.trim() || !agreed}
@@ -232,7 +232,7 @@ export default function OfferPage() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-12 px-6"
+                    className="h-12 px-6 cursor-pointer"
                     onClick={() => setShowSign(false)}
                     disabled={processing}
                   >
@@ -257,7 +257,7 @@ export default function OfferPage() {
                 <Link
                   href={`/offer/${token}/contract`}
                   target="_blank"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:underline"
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:underline cursor-pointer"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
