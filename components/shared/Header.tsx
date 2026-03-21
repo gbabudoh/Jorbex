@@ -115,6 +115,17 @@ export const Header: React.FC = () => {
               {!session && (
                 <NavLink href="/#how-it-works" pathname={pathname}>{t('nav.how_it_works')}</NavLink>
               )}
+              <NavLink
+                href="/programmes"
+                pathname={pathname}
+                icon={
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                }
+              >
+                {t('nav.programmes')}
+              </NavLink>
               
               {session?.user?.userType === 'employer' ? (
                 <div className="flex items-center space-x-2 px-4 py-1.5 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/20">
@@ -255,6 +266,7 @@ export const Header: React.FC = () => {
 
                   {[
                     ...(!session ? [{ href: '/#how-it-works', label: t('nav.how_it_works') }] : []),
+                    { href: '/programmes', label: t('nav.programmes'), icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
                     ...(session?.user?.userType === 'employer' ? [
                       { href: '/employer/profile', label: t('employer_profile.title'), icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
                       { href: '/employer/search', label: t('nav.dashboard'), icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
