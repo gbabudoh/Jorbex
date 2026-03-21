@@ -38,13 +38,9 @@ export async function POST(request: Request) {
       const subscriptionId   = typeof session.subscription === 'string' ? session.subscription : null;
       const stripeCustomerId = typeof session.customer      === 'string' ? session.customer      : null;
 
-      // Derive access end from the live subscription object
-      let subscriptionEndDate = new Date();
+      // Compute access end from billing period (current_period_end removed in API 2026+)
+      const subscriptionEndDate = new Date();
       subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + (billingPeriod === 'yearly' ? 12 : 1));
-      if (subscriptionId) {
-        const sub = await stripe.subscriptions.retrieve(subscriptionId);
-        subscriptionEndDate = new Date(sub.current_period_end * 1000);
-      }
 
       await prisma.employer.update({
         where: { id: employerId },
@@ -82,8 +78,11 @@ export async function POST(request: Request) {
       `;
       if (!employers[0]) return NextResponse.json({ received: true });
 
+      // Derive billing period from subscription metadata, then compute end date
       const sub = await stripe.subscriptions.retrieve(subscriptionId);
-      const subscriptionEndDate = new Date(sub.current_period_end * 1000);
+      const bp  = (sub.metadata?.billingPeriod ?? 'monthly') as 'monthly' | 'yearly';
+      const subscriptionEndDate = new Date();
+      subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + (bp === 'yearly' ? 12 : 1));
 
       await prisma.employer.update({
         where: { id: employers[0].id },
