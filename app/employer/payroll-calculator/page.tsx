@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { useLanguage } from '@/lib/LanguageContext';
 
@@ -300,6 +300,20 @@ export default function PayrollCalculatorPage() {
   const [country, setCountry]       = useState<Country>('NG');
   const [grossInput, setGrossInput] = useState('');
   const [result, setResult]         = useState<PayrollResult | null>(null);
+  const [usdRates, setUsdRates]     = useState<Record<string, number> | null>(null);
+
+  useEffect(() => {
+    fetch('https://open.er-api.com/v6/latest/USD')
+      .then(r => r.json())
+      .then(d => { if (d.rates) setUsdRates(d.rates); })
+      .catch(() => {}); // silently fail — USD display is best-effort
+  }, []);
+
+  const toUSD = (amount: number, currency: string): string | null => {
+    if (!usdRates || !usdRates[currency]) return null;
+    const usd = amount / usdRates[currency];
+    return usd < 1 ? null : `≈ $${usd.toLocaleString('en-US', { maximumFractionDigits: 0 })} USD`;
+  };
 
   const meta = COUNTRY_META[country];
 
@@ -398,6 +412,9 @@ export default function PayrollCalculatorPage() {
               <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 p-4 text-center">
                 <div className="text-xs font-bold text-emerald-600 uppercase tracking-wide mb-1">{t('payroll_calculator.net_pay')}</div>
                 <div className="text-xl font-black text-emerald-600">{result.currency} {fmt(result.netSalary)}</div>
+                {toUSD(result.netSalary, result.currency) && (
+                  <div className="text-xs text-emerald-500/70 font-semibold mt-0.5">{toUSD(result.netSalary, result.currency)}</div>
+                )}
               </div>
             </div>
 
@@ -442,9 +459,14 @@ export default function PayrollCalculatorPage() {
                 </div>
 
                 {/* Net line */}
-                <div className="mt-6 pt-4 border-t-2 border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                <div className="mt-6 pt-4 border-t-2 border-gray-100 dark:border-gray-800 flex justify-between items-center gap-4">
                   <span className="font-black text-gray-900 dark:text-white text-lg">{t('payroll_calculator.net_pay')}</span>
-                  <span className="font-black text-emerald-600 text-2xl">{result.currency} {fmt(result.netSalary)}</span>
+                  <div className="text-right">
+                    <div className="font-black text-emerald-600 text-2xl">{result.currency} {fmt(result.netSalary)}</div>
+                    {toUSD(result.netSalary, result.currency) && (
+                      <div className="text-xs text-gray-400 font-semibold mt-0.5">{toUSD(result.netSalary, result.currency)}</div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Print button */}
