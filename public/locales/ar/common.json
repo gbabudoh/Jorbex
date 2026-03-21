@@ -492,6 +492,24 @@
     "submit": "إرسال الاختبار",
     "submitting": "جاري الإرسال..."
   },
+  "payroll_calculator": {
+    "title": "حاسبة",
+    "title_highlight": "الرواتب",
+    "subtitle": "احسب صافي الراتب وضريبة PAYE والاستقطاعات القانونية فوراً.",
+    "country_label": "الدولة",
+    "salary_label": "الراتب الإجمالي الشهري",
+    "calculate_btn": "احسب",
+    "note_ng": "استناداً إلى شرائح PAYE نيجيريا 2026، PENCOM (8%)، NHF (2.5%)، NSITF (1%). مع تطبيق CRA.",
+    "note_ke": "استناداً إلى شرائح KRA PAYE كينيا 2026، SHIF (2.75%)، NSSF الدرجتان I & II، رسوم الإسكان (1.5%).",
+    "gross": "الإجمالي",
+    "deductions": "الاستقطاعات",
+    "net_pay": "صافي الراتب",
+    "earnings": "الأرباح",
+    "total_earnings": "إجمالي الأرباح",
+    "total_deductions": "إجمالي الاستقطاعات",
+    "print": "طباعة / حفظ كـ PDF",
+    "disclaimer": "هذا تقدير فقط. استشر محاسباً مؤهلاً لكشوف الرواتب الرسمية."
+  },
   "candidate_profile": {
     "title": "ملفي الشخصي",
     "subtitle": "إدارة معلوماتك المهنية",

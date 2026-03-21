@@ -492,6 +492,24 @@
     "submit": "Soumettre le Test",
     "submitting": "Soumission..."
   },
+  "payroll_calculator": {
+    "title": "Calcul de",
+    "title_highlight": "Paie",
+    "subtitle": "Calculez le salaire net, l'impôt PAYE et les retenues légales instantanément.",
+    "country_label": "Pays",
+    "salary_label": "Salaire Brut Mensuel",
+    "calculate_btn": "Calculer",
+    "note_ng": "Basé sur les tranches PAYE Nigeria 2026, PENCOM (8%), NHF (2,5%), NSITF (1%). CRA appliqué.",
+    "note_ke": "Basé sur les tranches KRA PAYE Kenya 2026, SHIF (2,75%), NSSF Niveaux I & II, Prélèvement Logement (1,5%).",
+    "gross": "Brut",
+    "deductions": "Déductions",
+    "net_pay": "Salaire Net",
+    "earnings": "Revenus",
+    "total_earnings": "Total Revenus",
+    "total_deductions": "Total Déductions",
+    "print": "Imprimer / Enregistrer en PDF",
+    "disclaimer": "Estimation uniquement. Consultez un comptable qualifié pour les déclarations officielles."
+  },
   "candidate_profile": {
     "title": "Mon Profil",
     "subtitle": "Gérez vos informations professionnelles",

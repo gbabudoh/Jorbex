@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
+import { useLanguage } from '@/lib/LanguageContext';
 
 type Country = 'NG' | 'KE';
 
@@ -61,7 +62,7 @@ function calculateNigeria(grossSalary: number): PayrollResult {
   const basic     = grossSalary * 0.70;
   const housing   = grossSalary * 0.15;
   const transport = grossSalary * 0.15;
-  const pensionable = basic + housing + transport; // = gross in this model
+  const pensionable = basic + housing + transport;
   const pencom    = pensionable * 0.08;
   const nhf       = basic * 0.025;
   const nsitf     = grossSalary * 0.01;
@@ -117,6 +118,7 @@ function calculateKenya(grossSalary: number): PayrollResult {
 }
 
 export default function PayrollCalculatorPage() {
+  const { t } = useLanguage();
   const [country, setCountry]         = useState<Country>('NG');
   const [grossInput, setGrossInput]   = useState('');
   const [result, setResult]           = useState<PayrollResult | null>(null);
@@ -139,10 +141,10 @@ export default function PayrollCalculatorPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-            Payroll <span className="text-[#0066FF]">Calculator</span>
+            {t('payroll_calculator.title')} <span className="text-[#0066FF]">{t('payroll_calculator.title_highlight')}</span>
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2 text-base font-medium">
-            Calculate net salary, PAYE tax, and statutory deductions instantly.
+            {t('payroll_calculator.subtitle')}
           </p>
         </div>
 
@@ -152,13 +154,15 @@ export default function PayrollCalculatorPage() {
 
             {/* Country selector */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Country</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                {t('payroll_calculator.country_label')}
+              </label>
               <div className="grid grid-cols-2 gap-3">
                 {(['NG', 'KE'] as Country[]).map(c => (
                   <button
                     key={c}
                     onClick={() => { setCountry(c); setResult(null); }}
-                    className={`h-12 rounded-xl font-bold text-sm border-2 transition-all ${
+                    className={`h-12 rounded-xl font-bold text-sm border-2 transition-all cursor-pointer ${
                       country === c
                         ? 'bg-[#0066FF] border-[#0066FF] text-white'
                         : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-[#0066FF]'
@@ -173,7 +177,7 @@ export default function PayrollCalculatorPage() {
             {/* Salary input */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Gross Monthly Salary ({currencyLabel})
+                {t('payroll_calculator.salary_label')} ({currencyLabel})
               </label>
               <div className="flex gap-3">
                 <input
@@ -186,17 +190,17 @@ export default function PayrollCalculatorPage() {
                 />
                 <button
                   onClick={calculate}
-                  className="h-12 px-6 bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold rounded-xl transition-colors"
+                  className="h-12 px-6 bg-[#0066FF] hover:bg-[#0052CC] text-white font-bold rounded-xl transition-colors cursor-pointer"
                 >
-                  Calculate
+                  {t('payroll_calculator.calculate_btn')}
                 </button>
               </div>
             </div>
 
             <p className="text-xs text-gray-400">
               {country === 'NG'
-                ? 'Based on Nigeria PAYE 2026 bands, PENCOM (8%), NHF (2.5%), NSITF (1%). CRA applied.'
-                : 'Based on Kenya KRA PAYE 2026 bands, SHIF (2.75%), NSSF Tier I & II, Housing Levy (1.5%).'}
+                ? t('payroll_calculator.note_ng')
+                : t('payroll_calculator.note_ke')}
             </p>
           </CardContent>
         </Card>
@@ -208,15 +212,15 @@ export default function PayrollCalculatorPage() {
             {/* Summary */}
             <div className="grid grid-cols-3 gap-4">
               <div className="rounded-2xl bg-[#0066FF]/10 dark:bg-[#0066FF]/10 p-4 text-center">
-                <div className="text-xs font-bold text-[#0066FF] uppercase tracking-wide mb-1">Gross</div>
+                <div className="text-xs font-bold text-[#0066FF] uppercase tracking-wide mb-1">{t('payroll_calculator.gross')}</div>
                 <div className="text-xl font-black text-[#0066FF]">{result.currency} {fmt(result.grossSalary)}</div>
               </div>
               <div className="rounded-2xl bg-red-50 dark:bg-red-950/30 p-4 text-center">
-                <div className="text-xs font-bold text-red-500 uppercase tracking-wide mb-1">Deductions</div>
+                <div className="text-xs font-bold text-red-500 uppercase tracking-wide mb-1">{t('payroll_calculator.deductions')}</div>
                 <div className="text-xl font-black text-red-500">− {result.currency} {fmt(result.totalDeductions)}</div>
               </div>
               <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 p-4 text-center">
-                <div className="text-xs font-bold text-emerald-600 uppercase tracking-wide mb-1">Net Pay</div>
+                <div className="text-xs font-bold text-emerald-600 uppercase tracking-wide mb-1">{t('payroll_calculator.net_pay')}</div>
                 <div className="text-xl font-black text-emerald-600">{result.currency} {fmt(result.netSalary)}</div>
               </div>
             </div>
@@ -228,7 +232,7 @@ export default function PayrollCalculatorPage() {
 
                   {/* Earnings */}
                   <div>
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Earnings</div>
+                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">{t('payroll_calculator.earnings')}</div>
                     <div className="space-y-2">
                       {result.earnings.map(e => (
                         <div key={e.label} className="flex justify-between text-sm">
@@ -237,7 +241,7 @@ export default function PayrollCalculatorPage() {
                         </div>
                       ))}
                       <div className="flex justify-between text-sm font-bold border-t border-gray-100 dark:border-gray-800 pt-2 mt-2">
-                        <span>Total Earnings</span>
+                        <span>{t('payroll_calculator.total_earnings')}</span>
                         <span className="text-[#0066FF]">{result.currency} {fmt(result.grossSalary)}</span>
                       </div>
                     </div>
@@ -245,7 +249,7 @@ export default function PayrollCalculatorPage() {
 
                   {/* Deductions */}
                   <div>
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Deductions</div>
+                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">{t('payroll_calculator.deductions')}</div>
                     <div className="space-y-2">
                       {result.deductions.map(d => (
                         <div key={d.label} className="flex justify-between text-sm">
@@ -254,7 +258,7 @@ export default function PayrollCalculatorPage() {
                         </div>
                       ))}
                       <div className="flex justify-between text-sm font-bold border-t border-gray-100 dark:border-gray-800 pt-2 mt-2">
-                        <span>Total Deductions</span>
+                        <span>{t('payroll_calculator.total_deductions')}</span>
                         <span className="text-red-500">− {result.currency} {fmt(result.totalDeductions)}</span>
                       </div>
                     </div>
@@ -263,26 +267,26 @@ export default function PayrollCalculatorPage() {
 
                 {/* Net line */}
                 <div className="mt-6 pt-4 border-t-2 border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                  <span className="font-black text-gray-900 dark:text-white text-lg">Net Pay</span>
+                  <span className="font-black text-gray-900 dark:text-white text-lg">{t('payroll_calculator.net_pay')}</span>
                   <span className="font-black text-emerald-600 text-2xl">{result.currency} {fmt(result.netSalary)}</span>
                 </div>
 
                 {/* Print button */}
                 <button
                   onClick={() => window.print()}
-                  className="no-print mt-4 w-full h-11 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:border-[#0066FF] hover:text-[#0066FF] transition-colors flex items-center justify-center gap-2"
+                  className="no-print mt-4 w-full h-11 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:border-[#0066FF] hover:text-[#0066FF] transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                       d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                   </svg>
-                  Print / Save as PDF
+                  {t('payroll_calculator.print')}
                 </button>
               </CardContent>
             </Card>
 
             <p className="text-xs text-center text-gray-400">
-              This is an estimate only. Consult a qualified accountant for official payroll filings.
+              {t('payroll_calculator.disclaimer')}
             </p>
           </div>
         )}

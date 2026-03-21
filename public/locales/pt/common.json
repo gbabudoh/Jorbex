@@ -506,6 +506,24 @@
     "submit": "Enviar Teste",
     "submitting": "Enviando..."
   },
+  "payroll_calculator": {
+    "title": "Calculadora de",
+    "title_highlight": "Salário",
+    "subtitle": "Calcule o salário líquido, imposto PAYE e deduções legais instantaneamente.",
+    "country_label": "País",
+    "salary_label": "Salário Bruto Mensal",
+    "calculate_btn": "Calcular",
+    "note_ng": "Baseado nas faixas PAYE Nigéria 2026, PENCOM (8%), NHF (2,5%), NSITF (1%). CRA aplicado.",
+    "note_ke": "Baseado nas faixas KRA PAYE Quénia 2026, SHIF (2,75%), NSSF Nível I & II, Taxa de Habitação (1,5%).",
+    "gross": "Bruto",
+    "deductions": "Deduções",
+    "net_pay": "Salário Líquido",
+    "earnings": "Rendimentos",
+    "total_earnings": "Total Rendimentos",
+    "total_deductions": "Total Deduções",
+    "print": "Imprimir / Guardar como PDF",
+    "disclaimer": "Apenas uma estimativa. Consulte um contabilista para declarações oficiais."
+  },
   "candidate_profile": {
     "title": "Meu Perfil",
     "subtitle": "Gerencie suas informações profissionais",
