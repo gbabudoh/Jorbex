@@ -20,12 +20,14 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const status = url.searchParams.get('status');
     const jobId = url.searchParams.get('jobId');
+    const candidateId = url.searchParams.get('candidateId');
 
     const applications = await prisma.application.findMany({
       where: {
         employerId: employer.id,
         ...(status && { status: status.toUpperCase() as ApplicationStatus }),
         ...(jobId && { jobId }),
+        ...(candidateId && { candidateId }),
       },
       include: {
         candidate: { select: { name: true, email: true } },

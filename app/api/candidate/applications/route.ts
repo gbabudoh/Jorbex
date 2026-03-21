@@ -22,6 +22,7 @@ export async function GET() {
             employer: { select: { companyName: true } },
           },
         },
+        offer: { select: { token: true, status: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
