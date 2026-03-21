@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { useLanguage } from '@/lib/LanguageContext';
 
-type Country = 'NG' | 'KE' | 'ZA' | 'GH' | 'TZ' | 'UG' | 'RW';
+type Country = 'NG' | 'KE' | 'ZA' | 'GH' | 'TZ' | 'UG' | 'RW' | 'EG' | 'ET' | 'SN' | 'CI' | 'MA' | 'ZM';
 
 interface PayrollResult {
   grossSalary:     number;
@@ -22,7 +22,13 @@ const COUNTRY_META: Record<Country, { flag: string; name: string; currency: stri
   GH: { flag: '🇬🇭', name: 'Ghana',         currency: 'GHS', symbol: '₵',   placeholder: 'e.g. 5,000',    noteKey: 'note_gh' },
   TZ: { flag: '🇹🇿', name: 'Tanzania',      currency: 'TZS', symbol: 'TSh', placeholder: 'e.g. 1,000,000', noteKey: 'note_tz' },
   UG: { flag: '🇺🇬', name: 'Uganda',        currency: 'UGX', symbol: 'USh', placeholder: 'e.g. 2,000,000', noteKey: 'note_ug' },
-  RW: { flag: '🇷🇼', name: 'Rwanda',        currency: 'RWF', symbol: 'FRw', placeholder: 'e.g. 500,000',  noteKey: 'note_rw' },
+  RW: { flag: '🇷🇼', name: 'Rwanda',        currency: 'RWF', symbol: 'FRw', placeholder: 'e.g. 500,000',   noteKey: 'note_rw' },
+  EG: { flag: '🇪🇬', name: 'Egypt',         currency: 'EGP', symbol: 'E£',  placeholder: 'e.g. 15,000',    noteKey: 'note_eg' },
+  ET: { flag: '🇪🇹', name: 'Ethiopia',      currency: 'ETB', symbol: 'Br',  placeholder: 'e.g. 8,000',     noteKey: 'note_et' },
+  SN: { flag: '🇸🇳', name: 'Senegal',       currency: 'XOF', symbol: 'CFA', placeholder: 'e.g. 300,000',   noteKey: 'note_sn' },
+  CI: { flag: '🇨🇮', name: "Côte d'Ivoire", currency: 'XOF', symbol: 'CFA', placeholder: 'e.g. 300,000',   noteKey: 'note_ci' },
+  MA: { flag: '🇲🇦', name: 'Morocco',       currency: 'MAD', symbol: 'DH',  placeholder: 'e.g. 10,000',    noteKey: 'note_ma' },
+  ZM: { flag: '🇿🇲', name: 'Zambia',        currency: 'ZMW', symbol: 'ZK',  placeholder: 'e.g. 8,000',     noteKey: 'note_zm' },
 };
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -284,6 +290,211 @@ function calculateRwanda(gross: number): PayrollResult {
   };
 }
 
+// ─── Egypt PAYE 2026 (ETA) ────────────────────────────────────────────────────
+// Annual bands; personal exemption EGP 20,000/yr; Social Insurance 11% (capped EGP 9,400/mo)
+function calcEgyptPAYE(annualGross: number): number {
+  const taxable = Math.max(0, annualGross - 20_000);
+  return applyBands(taxable, [
+    { limit: 40_000,   rate: 0.00 },
+    { limit: 15_000,   rate: 0.10 },
+    { limit: 15_000,   rate: 0.15 },
+    { limit: 130_000,  rate: 0.20 },
+    { limit: 200_000,  rate: 0.225 },
+    { limit: Infinity, rate: 0.25 },
+  ]) / 12;
+}
+
+function calculateEgypt(gross: number): PayrollResult {
+  const basic = gross * 0.70, housing = gross * 0.15, transport = gross * 0.15;
+  const si    = Math.min(gross * 0.11, 9_400 * 0.11);
+  const paye  = calcEgyptPAYE(gross * 12);
+  const totalDed = si + paye;
+  return {
+    grossSalary: gross, currency: 'EGP',
+    earnings: [
+      { label: 'Basic Salary',        amount: Math.round(basic) },
+      { label: 'Housing Allowance',   amount: Math.round(housing) },
+      { label: 'Transport Allowance', amount: Math.round(transport) },
+    ],
+    deductions: [
+      { label: 'PAYE Tax',           amount: Math.round(paye) },
+      { label: 'Social Insurance',   amount: Math.round(si) },
+    ],
+    totalDeductions: Math.round(totalDed),
+    netSalary:       Math.round(gross - totalDed),
+  };
+}
+
+// ─── Ethiopia PAYE 2026 (ERCA) ────────────────────────────────────────────────
+// Monthly bands; pension 7% employee
+function calcEthiopiaPAYE(monthly: number): number {
+  return applyBands(monthly, [
+    { limit: 600,      rate: 0.00 },
+    { limit: 1_050,    rate: 0.10 },
+    { limit: 1_550,    rate: 0.15 },
+    { limit: 2_050,    rate: 0.20 },
+    { limit: 2_550,    rate: 0.25 },
+    { limit: 3_100,    rate: 0.30 },
+    { limit: Infinity, rate: 0.35 },
+  ]);
+}
+
+function calculateEthiopia(gross: number): PayrollResult {
+  const basic = gross * 0.75, transport = gross * 0.25;
+  const pension = gross * 0.07;
+  const paye    = calcEthiopiaPAYE(gross);
+  const totalDed = pension + paye;
+  return {
+    grossSalary: gross, currency: 'ETB',
+    earnings: [
+      { label: 'Basic Salary',        amount: Math.round(basic) },
+      { label: 'Transport Allowance', amount: Math.round(transport) },
+    ],
+    deductions: [
+      { label: 'PAYE Tax',      amount: Math.round(paye) },
+      { label: 'Pension (EES)', amount: Math.round(pension) },
+    ],
+    totalDeductions: Math.round(totalDed),
+    netSalary:       Math.round(gross - totalDed),
+  };
+}
+
+// ─── Senegal IRPP 2026 (DGID) ─────────────────────────────────────────────────
+// Annual bands; IPRES pension 5.6%; professional expenses deduction 20% of gross
+function calcSenegalIRPP(annualGross: number): number {
+  const taxable = Math.max(0, annualGross * 0.80); // 20% professional expenses
+  return applyBands(taxable, [
+    { limit: 630_000,    rate: 0.00 },
+    { limit: 870_000,    rate: 0.20 },
+    { limit: 2_500_000,  rate: 0.30 },
+    { limit: 4_000_000,  rate: 0.35 },
+    { limit: 5_500_000,  rate: 0.37 },
+    { limit: Infinity,   rate: 0.40 },
+  ]) / 12;
+}
+
+function calculateSenegal(gross: number): PayrollResult {
+  const basic = gross * 0.80, transport = gross * 0.20;
+  const ipres   = gross * 0.056;
+  const paye    = calcSenegalIRPP(gross * 12);
+  const totalDed = ipres + paye;
+  return {
+    grossSalary: gross, currency: 'XOF',
+    earnings: [
+      { label: 'Basic Salary',        amount: Math.round(basic) },
+      { label: 'Transport Allowance', amount: Math.round(transport) },
+    ],
+    deductions: [
+      { label: 'IRPP Tax',         amount: Math.round(paye) },
+      { label: 'IPRES Pension',    amount: Math.round(ipres) },
+    ],
+    totalDeductions: Math.round(totalDed),
+    netSalary:       Math.round(gross - totalDed),
+  };
+}
+
+// ─── Côte d'Ivoire IGR 2026 (DGI) ────────────────────────────────────────────
+// Monthly bands; CNPS pension 6.3%; CMU health 3.4%
+function calcCIVIGR(monthly: number): number {
+  return applyBands(monthly, [
+    { limit: 75_000,   rate: 0.00 },
+    { limit: 165_000,  rate: 0.16 },
+    { limit: 560_000,  rate: 0.21 },
+    { limit: Infinity, rate: 0.24 },
+  ]);
+}
+
+function calculateCIV(gross: number): PayrollResult {
+  const basic = gross * 0.80, transport = gross * 0.20;
+  const cnps = gross * 0.063;
+  const cmu  = gross * 0.034;
+  const paye = calcCIVIGR(gross);
+  const totalDed = cnps + cmu + paye;
+  return {
+    grossSalary: gross, currency: 'XOF',
+    earnings: [
+      { label: 'Basic Salary',        amount: Math.round(basic) },
+      { label: 'Transport Allowance', amount: Math.round(transport) },
+    ],
+    deductions: [
+      { label: 'IGR Tax',       amount: Math.round(paye) },
+      { label: 'CNPS Pension',  amount: Math.round(cnps) },
+      { label: 'CMU Health',    amount: Math.round(cmu) },
+    ],
+    totalDeductions: Math.round(totalDed),
+    netSalary:       Math.round(gross - totalDed),
+  };
+}
+
+// ─── Morocco IR 2026 (DGI) ────────────────────────────────────────────────────
+// Annual bands; CNSS 4.48% (capped MAD 6,000/mo); AMO 2.26%
+function calcMoroccoIR(annualGross: number): number {
+  return applyBands(annualGross, [
+    { limit: 30_000,   rate: 0.00 },
+    { limit: 20_000,   rate: 0.10 },
+    { limit: 10_000,   rate: 0.20 },
+    { limit: 20_000,   rate: 0.30 },
+    { limit: 100_000,  rate: 0.34 },
+    { limit: Infinity, rate: 0.38 },
+  ]) / 12;
+}
+
+function calculateMorocco(gross: number): PayrollResult {
+  const basic = gross * 0.75, transport = gross * 0.25;
+  const cnss = Math.min(gross * 0.0448, 6_000 * 0.0448);
+  const amo  = gross * 0.0226;
+  const paye = calcMoroccoIR(gross * 12);
+  const totalDed = cnss + amo + paye;
+  return {
+    grossSalary: gross, currency: 'MAD',
+    earnings: [
+      { label: 'Basic Salary',        amount: Math.round(basic) },
+      { label: 'Transport Allowance', amount: Math.round(transport) },
+    ],
+    deductions: [
+      { label: 'IR Tax',    amount: Math.round(paye) },
+      { label: 'CNSS',      amount: Math.round(cnss) },
+      { label: 'AMO',       amount: Math.round(amo) },
+    ],
+    totalDeductions: Math.round(totalDed),
+    netSalary:       Math.round(gross - totalDed),
+  };
+}
+
+// ─── Zambia PAYE 2026 (ZRA) ───────────────────────────────────────────────────
+// Monthly bands; NAPSA 5% (capped ZMW 1,680/mo); NHIMA 1%
+function calcZambiaPAYE(monthly: number): number {
+  return applyBands(monthly, [
+    { limit: 5_100,    rate: 0.00 },
+    { limit: 2_000,    rate: 0.20 },
+    { limit: 2_100,    rate: 0.30 },
+    { limit: Infinity, rate: 0.375 },
+  ]);
+}
+
+function calculateZambia(gross: number): PayrollResult {
+  const basic = gross * 0.75, transport = gross * 0.15, housing = gross * 0.10;
+  const napsa = Math.min(gross * 0.05, 1_680);
+  const nhima = gross * 0.01;
+  const paye  = calcZambiaPAYE(gross);
+  const totalDed = napsa + nhima + paye;
+  return {
+    grossSalary: gross, currency: 'ZMW',
+    earnings: [
+      { label: 'Basic Salary',        amount: Math.round(basic) },
+      { label: 'Transport Allowance', amount: Math.round(transport) },
+      { label: 'Housing Allowance',   amount: Math.round(housing) },
+    ],
+    deductions: [
+      { label: 'PAYE Tax',   amount: Math.round(paye) },
+      { label: 'NAPSA',      amount: Math.round(napsa) },
+      { label: 'NHIMA',      amount: Math.round(nhima) },
+    ],
+    totalDeductions: Math.round(totalDed),
+    netSalary:       Math.round(gross - totalDed),
+  };
+}
+
 const CALCULATORS: Record<Country, (g: number) => PayrollResult> = {
   NG: calculateNigeria,
   KE: calculateKenya,
@@ -292,6 +503,12 @@ const CALCULATORS: Record<Country, (g: number) => PayrollResult> = {
   TZ: calculateTanzania,
   UG: calculateUganda,
   RW: calculateRwanda,
+  EG: calculateEgypt,
+  ET: calculateEthiopia,
+  SN: calculateSenegal,
+  CI: calculateCIV,
+  MA: calculateMorocco,
+  ZM: calculateZambia,
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -348,7 +565,7 @@ export default function PayrollCalculatorPage() {
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 {t('payroll_calculator.country_label')}
               </label>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
                 {(Object.keys(COUNTRY_META) as Country[]).map(c => (
                   <button
                     key={c}
