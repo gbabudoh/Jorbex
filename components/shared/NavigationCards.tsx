@@ -211,29 +211,30 @@ export const NavigationCards: React.FC = () => {
             className="relative group"
           >
             <Link href={item.href}>
-              <div className={`relative h-full flex items-center gap-3 p-3 lg:p-4 rounded-xl transition-all duration-300 group-hover:shadow-lg ${item.hoverColor}
-                ${isActive 
-                  ? 'bg-white dark:bg-slate-800 border-2 border-blue-500/50 shadow-md z-10' 
+              <div className={`relative h-full flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl transition-all duration-300 group-hover:shadow-lg ${item.hoverColor}
+                ${isActive
+                  ? 'bg-white dark:bg-slate-800 border-2 border-blue-500/50 shadow-md z-10'
                   : 'bg-white/60 dark:bg-slate-800/60 border border-white/50 dark:border-slate-700/50 shadow-sm'}`}>
-                
+
                 {/* Background Glow */}
                 <div className={`absolute inset-0 bg-linear-to-br ${item.color} rounded-xl transition-opacity duration-300
                   ${isActive ? 'opacity-10' : 'opacity-0 group-hover:opacity-5'}`} />
-                
-                {/* Icon Container */}
-                <div className={`w-10 h-10 rounded-lg bg-linear-to-br ${item.color} flex items-center justify-center text-white shadow-md transform transition-transform duration-300 shrink-0
+
+                {/* Icon */}
+                <div className={`w-8 h-8 rounded-lg bg-linear-to-br ${item.color} flex items-center justify-center text-white shadow-md transform transition-transform duration-300 shrink-0
                   ${isActive ? 'scale-110' : 'group-hover:rotate-3'}`}>
                   {item.icon}
                 </div>
-                
-                <span className={`text-[13px] font-black leading-tight tracking-tight transition-colors duration-300
-                  ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-800 dark:text-slate-100'}`}>
+
+                {/* Label */}
+                <span className={`text-[10px] font-bold leading-none text-center w-full truncate transition-colors duration-300
+                  ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}>
                   {item.key.includes('.') ? t(item.key) : t(`nav.${item.key}`)}
                 </span>
-                
+
                 {/* Active Indicator */}
                 {isActive && (
-                  <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-linear-to-r ${item.color}`} />
+                  <div className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-linear-to-r ${item.color}`} />
                 )}
               </div>
             </Link>
