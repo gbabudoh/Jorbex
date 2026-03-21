@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-  apiVersion: '2025-02-24.acacia',
+  apiVersion: '2026-02-25.clover',
 });
 
 // ─── Stripe pricing (one-time, amounts in smallest currency unit) ─────────────
@@ -20,7 +20,7 @@ export function getStripePrice(currencyCode: string, period: 'monthly' | 'yearly
   return { amount: p[period], currency: p.currency, symbol: p.symbol };
 }
 
-// Create a Stripe Checkout session (one-time payment)
+// Create a Stripe Checkout session (recurring subscription)
 export async function createCheckoutSession(params: {
   employerId: string;
   employerEmail: string;
@@ -29,31 +29,32 @@ export async function createCheckoutSession(params: {
   baseUrl: string;
 }) {
   const { employerId, employerEmail, currencyCode, billingPeriod, baseUrl } = params;
-  const price = getStripePrice(currencyCode, billingPeriod);
-  const label = billingPeriod === 'yearly' ? 'Annual' : 'Monthly';
-  const days  = billingPeriod === 'yearly' ? 365 : 30;
+  const price    = getStripePrice(currencyCode, billingPeriod);
+  const label    = billingPeriod === 'yearly' ? 'Annual' : 'Monthly';
+  const interval = billingPeriod === 'yearly' ? 'year' : 'month';
 
   const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
+    mode: 'subscription',
     customer_email: employerEmail,
     line_items: [{
       quantity: 1,
       price_data: {
         currency: price.currency,
         unit_amount: price.amount,
+        recurring: { interval },
         product_data: {
           name: `Jorbex Premium — ${label} Plan`,
-          description: `Full access for ${days} days. Unlimited candidate search, custom assessments & more.`,
+          description: 'Unlimited candidate search, custom assessments & more.',
         },
       },
     }],
     success_url: `${baseUrl}/employer/subscription?success=stripe&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url:  `${baseUrl}/employer/subscription?cancelled=true`,
-    metadata: {
-      employerId,
-      billingPeriod,
-      currencyCode,
-      days: String(days),
+    // metadata on the session for checkout.session.completed
+    metadata: { employerId, billingPeriod, currencyCode },
+    // metadata on the subscription for invoice events
+    subscription_data: {
+      metadata: { employerId, billingPeriod, currencyCode },
     },
   });
 

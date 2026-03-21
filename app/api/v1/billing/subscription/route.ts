@@ -15,14 +15,14 @@ export async function GET() {
     const sub = await checkSubscription(session.user.id);
 
     return NextResponse.json({
-      isActive:            sub.isActive,
-      isTrial:             sub.isTrial,
-      hasAccess:           sub.hasAccess,
-      status:              sub.status,
-      subscriptionEndsAt:  sub.subscriptionEndDate,
-      nextBillingDate:     sub.subscriptionEndDate,
-      provider:            sub.provider,
-      billingPeriod:       sub.billingPeriod,
+      isActive:           sub.isActive,
+      isTrial:            sub.isTrial,
+      hasAccess:          sub.hasAccess,
+      status:             sub.status,
+      subscriptionEndsAt: sub.subscriptionEndDate,
+      nextBillingDate:    sub.subscriptionEndDate,
+      provider:           sub.provider,
+      billingPeriod:      sub.billingPeriod,
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to fetch subscription';
@@ -30,7 +30,7 @@ export async function GET() {
   }
 }
 
-// DELETE /api/v1/billing/subscription — cancel (set to CANCELLED, keep access until end date)
+// DELETE /api/v1/billing/subscription — cancel at period end (access continues until then)
 export async function DELETE() {
   try {
     const session = await getServerSession(authOptions);
@@ -39,35 +39,66 @@ export async function DELETE() {
     }
 
     const employer = await prisma.employer.findUnique({
-      where: { id: session.user.id },
-      select: { subscriptionStatus: true, stripeSubscriptionId: true, paystackSubscriptionCode: true },
+      where:  { id: session.user.id },
+      select: { subscriptionStatus: true, paymentProvider: true },
     });
 
     if (!employer || employer.subscriptionStatus === 'TRIAL') {
       return NextResponse.json({ error: 'No active subscription to cancel' }, { status: 400 });
     }
 
-    // Cancel in Stripe if applicable (via raw SQL for new fields)
-    const stripeRows = await prisma.$queryRaw<{ stripeSubscriptionId: string | null }[]>`
-      SELECT "stripeSubscriptionId" FROM "Employer" WHERE id = ${session.user.id}
-    `;
-    const stripeSubId = stripeRows[0]?.stripeSubscriptionId;
+    // ── Stripe: cancel at period end (no immediate cutoff) ────────────────────
+    if (employer.paymentProvider === 'stripe') {
+      const rows = await prisma.$queryRaw<{ stripeSubscriptionId: string | null }[]>`
+        SELECT "stripeSubscriptionId" FROM "Employer" WHERE id = ${session.user.id}
+      `;
+      const stripeSubId = rows[0]?.stripeSubscriptionId;
 
-    if (stripeSubId) {
-      try {
-        const { stripe } = await import('@/lib/stripe');
-        await stripe.subscriptions.cancel(stripeSubId);
-      } catch (err) {
-        console.error('[Billing] Stripe cancel error:', err);
+      if (stripeSubId) {
+        try {
+          const { stripe } = await import('@/lib/stripe');
+          // cancel_at_period_end keeps access active until the billing period ends,
+          // then Stripe fires customer.subscription.deleted and we mark EXPIRED.
+          await stripe.subscriptions.update(stripeSubId, { cancel_at_period_end: true });
+        } catch (err) {
+          console.error('[Billing] Stripe cancel error:', err);
+        }
       }
     }
 
+    // ── Paystack: disable subscription (stops future renewals) ────────────────
+    if (employer.paymentProvider === 'paystack') {
+      const rows = await prisma.$queryRaw<{
+        paystackSubscriptionCode: string | null;
+        paystackEmailToken: string | null;
+      }[]>`
+        SELECT "paystackSubscriptionCode", "paystackEmailToken"
+        FROM "Employer"
+        WHERE id = ${session.user.id}
+      `;
+      const subCode   = rows[0]?.paystackSubscriptionCode;
+      const emailToken = rows[0]?.paystackEmailToken;
+
+      if (subCode && emailToken) {
+        try {
+          const { disableSubscription } = await import('@/lib/paystack');
+          await disableSubscription(subCode, emailToken);
+        } catch (err) {
+          console.error('[Billing] Paystack cancel error:', err);
+        }
+      }
+    }
+
+    // Mark as CANCELLED in DB — access continues until subscriptionEndDate
     await prisma.employer.update({
       where: { id: session.user.id },
       data:  { subscriptionStatus: 'CANCELLED' },
     });
 
-    return NextResponse.json({ success: true, message: 'Subscription cancelled. Access continues until end of billing period.' });
+    return NextResponse.json({
+      success: true,
+      message: 'Subscription cancelled. Access continues until the end of your billing period.',
+    });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to cancel subscription';
     return NextResponse.json({ error: message }, { status: 500 });

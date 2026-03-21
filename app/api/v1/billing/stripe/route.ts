@@ -24,24 +24,27 @@ export async function POST(request: Request) {
   }
 
   try {
+    // ── Initial checkout complete ─────────────────────────────────────────────
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
+      if (session.mode !== 'subscription') return NextResponse.json({ received: true });
 
-      // Only handle paid sessions
-      if (session.payment_status !== 'paid') return NextResponse.json({ received: true });
-
-      const { employerId, billingPeriod, days: daysStr } = session.metadata ?? {};
+      const { employerId, billingPeriod } = session.metadata ?? {};
       if (!employerId) {
         console.error('[Stripe Webhook] Missing employerId in metadata');
         return NextResponse.json({ received: true });
       }
 
-      const days = parseInt(daysStr || '30', 10);
-      const subscriptionEndDate = new Date();
-      subscriptionEndDate.setDate(subscriptionEndDate.getDate() + days);
+      const subscriptionId   = typeof session.subscription === 'string' ? session.subscription : null;
+      const stripeCustomerId = typeof session.customer      === 'string' ? session.customer      : null;
 
-      // Store stripeCustomerId via raw SQL (new field added after last prisma generate)
-      const stripeCustomerId = typeof session.customer === 'string' ? session.customer : null;
+      // Derive access end from the live subscription object
+      let subscriptionEndDate = new Date();
+      subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + (billingPeriod === 'yearly' ? 12 : 1));
+      if (subscriptionId) {
+        const sub = await stripe.subscriptions.retrieve(subscriptionId);
+        subscriptionEndDate = new Date(sub.current_period_end * 1000);
+      }
 
       await prisma.employer.update({
         where: { id: employerId },
@@ -54,15 +57,57 @@ export async function POST(request: Request) {
         },
       });
 
-      if (stripeCustomerId) {
-        await prisma.$executeRaw`
-          UPDATE "Employer"
-          SET "stripeCustomerId" = ${stripeCustomerId}
-          WHERE id = ${employerId}
-        `;
-      }
+      // Store IDs in fields added after last prisma generate
+      await prisma.$executeRaw`
+        UPDATE "Employer"
+        SET "stripeSubscriptionId" = ${subscriptionId},
+            "stripeCustomerId"     = ${stripeCustomerId}
+        WHERE id = ${employerId}
+      `;
 
-      console.log(`[Stripe Webhook] Activated ${employerId} — ${billingPeriod} — ${session.amount_total} ${session.currency} — ends ${subscriptionEndDate.toISOString()}`);
+      console.log(`[Stripe Webhook] New subscription: ${employerId} — ${billingPeriod} — ends ${subscriptionEndDate.toISOString()}`);
+    }
+
+    // ── Renewal payment succeeded ─────────────────────────────────────────────
+    if (event.type === 'invoice.payment_succeeded') {
+      const invoice = event.data.object;
+      // Skip the first invoice (handled by checkout.session.completed)
+      if (invoice.billing_reason === 'subscription_create') return NextResponse.json({ received: true });
+
+      const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : null;
+      if (!subscriptionId) return NextResponse.json({ received: true });
+
+      const employers = await prisma.$queryRaw<{ id: string }[]>`
+        SELECT id FROM "Employer" WHERE "stripeSubscriptionId" = ${subscriptionId}
+      `;
+      if (!employers[0]) return NextResponse.json({ received: true });
+
+      const sub = await stripe.subscriptions.retrieve(subscriptionId);
+      const subscriptionEndDate = new Date(sub.current_period_end * 1000);
+
+      await prisma.employer.update({
+        where: { id: employers[0].id },
+        data: { subscriptionStatus: 'ACTIVE', subscriptionEndDate },
+      });
+
+      console.log(`[Stripe Webhook] Renewal: ${employers[0].id} — ends ${subscriptionEndDate.toISOString()}`);
+    }
+
+    // ── Subscription cancelled / payment failed / period ended ────────────────
+    if (event.type === 'customer.subscription.deleted') {
+      const sub = event.data.object;
+
+      const employers = await prisma.$queryRaw<{ id: string }[]>`
+        SELECT id FROM "Employer" WHERE "stripeSubscriptionId" = ${sub.id}
+      `;
+      if (!employers[0]) return NextResponse.json({ received: true });
+
+      await prisma.employer.update({
+        where: { id: employers[0].id },
+        data: { subscriptionStatus: 'EXPIRED' },
+      });
+
+      console.log(`[Stripe Webhook] Subscription ended: ${employers[0].id}`);
     }
 
     return NextResponse.json({ received: true });

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { initializePayment } from '@/lib/paystack';
+import { initializePayment, getOrCreatePaystackPlan } from '@/lib/paystack';
 import { createCheckoutSession } from '@/lib/stripe';
 import { isAfricanCurrency, getCurrency } from '@/lib/currency';
 import { generateReference } from '@/lib/utils';
@@ -32,11 +32,13 @@ export async function POST(request: Request) {
     if (isAfricanCurrency(currencyCode)) {
       const amount    = billingPeriod === 'yearly' ? currency.paystackYearlyAmount : currency.paystackAmount;
       const reference = generateReference();
+      const planCode  = await getOrCreatePaystackPlan(currencyCode, billingPeriod, amount);
 
       const paymentData = await initializePayment({
         email: employer.email,
         amount,
         reference,
+        plan: planCode,
         callback_url: `${baseUrl}/api/v1/billing/webhook`,
         metadata: {
           employerId:    employer.id,
