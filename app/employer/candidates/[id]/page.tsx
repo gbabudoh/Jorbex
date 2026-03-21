@@ -131,8 +131,8 @@ export default function CandidateDetailPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-red-600 dark:text-red-400 mb-4">{error || 'Candidate not found'}</p>
-            <Button variant="outline" onClick={() => router.push('/employer/search')} className="cursor-pointer">
-              Back to Search
+            <Button variant="outline" onClick={() => router.push('/employer/applications')} className="cursor-pointer">
+              Back to Applications
             </Button>
           </CardContent>
         </Card>
@@ -156,12 +156,12 @@ export default function CandidateDetailPage() {
           <Button
             variant="outline"
             className="h-9 px-3 md:h-10 md:px-4 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all text-sm cursor-pointer"
-            onClick={() => router.push('/employer/search')}
+            onClick={() => router.push('/employer/applications')}
           >
             <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            <span className="hidden xs:inline">Back to Search</span>
+            <span className="hidden xs:inline">Back to Applications</span>
             <span className="xs:hidden">Back</span>
           </Button>
           <div className="flex gap-2">
