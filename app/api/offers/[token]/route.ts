@@ -15,7 +15,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
         employer:  { select: { companyName: true } },
         candidate: { select: { name: true } },
         job:       { select: { title: true } },
-        signature: includeSignature,
+        ...(includeSignature && { signature: true }),
       },
     });
 

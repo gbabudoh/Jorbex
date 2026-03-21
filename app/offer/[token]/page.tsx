@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -38,7 +38,10 @@ export default function OfferPage() {
   const fetchOffer = async () => {
     try {
       const res  = await fetch(`/api/offers/${token}`);
-      if (!res.ok) throw new Error('Offer not found or expired');
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || (res.status === 404 ? 'Offer not found or expired' : 'Failed to load offer'));
+      }
       const data = await res.json();
       setOffer(data.offer);
     } catch (err: unknown) {
@@ -113,7 +116,7 @@ export default function OfferPage() {
 
         <Card className="border-0 shadow-2xl overflow-hidden">
           {/* Header banner */}
-          <div className="bg-gradient-to-r from-[#0066FF] to-[#0052CC] p-8 text-white relative overflow-hidden">
+          <div className="bg-linear-to-r from-[#0066FF] to-[#0052CC] p-8 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20" />
             <h1 className="text-3xl font-bold relative z-10">Job Offer</h1>
             <p className="text-blue-100 mt-1 relative z-10">from {offer.companyName}</p>
