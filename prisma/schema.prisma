@@ -207,6 +207,8 @@ model Application {
   offerId      String?           @unique
   offer        Offer?            @relation(fields: [offerId], references: [id])
   
+  postHireLogs PostHireLog[]
+
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
 
@@ -317,6 +319,8 @@ model Offer {
 
   // Relations
   employmentRecord EmploymentRecord?
+  signature        Signature?
+  onboardingTasks  OnboardingTask[]
 
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -416,6 +420,38 @@ model NotificationLog {
   
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
+}
+
+// ─── Local Employer Post-Hire Models ─────────────────────────────────────────
+
+model Signature {
+  id           String   @id @default(uuid())
+  offerId      String   @unique
+  offer        Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  signedByName String
+  signedAt     DateTime @default(now())
+  ipAddress    String?
+}
+
+model OnboardingTask {
+  id          String    @id @default(uuid())
+  offerId     String
+  offer       Offer     @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  task        String
+  order       Int       @default(0)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model PostHireLog {
+  id            String      @id @default(uuid())
+  applicationId String
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  type          String      // "day1" | "day30" | "day90" | "month6"
+  sentAt        DateTime    @default(now())
+
+  @@unique([applicationId, type])
 }
 
 // ─── EOR / Payroll Models ─────────────────────────────────────────────────────

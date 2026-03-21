@@ -17,6 +17,11 @@ export const WORKFLOWS = {
   ASSESSMENT_ASSIGNED:   'assessment-assigned',
   OFFER_RECEIVED:        'offer-received',
   NEW_MESSAGE:           'new-message',
+  // Post-hire sequence
+  HIRE_DAY_1:            'hire-day-1',
+  HIRE_DAY_30:           'hire-day-30',
+  HIRE_DAY_90:           'hire-day-90',
+  HIRE_MONTH_6:          'hire-month-6',
 } as const;
 
 export type WorkflowId = (typeof WORKFLOWS)[keyof typeof WORKFLOWS];

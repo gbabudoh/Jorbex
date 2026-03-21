@@ -550,6 +550,75 @@ export async function sendSystemAlert(
   return { mattermostSent };
 }
 
+// ─── Post-Hire Sequence ───────────────────────────────────────────────────────
+// Day 1, Day 30, Day 90, Month 6 touchpoints for both employer and candidate
+export async function notifyPostHire(params: {
+  type:           'day1' | 'day30' | 'day90' | 'month6';
+  candidateId:    string;
+  candidateEmail: string;
+  candidateName:  string;
+  employerId:     string;
+  companyName:    string;
+  position:       string;
+}): Promise<{ sent: boolean }> {
+  const { type, candidateId, candidateEmail, candidateName, employerId, companyName, position } = params;
+
+  const workflowMap = {
+    day1:   WORKFLOWS.HIRE_DAY_1,
+    day30:  WORKFLOWS.HIRE_DAY_30,
+    day90:  WORKFLOWS.HIRE_DAY_90,
+    month6: WORKFLOWS.HIRE_MONTH_6,
+  } as const;
+
+  const candidateMessages = {
+    day1:   { subject: `Welcome to ${companyName}! 🎉`, body: `Congratulations ${candidateName}! Today is your first day at ${companyName}. Best of luck!` },
+    day30:  { subject: `How is your first month going at ${companyName}?`, body: `Hi ${candidateName}, you are 30 days in at ${companyName}. How has the experience been so far?` },
+    day90:  { subject: `90 days at ${companyName} — your probation period is ending soon`, body: `Hi ${candidateName}, your probation period at ${companyName} ends in 7 days. Check with your employer on your permanent status.` },
+    month6: { subject: `6 months at ${companyName} — time to review`, body: `Hi ${candidateName}, you have been with ${companyName} for 6 months. Consider updating your Jorbex profile to reflect your growth.` },
+  };
+
+  const employerMessages = {
+    day1:   { subject: `${candidateName} starts today — ${position}`, body: `${candidateName} begins their role as ${position} today. Make sure they have everything they need to get started.` },
+    day30:  { subject: `30-day check-in: How is ${candidateName} doing?`, body: `${candidateName} has been in the ${position} role for 30 days. Consider scheduling a check-in meeting.` },
+    day90:  { subject: `${candidateName}'s probation period ends soon`, body: `${candidateName}'s 90-day probation for the ${position} role ends in 7 days. Confirm their permanent status on Jorbex.` },
+    month6: { subject: `6-month milestone: ${candidateName} — ${position}`, body: `${candidateName} has been in the ${position} role for 6 months. Is it time for a salary review or role update?` },
+  };
+
+  let sent = false;
+  const workflow = workflowMap[type];
+  const cMsg = candidateMessages[type];
+  const eMsg = employerMessages[type];
+
+  // Notify candidate
+  try {
+    await sendViaNovu({
+      workflowId: workflow,
+      userId:     candidateId,
+      userType:   'candidate',
+      email:      candidateEmail,
+      name:       candidateName,
+      subject:    cMsg.subject,
+      payload:    { candidateName, companyName, position, type, message: cMsg.body },
+    });
+    sent = true;
+  } catch { sent = false; }
+
+  await pushToCandidate(candidateId, cMsg.subject, cMsg.body, `${process.env.NEXT_PUBLIC_APP_URL}/candidate/employment`);
+
+  // Notify employer
+  try {
+    await sendViaNovu({
+      workflowId: workflow,
+      userId:     employerId,
+      userType:   'employer',
+      subject:    eMsg.subject,
+      payload:    { candidateName, companyName, position, type, message: eMsg.body },
+    });
+  } catch { /* non-blocking */ }
+
+  return { sent };
+}
+
 export async function notifyNewEmployerSignup(
   companyName:   string,
   contactName:   string,

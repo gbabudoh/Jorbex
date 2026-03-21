@@ -6,12 +6,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
     const { token } = await params;
     if (!token) return NextResponse.json({ error: 'Token required' }, { status: 400 });
 
+    const { searchParams } = new URL(req.url);
+    const includeSignature = searchParams.get('includeSignature') === 'true';
+
     const offer = await prisma.offer.findUnique({
       where: { token },
       include: {
-        employer: { select: { companyName: true } },
+        employer:  { select: { companyName: true } },
         candidate: { select: { name: true } },
-        job: { select: { title: true } },
+        job:       { select: { title: true } },
+        signature: includeSignature,
       },
     });
 
@@ -29,15 +33,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ token: s
 
     return NextResponse.json({
       offer: {
-        companyName: offer.employer.companyName,
+        id:            offer.id,
+        companyName:   offer.employer.companyName,
         candidateName: offer.candidate.name,
-        jobTitle: offer.job.title,
-        content: offer.content,
-        salary: offer.salary,
-        currency: offer.currency,
-        startDate: offer.startDate,
-        expiresAt: offer.expiresAt,
-        status: offer.status,
+        jobTitle:      offer.job.title,
+        content:       offer.content,
+        salary:        offer.salary,
+        currency:      offer.currency,
+        startDate:     offer.startDate,
+        expiresAt:     offer.expiresAt,
+        createdAt:     offer.createdAt,
+        status:        offer.status.toLowerCase(),
+        signature:     includeSignature ? (offer as any).signature ?? null : undefined,
       },
     });
   } catch (error: unknown) {
