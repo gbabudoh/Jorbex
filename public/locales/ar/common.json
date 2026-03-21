@@ -16,7 +16,9 @@
     "search_jobs": "البحث عن وظائف",
     "results": "النتائج",
     "payslips": "كشوف الرواتب",
-    "employment": "التوظيف"
+    "employment": "التوظيف",
+    "records": "السجلات",
+    "payroll_calc": "الرواتب"
   },
   "common": {
     "select": "اختيار",

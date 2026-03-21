@@ -16,7 +16,9 @@
     "search_jobs": "Rechercher des Emplois",
     "results": "Résultats",
     "payslips": "Fiches de paie",
-    "employment": "Emploi"
+    "employment": "Emploi",
+    "records": "Dossiers",
+    "payroll_calc": "Paie"
   },
   "common": {
     "select": "Sélectionner",

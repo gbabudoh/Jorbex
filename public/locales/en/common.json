@@ -16,7 +16,9 @@
     "search_jobs": "Search Jobs",
     "results": "Results",
     "payslips": "Payslips",
-    "employment": "Employment"
+    "employment": "Employment",
+    "records": "Records",
+    "payroll_calc": "Payroll"
   },
   "common": {
     "select": "Select",

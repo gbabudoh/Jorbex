@@ -16,7 +16,9 @@
     "search_jobs": "Buscar Vagas",
     "results": "Resultados",
     "payslips": "Holerites",
-    "employment": "Emprego"
+    "employment": "Emprego",
+    "records": "Registros",
+    "payroll_calc": "Folha"
   },
   "common": {
     "select": "Selecionar",

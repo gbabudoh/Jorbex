@@ -183,6 +183,28 @@ const employerItems: NavItem[] = [
     ),
     color: 'from-cyan-600 to-blue-700',
     hoverColor: 'shadow-cyan-600/20'
+  },
+  {
+    key: 'nav.records',
+    href: '/employer/records',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+      </svg>
+    ),
+    color: 'from-teal-600 to-emerald-700',
+    hoverColor: 'shadow-teal-600/20'
+  },
+  {
+    key: 'nav.payroll_calc',
+    href: '/employer/payroll-calculator',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+    ),
+    color: 'from-violet-600 to-purple-700',
+    hoverColor: 'shadow-violet-600/20'
   }
 ];
 
@@ -196,8 +218,8 @@ export const NavigationCards: React.FC = () => {
 
   return (
     <div className={`grid gap-2 p-2 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-slate-800/20 shadow-xl
-      ${userType === 'employer' 
-        ? 'grid-cols-2 md:grid-cols-7'
+      ${userType === 'employer'
+        ? 'grid-cols-3 md:grid-cols-9'
         : 'grid-cols-2 md:grid-cols-8'}`}>
       {items.map((item, index) => {
         const isActive = pathname === item.href;
