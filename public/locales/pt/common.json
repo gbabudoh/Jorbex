@@ -14,7 +14,9 @@
     "jobs": "Publicar Vaga",
     "applied_box": "Caixa de Candidaturas",
     "search_jobs": "Buscar Vagas",
-    "results": "Resultados"
+    "results": "Resultados",
+    "payslips": "Holerites",
+    "employment": "Emprego"
   },
   "common": {
     "select": "Selecionar",

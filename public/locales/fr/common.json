@@ -14,7 +14,9 @@
     "jobs": "Publier une offre",
     "applied_box": "Boîte de candidatures",
     "search_jobs": "Rechercher des Emplois",
-    "results": "Résultats"
+    "results": "Résultats",
+    "payslips": "Fiches de paie",
+    "employment": "Emploi"
   },
   "common": {
     "select": "Sélectionner",

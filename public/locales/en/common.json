@@ -14,7 +14,9 @@
     "jobs": "Post Job",
     "applied_box": "Applied Box",
     "search_jobs": "Search Jobs",
-    "results": "Results"
+    "results": "Results",
+    "payslips": "Payslips",
+    "employment": "Employment"
   },
   "common": {
     "select": "Select",

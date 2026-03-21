@@ -81,6 +81,28 @@ const candidateItems: NavItem[] = [
     ),
     color: 'from-cyan-500 to-blue-600',
     hoverColor: 'shadow-cyan-500/20'
+  },
+  {
+    key: 'payslips',
+    href: '/candidate/payslips',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+      </svg>
+    ),
+    color: 'from-violet-500 to-purple-600',
+    hoverColor: 'shadow-violet-500/20'
+  },
+  {
+    key: 'employment',
+    href: '/candidate/employment',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+    color: 'from-emerald-500 to-green-600',
+    hoverColor: 'shadow-emerald-500/20'
   }
 ];
 
@@ -175,8 +197,8 @@ export const NavigationCards: React.FC = () => {
   return (
     <div className={`grid gap-2 p-2 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-slate-800/20 shadow-xl
       ${userType === 'employer' 
-        ? 'grid-cols-2 md:grid-cols-7' 
-        : 'grid-cols-2 md:grid-cols-6'}`}>
+        ? 'grid-cols-2 md:grid-cols-7'
+        : 'grid-cols-2 md:grid-cols-8'}`}>
       {items.map((item, index) => {
         const isActive = pathname === item.href;
         return (

@@ -14,7 +14,9 @@
     "jobs": "نشر وظيفة",
     "applied_box": "صندوق الطلبات",
     "search_jobs": "البحث عن وظائف",
-    "results": "النتائج"
+    "results": "النتائج",
+    "payslips": "كشوف الرواتب",
+    "employment": "التوظيف"
   },
   "common": {
     "select": "اختيار",
