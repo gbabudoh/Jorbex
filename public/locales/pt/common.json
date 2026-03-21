@@ -524,6 +524,24 @@
     "print": "Imprimir / Guardar como PDF",
     "disclaimer": "Apenas uma estimativa. Consulte um contabilista para declarações oficiais."
   },
+  "employer_records": {
+    "title": "Registos de",
+    "title_highlight": "Emprego",
+    "subtitle": "Todas as contratações via Jorbex — contratos assinados, estado de integração e resumo salarial.",
+    "stat_total": "Total Contratações",
+    "stat_active": "Ativos",
+    "stat_onboarding": "Integração",
+    "stat_payroll": "Folha Mensal",
+    "search_placeholder": "Pesquisar por nome, email ou cargo...",
+    "empty_title": "Nenhum registo de emprego ainda",
+    "empty_desc": "Os registos são criados automaticamente quando um candidato aceita a sua oferta.",
+    "per_month": "/ mês",
+    "started": "Iniciado em",
+    "view_contract": "Ver Contrato",
+    "record_id": "ID Registo",
+    "ended": "Terminado",
+    "added": "Adicionado"
+  },
   "candidate_profile": {
     "title": "Meu Perfil",
     "subtitle": "Gerencie suas informações profissionais",

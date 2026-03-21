@@ -510,6 +510,24 @@
     "print": "Imprimer / Enregistrer en PDF",
     "disclaimer": "Estimation uniquement. Consultez un comptable qualifié pour les déclarations officielles."
   },
+  "employer_records": {
+    "title": "Dossiers",
+    "title_highlight": "d'Emploi",
+    "subtitle": "Toutes les embauches via Jorbex — contrats signés, statut d'intégration et résumé de la paie.",
+    "stat_total": "Total Embauches",
+    "stat_active": "Actifs",
+    "stat_onboarding": "Intégration",
+    "stat_payroll": "Masse Salariale",
+    "search_placeholder": "Rechercher par nom, email ou poste...",
+    "empty_title": "Aucun dossier d'emploi pour l'instant",
+    "empty_desc": "Les dossiers sont créés automatiquement lorsqu'un candidat accepte votre offre.",
+    "per_month": "/ mois",
+    "started": "Démarré le",
+    "view_contract": "Voir le Contrat",
+    "record_id": "ID Dossier",
+    "ended": "Terminé",
+    "added": "Ajouté"
+  },
   "candidate_profile": {
     "title": "Mon Profil",
     "subtitle": "Gérez vos informations professionnelles",

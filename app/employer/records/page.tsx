@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/Card';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface EmploymentRecord {
   id:              string;
@@ -46,6 +47,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function EmployerRecordsPage() {
+  const { t } = useLanguage();
   const [records, setRecords] = useState<EmploymentRecord[]>([]);
   const [stats,   setStats]   = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -75,10 +77,10 @@ export default function EmployerRecordsPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-            Employment <span className="text-[#0066FF]">Records</span>
+            {t('employer_records.title')} <span className="text-[#0066FF]">{t('employer_records.title_highlight')}</span>
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2 text-base font-medium">
-            All hires made through Jorbex — signed contracts, onboarding status, and payroll summary.
+            {t('employer_records.subtitle')}
           </p>
         </div>
 
@@ -87,19 +89,19 @@ export default function EmployerRecordsPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
             <div className="rounded-2xl bg-white dark:bg-gray-900 shadow-sm p-4 text-center">
               <div className="text-2xl font-black text-gray-900 dark:text-white">{stats.total}</div>
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-1">Total Hires</div>
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-1">{t('employer_records.stat_total')}</div>
             </div>
             <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 shadow-sm p-4 text-center">
               <div className="text-2xl font-black text-emerald-600">{stats.active}</div>
-              <div className="text-xs font-semibold text-emerald-500 uppercase tracking-wide mt-1">Active</div>
+              <div className="text-xs font-semibold text-emerald-500 uppercase tracking-wide mt-1">{t('employer_records.stat_active')}</div>
             </div>
             <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/30 shadow-sm p-4 text-center">
               <div className="text-2xl font-black text-blue-600">{stats.onboarding}</div>
-              <div className="text-xs font-semibold text-blue-500 uppercase tracking-wide mt-1">Onboarding</div>
+              <div className="text-xs font-semibold text-blue-500 uppercase tracking-wide mt-1">{t('employer_records.stat_onboarding')}</div>
             </div>
             <div className="rounded-2xl bg-[#0066FF]/10 shadow-sm p-4 text-center">
               <div className="text-2xl font-black text-[#0066FF]">{fmt(stats.totalMonthlyPayroll)}</div>
-              <div className="text-xs font-semibold text-[#0066FF] uppercase tracking-wide mt-1">Monthly Payroll</div>
+              <div className="text-xs font-semibold text-[#0066FF] uppercase tracking-wide mt-1">{t('employer_records.stat_payroll')}</div>
             </div>
           </div>
         )}
@@ -110,7 +112,7 @@ export default function EmployerRecordsPage() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search by name, email, or position..."
+            placeholder={t('employer_records.search_placeholder')}
             className="w-full h-12 px-4 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-medium focus:outline-none focus:border-[#0066FF] transition-colors"
           />
         </div>
@@ -124,9 +126,9 @@ export default function EmployerRecordsPage() {
           <Card className="border-0 shadow-sm rounded-3xl overflow-hidden bg-white/80 dark:bg-gray-900/80">
             <CardContent className="p-12 text-center">
               <div className="text-5xl mb-4">📋</div>
-              <p className="font-bold text-gray-900 dark:text-white text-lg">No employment records yet</p>
+              <p className="font-bold text-gray-900 dark:text-white text-lg">{t('employer_records.empty_title')}</p>
               <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                Records are created automatically when a candidate accepts your offer.
+                {t('employer_records.empty_desc')}
               </p>
             </CardContent>
           </Card>
@@ -153,10 +155,10 @@ export default function EmployerRecordsPage() {
                     <div className="flex flex-col items-start sm:items-end gap-2 shrink-0">
                       <div className="text-right">
                         <div className="font-black text-gray-900 dark:text-white">
-                          {record.currency} {fmt(parseFloat(record.salary))} / mo
+                          {record.currency} {fmt(parseFloat(record.salary))} {t('employer_records.per_month')}
                         </div>
                         <div className="text-xs text-gray-400">
-                          Started {new Date(record.startDate).toLocaleDateString('en-GB', {
+                          {t('employer_records.started')} {new Date(record.startDate).toLocaleDateString('en-GB', {
                             day: 'numeric', month: 'short', year: 'numeric',
                           })}
                         </div>
@@ -170,23 +172,23 @@ export default function EmployerRecordsPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        View Contract
+                        {t('employer_records.view_contract')}
                       </Link>
                     </div>
                   </div>
 
                   {/* Metadata row */}
                   <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
-                    <span>Record ID: <span className="font-mono text-gray-700 dark:text-gray-300">{record.id.slice(0, 8).toUpperCase()}</span></span>
+                    <span>{t('employer_records.record_id')}: <span className="font-mono text-gray-700 dark:text-gray-300">{record.id.slice(0, 8).toUpperCase()}</span></span>
                     {record.frappeEmployee && (
                       <span>ERPNext: <span className="font-mono text-gray-700 dark:text-gray-300">{record.frappeEmployee}</span></span>
                     )}
                     {record.endDate && (
                       <span className="text-red-500">
-                        Ended: {new Date(record.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {t('employer_records.ended')}: {new Date(record.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     )}
-                    <span>Added {new Date(record.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <span>{t('employer_records.added')} {new Date(record.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                   </div>
                 </CardContent>
               </Card>

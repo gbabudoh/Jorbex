@@ -510,6 +510,24 @@
     "print": "طباعة / حفظ كـ PDF",
     "disclaimer": "هذا تقدير فقط. استشر محاسباً مؤهلاً لكشوف الرواتب الرسمية."
   },
+  "employer_records": {
+    "title": "سجلات",
+    "title_highlight": "التوظيف",
+    "subtitle": "جميع التوظيفات عبر Jorbex — العقود الموقعة وحالة الإعداد وملخص الرواتب.",
+    "stat_total": "إجمالي التوظيفات",
+    "stat_active": "نشط",
+    "stat_onboarding": "الإعداد",
+    "stat_payroll": "الرواتب الشهرية",
+    "search_placeholder": "البحث بالاسم أو البريد أو المسمى الوظيفي...",
+    "empty_title": "لا توجد سجلات توظيف بعد",
+    "empty_desc": "تُنشأ السجلات تلقائياً عندما يقبل المرشح عرضك.",
+    "per_month": "/ شهر",
+    "started": "بدأ في",
+    "view_contract": "عرض العقد",
+    "record_id": "رقم السجل",
+    "ended": "انتهى",
+    "added": "أُضيف"
+  },
   "candidate_profile": {
     "title": "ملفي الشخصي",
     "subtitle": "إدارة معلوماتك المهنية",

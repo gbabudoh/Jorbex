@@ -510,6 +510,24 @@
     "print": "Print / Save as PDF",
     "disclaimer": "This is an estimate only. Consult a qualified accountant for official payroll filings."
   },
+  "employer_records": {
+    "title": "Employment",
+    "title_highlight": "Records",
+    "subtitle": "All hires made through Jorbex — signed contracts, onboarding status, and payroll summary.",
+    "stat_total": "Total Hires",
+    "stat_active": "Active",
+    "stat_onboarding": "Onboarding",
+    "stat_payroll": "Monthly Payroll",
+    "search_placeholder": "Search by name, email, or position...",
+    "empty_title": "No employment records yet",
+    "empty_desc": "Records are created automatically when a candidate accepts your offer.",
+    "per_month": "/ mo",
+    "started": "Started",
+    "view_contract": "View Contract",
+    "record_id": "Record ID",
+    "ended": "Ended",
+    "added": "Added"
+  },
   "candidate_profile": {
     "title": "My Profile",
     "subtitle": "Manage your professional information",
