@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/Card';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface Payslip {
   id:        string;
@@ -37,6 +38,7 @@ const STATUS_COLOURS: Record<string, string> = {
 function fmt(n: number) { return n.toLocaleString(); }
 
 export default function CandidateEmploymentPage() {
+  const { t } = useLanguage();
   const [records, setRecords] = useState<EmploymentRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -65,10 +67,10 @@ export default function CandidateEmploymentPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-            Employment <span className="text-[#0066FF]">History</span>
+            {t('candidate_employment.title')} <span className="text-[#0066FF]">{t('candidate_employment.title_highlight')}</span>
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2 text-base font-medium">
-            Your verified employment records and proof of income — all in one place.
+            {t('candidate_employment.subtitle')}
           </p>
         </div>
 
@@ -78,7 +80,7 @@ export default function CandidateEmploymentPage() {
             <div>
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-bold text-emerald-600 uppercase tracking-wide">Currently Employed</span>
+                <span className="text-xs font-bold text-emerald-600 uppercase tracking-wide">{t('candidate_employment.currently_employed')}</span>
               </div>
               <p className="font-black text-gray-900 dark:text-white text-lg">{active.jobTitle}</p>
               <p className="text-sm text-emerald-600 font-semibold">{active.companyName}</p>
@@ -86,10 +88,10 @@ export default function CandidateEmploymentPage() {
             <div className="text-left sm:text-right">
               <p className="font-black text-gray-900 dark:text-white text-xl">
                 {active.currency} {fmt(parseFloat(active.salary))}
-                <span className="text-sm font-semibold text-gray-500"> / mo</span>
+                <span className="text-sm font-semibold text-gray-500"> {t('candidate_employment.per_month')}</span>
               </p>
               <p className="text-xs text-gray-400 mt-0.5">
-                Since {new Date(active.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                {t('candidate_employment.since')} {new Date(active.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
             </div>
           </div>
@@ -100,15 +102,15 @@ export default function CandidateEmploymentPage() {
           <Card className="border-0 shadow-sm rounded-3xl overflow-hidden bg-white/80 dark:bg-gray-900/80">
             <CardContent className="p-12 text-center">
               <div className="text-5xl mb-4">💼</div>
-              <p className="font-bold text-gray-900 dark:text-white text-lg">No employment records yet</p>
+              <p className="font-bold text-gray-900 dark:text-white text-lg">{t('candidate_employment.empty_title')}</p>
               <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                Your employment history will appear here once you accept an offer through Jorbex.
+                {t('candidate_employment.empty_desc')}
               </p>
               <Link
                 href="/candidate/jobs"
                 className="inline-block mt-4 px-6 py-3 bg-[#0066FF] text-white rounded-xl font-bold text-sm hover:bg-[#0052CC] transition-colors"
               >
-                Browse Jobs
+                {t('candidate_employment.browse_jobs')}
               </Link>
             </CardContent>
           </Card>
@@ -130,12 +132,14 @@ export default function CandidateEmploymentPage() {
                       <p className="text-[#0066FF] font-semibold">{record.companyName}</p>
                       <p className="text-xs text-gray-400 mt-0.5">
                         {new Date(record.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        {record.endDate ? ` — ${new Date(record.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : ' — Present'}
+                        {record.endDate
+                          ? ` — ${new Date(record.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                          : ` — ${t('candidate_employment.present')}`}
                       </p>
                     </div>
                     <div className="flex flex-col sm:items-end gap-2">
                       <div className="font-black text-gray-900 dark:text-white text-lg">
-                        {record.currency} {fmt(parseFloat(record.salary))} <span className="text-sm font-semibold text-gray-400">/ mo</span>
+                        {record.currency} {fmt(parseFloat(record.salary))} <span className="text-sm font-semibold text-gray-400">{t('candidate_employment.per_month')}</span>
                       </div>
                       <Link
                         href={`/offer/${record.contractToken}/contract`}
@@ -146,7 +150,7 @@ export default function CandidateEmploymentPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        View Signed Contract
+                        {t('candidate_employment.view_contract')}
                       </Link>
                     </div>
                   </div>
@@ -154,7 +158,7 @@ export default function CandidateEmploymentPage() {
                   {/* Payslip history */}
                   {record.payslips.length > 0 && (
                     <div>
-                      <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Payslips</div>
+                      <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">{t('candidate_employment.payslips_section')}</div>
                       <div className="space-y-2">
                         {record.payslips.slice(0, 6).map(p => (
                           <div key={p.id} className="flex items-center justify-between text-sm py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
@@ -170,10 +174,10 @@ export default function CandidateEmploymentPage() {
                             </div>
                             <div className="flex items-center gap-4">
                               <span className="text-gray-500 dark:text-gray-400 font-medium">
-                                Gross: {fmt(p.grossPay)}
+                                {t('candidate_employment.gross')}: {fmt(p.grossPay)}
                               </span>
                               <span className="font-bold text-emerald-600">
-                                Net: {fmt(p.netPay)}
+                                {t('candidate_employment.net')}: {fmt(p.netPay)}
                               </span>
                               {p.pdfUrl && (
                                 <a
@@ -194,27 +198,27 @@ export default function CandidateEmploymentPage() {
                           href="/candidate/payslips"
                           className="mt-3 inline-block text-sm font-semibold text-[#0066FF] hover:underline"
                         >
-                          View all {record.payslips.length} payslips →
+                          {t('candidate_employment.view_all_payslips').replace('{count}', String(record.payslips.length))}
                         </Link>
                       )}
                     </div>
                   )}
 
                   {record.payslips.length === 0 && (
-                    <p className="text-sm text-gray-400 italic">No payslips generated yet.</p>
+                    <p className="text-sm text-gray-400 italic">{t('candidate_employment.no_payslips')}</p>
                   )}
 
                   {/* Proof of employment download */}
                   <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
                     <button
                       onClick={() => window.print()}
-                      className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-[#0066FF] transition-colors"
+                      className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-[#0066FF] transition-colors cursor-pointer"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                           d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                       </svg>
-                      Print proof of employment
+                      {t('candidate_employment.print_proof')}
                     </button>
                   </div>
                 </CardContent>

@@ -543,6 +543,25 @@
     "net_pay": "صافي الراتب",
     "download_pdf": "تحميل كشف الراتب PDF"
   },
+  "candidate_employment": {
+    "title": "تاريخ",
+    "title_highlight": "التوظيف",
+    "subtitle": "سجلات توظيفك الموثقة وإثبات الدخل — كل شيء في مكان واحد.",
+    "currently_employed": "موظف حالياً",
+    "since": "منذ",
+    "per_month": "/ شهر",
+    "present": "حتى الآن",
+    "empty_title": "لا توجد سجلات توظيف بعد",
+    "empty_desc": "سيظهر تاريخ توظيفك هنا بمجرد قبول عرض عمل عبر Jorbex.",
+    "browse_jobs": "تصفح الوظائف",
+    "view_contract": "عرض العقد الموقع",
+    "payslips_section": "كشوف الرواتب",
+    "gross": "الإجمالي",
+    "net": "الصافي",
+    "view_all_payslips": "عرض جميع الـ {count} كشوف →",
+    "no_payslips": "لم يتم إنشاء أي كشف راتب بعد.",
+    "print_proof": "طباعة شهادة العمل"
+  },
   "candidate_profile": {
     "title": "ملفي الشخصي",
     "subtitle": "إدارة معلوماتك المهنية",

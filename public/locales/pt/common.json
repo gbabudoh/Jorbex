@@ -557,6 +557,25 @@
     "net_pay": "Salário Líquido",
     "download_pdf": "Descarregar Recibo PDF"
   },
+  "candidate_employment": {
+    "title": "Histórico de",
+    "title_highlight": "Emprego",
+    "subtitle": "Os seus registos de emprego verificados e comprovativo de rendimentos — tudo num só lugar.",
+    "currently_employed": "Atualmente Empregado",
+    "since": "Desde",
+    "per_month": "/ mês",
+    "present": "Presente",
+    "empty_title": "Ainda sem registos de emprego",
+    "empty_desc": "O seu histórico de emprego aparecerá aqui assim que aceitar uma oferta via Jorbex.",
+    "browse_jobs": "Procurar Empregos",
+    "view_contract": "Ver Contrato Assinado",
+    "payslips_section": "Recibos de Vencimento",
+    "gross": "Bruto",
+    "net": "Líquido",
+    "view_all_payslips": "Ver todos os {count} recibos →",
+    "no_payslips": "Ainda sem recibos de vencimento gerados.",
+    "print_proof": "Imprimir comprovativo de emprego"
+  },
   "candidate_profile": {
     "title": "Meu Perfil",
     "subtitle": "Gerencie suas informações profissionais",

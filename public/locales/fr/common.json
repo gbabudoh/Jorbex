@@ -543,6 +543,25 @@
     "net_pay": "Salaire Net",
     "download_pdf": "Télécharger le Bulletin PDF"
   },
+  "candidate_employment": {
+    "title": "Historique",
+    "title_highlight": "d'Emploi",
+    "subtitle": "Vos dossiers d'emploi vérifiés et justificatifs de revenus — au même endroit.",
+    "currently_employed": "Actuellement Employé",
+    "since": "Depuis",
+    "per_month": "/ mois",
+    "present": "Présent",
+    "empty_title": "Aucun dossier d'emploi pour l'instant",
+    "empty_desc": "Votre historique d'emploi apparaîtra ici dès que vous acceptez une offre via Jorbex.",
+    "browse_jobs": "Parcourir les Offres",
+    "view_contract": "Voir le Contrat Signé",
+    "payslips_section": "Bulletins de Paie",
+    "gross": "Brut",
+    "net": "Net",
+    "view_all_payslips": "Voir tous les {count} bulletins →",
+    "no_payslips": "Aucun bulletin de paie généré pour l'instant.",
+    "print_proof": "Imprimer la preuve d'emploi"
+  },
   "candidate_profile": {
     "title": "Mon Profil",
     "subtitle": "Gérez vos informations professionnelles",

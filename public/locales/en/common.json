@@ -543,6 +543,25 @@
     "net_pay": "Net Pay",
     "download_pdf": "Download Payslip PDF"
   },
+  "candidate_employment": {
+    "title": "Employment",
+    "title_highlight": "History",
+    "subtitle": "Your verified employment records and proof of income — all in one place.",
+    "currently_employed": "Currently Employed",
+    "since": "Since",
+    "per_month": "/ mo",
+    "present": "Present",
+    "empty_title": "No employment records yet",
+    "empty_desc": "Your employment history will appear here once you accept an offer through Jorbex.",
+    "browse_jobs": "Browse Jobs",
+    "view_contract": "View Signed Contract",
+    "payslips_section": "Payslips",
+    "gross": "Gross",
+    "net": "Net",
+    "view_all_payslips": "View all {count} payslips →",
+    "no_payslips": "No payslips generated yet.",
+    "print_proof": "Print proof of employment"
+  },
   "candidate_profile": {
     "title": "My Profile",
     "subtitle": "Manage your professional information",
