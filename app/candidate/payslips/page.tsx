@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { useLanguage } from '@/lib/LanguageContext';
 
 const MONTH_NAMES = [
   '', 'January', 'February', 'March', 'April', 'May', 'June',
@@ -50,6 +51,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function CandidatePayslipsPage() {
+  const { t } = useLanguage();
   const [payslips, setPayslips]         = useState<Payslip[]>([]);
   const [activeRecord, setActiveRecord] = useState<ActiveRecord | null>(null);
   const [loading, setLoading]           = useState(true);
@@ -86,11 +88,11 @@ export default function CandidatePayslipsPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-            My{' '}
-            <span className="text-[#0066FF]">Payslips</span>
+            {t('candidate_payslips.title')}{' '}
+            <span className="text-[#0066FF]">{t('candidate_payslips.title_highlight')}</span>
           </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2 text-base font-medium">
-            Your monthly salary records and payment history.
+            {t('candidate_payslips.subtitle')}
           </p>
         </div>
 
@@ -105,10 +107,10 @@ export default function CandidatePayslipsPage() {
             </div>
             <div>
               <div className="font-bold text-gray-900 dark:text-white text-sm">
-                Active employment — {activeRecord.employer.companyName}
+                {t('candidate_payslips.active_employment')} — {activeRecord.employer.companyName}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                {activeRecord.offer?.job?.title ?? 'Position'} &middot; {activeRecord.currency} {activeRecord.grossSalary.toLocaleString()} / month &middot; {activeRecord.country}
+                {activeRecord.offer?.job?.title ?? 'Position'} &middot; {activeRecord.currency} {activeRecord.grossSalary.toLocaleString()} {t('candidate_payslips.per_month')} &middot; {activeRecord.country}
               </div>
             </div>
             <Badge className="sm:ml-auto text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
@@ -127,9 +129,9 @@ export default function CandidatePayslipsPage() {
                     d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
                 </svg>
               </div>
-              <h3 className="font-bold text-gray-900 dark:text-white text-lg">No payslips yet</h3>
+              <h3 className="font-bold text-gray-900 dark:text-white text-lg">{t('candidate_payslips.empty_title')}</h3>
               <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 max-w-sm mx-auto">
-                Your payslips will appear here once your employer runs payroll for the first time.
+                {t('candidate_payslips.empty_desc')}
               </p>
             </CardContent>
           </Card>
@@ -149,7 +151,7 @@ export default function CandidatePayslipsPage() {
                     {/* Main row */}
                     <button
                       onClick={() => setExpanded(isOpen ? null : slip.id)}
-                      className="w-full text-left p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+                      className="w-full text-left p-5 flex flex-col sm:flex-row sm:items-center gap-4 cursor-pointer"
                     >
                       {/* Month icon */}
                       <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[#0066FF]/10 flex flex-col items-center justify-center">
@@ -174,7 +176,7 @@ export default function CandidatePayslipsPage() {
                         </div>
                         {slip.disbursedAt && (
                           <div className="text-xs text-gray-400 mt-0.5">
-                            Paid {new Date(slip.disbursedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            {t('candidate_payslips.paid')} {new Date(slip.disbursedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </div>
                         )}
                       </div>
@@ -185,7 +187,7 @@ export default function CandidatePayslipsPage() {
                           {slip.currency} {slip.netPay.toLocaleString()}
                         </div>
                         <div className="text-xs text-gray-400">
-                          Gross {slip.currency} {slip.grossPay.toLocaleString()}
+                          {t('candidate_payslips.gross')} {slip.currency} {slip.grossPay.toLocaleString()}
                         </div>
                         <Badge className={`text-xs mt-1 px-2 py-0.5 rounded-full font-semibold ${STATUS_STYLES[slip.status] ?? ''}`}>
                           {slip.status}
@@ -211,7 +213,7 @@ export default function CandidatePayslipsPage() {
                           {/* Earnings */}
                           {earnings.length > 0 && (
                             <div>
-                              <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Earnings</div>
+                              <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{t('candidate_payslips.earnings')}</div>
                               <div className="space-y-1.5">
                                 {earnings.map(c => (
                                   <div key={c.salary_component} className="flex justify-between text-sm">
@@ -228,7 +230,7 @@ export default function CandidatePayslipsPage() {
                           {/* Deductions */}
                           {deductions.length > 0 && (
                             <div>
-                              <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Deductions</div>
+                              <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">{t('candidate_payslips.deductions')}</div>
                               <div className="space-y-1.5">
                                 {deductions.map(c => (
                                   <div key={c.salary_component} className="flex justify-between text-sm">
@@ -245,7 +247,7 @@ export default function CandidatePayslipsPage() {
 
                         {/* Summary line */}
                         <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                          <span className="font-bold text-gray-900 dark:text-white text-sm">Net Pay</span>
+                          <span className="font-bold text-gray-900 dark:text-white text-sm">{t('candidate_payslips.net_pay')}</span>
                           <span className="font-black text-[#0066FF] text-lg">
                             {slip.currency} {slip.netPay.toLocaleString()}
                           </span>
@@ -263,7 +265,7 @@ export default function CandidatePayslipsPage() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            Download Payslip PDF
+                            {t('candidate_payslips.download_pdf')}
                           </a>
                         )}
                       </div>

@@ -542,6 +542,21 @@
     "ended": "Terminado",
     "added": "Adicionado"
   },
+  "candidate_payslips": {
+    "title": "Os Meus",
+    "title_highlight": "Recibos de Vencimento",
+    "subtitle": "Os seus registos de salário mensais e histórico de pagamentos.",
+    "active_employment": "Emprego ativo",
+    "per_month": "/ mês",
+    "empty_title": "Ainda sem recibos de vencimento",
+    "empty_desc": "Os seus recibos aparecerão aqui assim que o seu empregador processar o primeiro pagamento.",
+    "paid": "Pago em",
+    "gross": "Bruto",
+    "earnings": "Rendimentos",
+    "deductions": "Deduções",
+    "net_pay": "Salário Líquido",
+    "download_pdf": "Descarregar Recibo PDF"
+  },
   "candidate_profile": {
     "title": "Meu Perfil",
     "subtitle": "Gerencie suas informações profissionais",

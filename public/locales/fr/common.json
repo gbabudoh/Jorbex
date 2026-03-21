@@ -528,6 +528,21 @@
     "ended": "Terminé",
     "added": "Ajouté"
   },
+  "candidate_payslips": {
+    "title": "Mes",
+    "title_highlight": "Bulletins de Paie",
+    "subtitle": "Vos fiches de salaire mensuelles et l'historique des paiements.",
+    "active_employment": "Emploi actif",
+    "per_month": "/ mois",
+    "empty_title": "Aucun bulletin de paie pour l'instant",
+    "empty_desc": "Vos bulletins apparaîtront ici dès que votre employeur effectue la première paie.",
+    "paid": "Payé le",
+    "gross": "Brut",
+    "earnings": "Revenus",
+    "deductions": "Déductions",
+    "net_pay": "Salaire Net",
+    "download_pdf": "Télécharger le Bulletin PDF"
+  },
   "candidate_profile": {
     "title": "Mon Profil",
     "subtitle": "Gérez vos informations professionnelles",

@@ -528,6 +528,21 @@
     "ended": "Ended",
     "added": "Added"
   },
+  "candidate_payslips": {
+    "title": "My",
+    "title_highlight": "Payslips",
+    "subtitle": "Your monthly salary records and payment history.",
+    "active_employment": "Active employment",
+    "per_month": "/ month",
+    "empty_title": "No payslips yet",
+    "empty_desc": "Your payslips will appear here once your employer runs payroll for the first time.",
+    "paid": "Paid",
+    "gross": "Gross",
+    "earnings": "Earnings",
+    "deductions": "Deductions",
+    "net_pay": "Net Pay",
+    "download_pdf": "Download Payslip PDF"
+  },
   "candidate_profile": {
     "title": "My Profile",
     "subtitle": "Manage your professional information",

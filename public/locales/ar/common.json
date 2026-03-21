@@ -528,6 +528,21 @@
     "ended": "انتهى",
     "added": "أُضيف"
   },
+  "candidate_payslips": {
+    "title": "كشوف",
+    "title_highlight": "رواتبي",
+    "subtitle": "سجلات راتبك الشهرية وتاريخ المدفوعات.",
+    "active_employment": "توظيف نشط",
+    "per_month": "/ شهر",
+    "empty_title": "لا توجد كشوف رواتب بعد",
+    "empty_desc": "ستظهر كشوف رواتبك هنا بمجرد أن يقوم صاحب العمل بتشغيل الرواتب لأول مرة.",
+    "paid": "مدفوع في",
+    "gross": "الإجمالي",
+    "earnings": "الأرباح",
+    "deductions": "الاستقطاعات",
+    "net_pay": "صافي الراتب",
+    "download_pdf": "تحميل كشف الراتب PDF"
+  },
   "candidate_profile": {
     "title": "ملفي الشخصي",
     "subtitle": "إدارة معلوماتك المهنية",
