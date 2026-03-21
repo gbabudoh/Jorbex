@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { AFRICAN_COUNTRIES } from '@/lib/constants';
 
 type ProgrammeType = 'GOVERNMENT' | 'UNIVERSITY' | 'CORPORATE';
 
@@ -137,11 +138,20 @@ export default function CreateProgrammePage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-gray-900 dark:text-white mb-1">Country</label>
-                      <input value={form.country} onChange={e => set('country', e.target.value)} placeholder="Nigeria" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                      <select
+                        value={form.country}
+                        onChange={e => set('country', e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                      >
+                        <option value="">Select country…</option>
+                        {AFRICAN_COUNTRIES.map(c => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-900 dark:text-white mb-1">City</label>
-                      <input value={form.city} onChange={e => set('city', e.target.value)} placeholder="Lagos" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                      <input value={form.city} onChange={e => set('city', e.target.value)} placeholder="e.g. Lagos" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                     </div>
                   </div>
 

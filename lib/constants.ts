@@ -175,6 +175,19 @@ export function expertiseKey(label: string): string {
     .replace(/^_|_$/g, '');
 }
 
+// African countries list
+export const AFRICAN_COUNTRIES = [
+  'Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi',
+  'Cabo Verde', 'Cameroon', 'Central African Republic', 'Chad', 'Comoros',
+  'Congo (Brazzaville)', 'Congo (DRC)', "Côte d'Ivoire", 'Djibouti', 'Egypt',
+  'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia',
+  'Ghana', 'Guinea', 'Guinea-Bissau', 'Kenya', 'Lesotho', 'Liberia', 'Libya',
+  'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco',
+  'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'São Tomé & Príncipe',
+  'Senegal', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan', 'Sudan',
+  'Tanzania', 'Togo', 'Tunisia', 'Uganda', 'Zambia', 'Zimbabwe',
+];
+
 // Grouped expertise options used on the signup page
 export const EXPERTISE_LIST = [
   { id: 'it_technology', label: 'IT & Technology' },
