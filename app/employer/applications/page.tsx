@@ -25,32 +25,45 @@ interface Application {
   };
 }
 
+const TABS = [
+  { key: 'all',                  label: 'All' },
+  { key: 'applied',              label: 'Applied' },
+  { key: 'reviewing',            label: 'Reviewing' },
+  { key: 'test_sent',            label: 'Test Sent' },
+  { key: 'interview_scheduled',  label: 'Interview' },
+  { key: 'offer_sent',           label: 'Offer Sent' },
+  { key: 'hired',                label: 'Hired' },
+  { key: 'rejected',             label: 'Rejected' },
+] as const;
+
 export default function EmployerApplicationsPage() {
   const router = useRouter();
   const { t } = useLanguage();
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [all, setAll]                   = useState<Application[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [activeTab, setActiveTab]       = useState<string>('all');
 
   const fetchApplications = useCallback(async () => {
     setLoading(true);
     try {
-      const query = filterStatus !== 'all' ? `?status=${filterStatus}` : '';
-      const res = await fetch(`/api/employer/applications${query}`);
+      const res  = await fetch('/api/employer/applications');
       const data = await res.json();
-      if (data.applications) {
-        setApplications(data.applications);
-      }
+      if (data.applications) setAll(data.applications);
     } catch (error) {
       console.error('Failed to fetch applications', error);
     } finally {
       setLoading(false);
     }
-  }, [filterStatus]);
+  }, []);
 
-  useEffect(() => {
-    fetchApplications();
-  }, [fetchApplications]);
+  useEffect(() => { fetchApplications(); }, [fetchApplications]);
+
+  const applications = activeTab === 'all'
+    ? all
+    : all.filter(a => a.status.toLowerCase() === activeTab);
+
+  const countFor = (key: string) =>
+    key === 'all' ? all.length : all.filter(a => a.status.toLowerCase() === key).length;
 
   const getStatusStyle = (status: string) => {
     const styles: Record<string, string> = {
@@ -91,7 +104,7 @@ export default function EmployerApplicationsPage() {
     return labels[status] || status.replace(/_/g, ' ');
   };
 
-  if (loading && applications.length === 0) {
+  if (loading && all.length === 0) {
     return (
       <div className="flex items-center justify-center py-32">
         <div className="text-center">
@@ -118,21 +131,36 @@ export default function EmployerApplicationsPage() {
           </p>
         </div>
 
-        {/* Status filter */}
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="h-12 px-4 pr-10 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 font-medium text-sm outline-none focus:border-blue-500/50 transition-all cursor-pointer shadow-sm appearance-none min-w-48"
-        >
-          <option value="all">{t('employer_applications.all_statuses')}</option>
-          <option value="applied">{t('employer_applications.new_applied')}</option>
-          <option value="reviewing">{t('employer_applications.reviewing')}</option>
-          <option value="test_sent">{t('employer_applications.test_sent')}</option>
-          <option value="interview_scheduled">{t('employer_applications.interviewing')}</option>
-          <option value="offer_sent">{t('employer_applications.offer_sent')}</option>
-          <option value="hired">{t('employer_applications.hired')}</option>
-          <option value="rejected">{t('employer_applications.rejected')}</option>
-        </select>
+        </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-none">
+        {TABS.map(tab => {
+          const count = countFor(tab.key);
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all cursor-pointer shrink-0 ${
+                isActive
+                  ? tab.key === 'hired'
+                    ? 'bg-emerald-500 text-white shadow-md'
+                    : 'bg-[#0066FF] text-white shadow-md'
+                  : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 hover:border-[#0066FF] hover:text-[#0066FF]'
+              }`}
+            >
+              {tab.label}
+              {count > 0 && (
+                <span className={`inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full text-xs font-black ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                }`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Empty state */}
