@@ -227,7 +227,7 @@ export const NavigationCards: React.FC = () => {
                 </div>
 
                 {/* Label */}
-                <span className={`text-[10px] font-bold leading-none text-center w-full truncate transition-colors duration-300
+                <span className={`text-[11.5px] font-bold leading-none text-center w-full truncate transition-colors duration-300
                   ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'}`}>
                   {item.key.includes('.') ? t(item.key) : t(`nav.${item.key}`)}
                 </span>
