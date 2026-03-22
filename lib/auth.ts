@@ -2,6 +2,7 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 import prisma from './prisma';
+import { rateLimit } from './rateLimit';
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || 'development-secret-key-change-in-production',
@@ -18,6 +19,12 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password || !credentials?.userType) {
           console.error('Missing credentials');
           return null;
+        }
+
+        // 10 failed attempts per email per 15 minutes
+        const rateLimitKey = `login:${credentials.email.toLowerCase().trim()}`;
+        if (!rateLimit(rateLimitKey, 10, 15 * 60 * 1000)) {
+          throw new Error('TooManyAttempts');
         }
 
         try {

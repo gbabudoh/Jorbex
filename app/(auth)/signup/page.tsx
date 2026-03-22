@@ -26,6 +26,9 @@ function SignupForm() {
     companyName: '',
     expertise: '',
   });
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -50,6 +53,11 @@ function SignupForm() {
       return;
     }
 
+    if (!termsAccepted || !privacyAccepted) {
+      setError('Please accept the Terms of Service and Privacy Policy to continue.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -61,6 +69,9 @@ function SignupForm() {
             password: formData.password,
             phone: formData.phone,
             expertise: formData.expertise,
+            termsAccepted,
+            privacyAccepted,
+            marketingConsent,
           }
         : {
             name: formData.name,
@@ -68,6 +79,9 @@ function SignupForm() {
             password: formData.password,
             phone: formData.phone,
             companyName: formData.companyName,
+            termsAccepted,
+            privacyAccepted,
+            marketingConsent,
           };
 
       console.log('Submitting signup:', { endpoint, body: { ...body, password: '***' } });
@@ -232,6 +246,55 @@ function SignupForm() {
             required
           />
 
+          {/* ── Consent checkboxes ── */}
+          <div className="space-y-3 pt-1">
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative mt-0.5 shrink-0">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted && privacyAccepted}
+                  onChange={(e) => { setTermsAccepted(e.target.checked); setPrivacyAccepted(e.target.checked); }}
+                  className="sr-only"
+                />
+                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${termsAccepted && privacyAccepted ? 'bg-[#0066FF] border-[#0066FF]' : 'border-gray-300 dark:border-gray-600 group-hover:border-[#0066FF]'}`}>
+                  {termsAccepted && privacyAccepted && (
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-sm text-gray-600 dark:text-gray-400 leading-snug">
+                {t('signup.consent.terms_prefix')}{' '}
+                <Link href="/terms" target="_blank" className="text-[#0066FF] hover:underline font-medium">{t('signup.consent.terms_link')}</Link>
+                {' '}{t('signup.consent.terms_and')}{' '}
+                <Link href="/privacy" target="_blank" className="text-[#0066FF] hover:underline font-medium">{t('signup.consent.privacy_link')}</Link>
+                . <span className="text-red-500">{t('signup.consent.terms_required')}</span>
+              </span>
+            </label>
+
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative mt-0.5 shrink-0">
+                <input
+                  type="checkbox"
+                  checked={marketingConsent}
+                  onChange={(e) => setMarketingConsent(e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${marketingConsent ? 'bg-[#0066FF] border-[#0066FF]' : 'border-gray-300 dark:border-gray-600 group-hover:border-[#0066FF]'}`}>
+                  {marketingConsent && (
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-sm text-gray-600 dark:text-gray-400 leading-snug">
+                {t('signup.consent.marketing')} <span className="text-gray-400 text-xs">{t('signup.consent.marketing_optional')}</span>
+              </span>
+            </label>
+          </div>
+
           {error && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400">
               {error}
@@ -240,6 +303,7 @@ function SignupForm() {
 
           <Button
             type="submit"
+            disabled={!termsAccepted || !privacyAccepted}
             variant="primary"
             size="lg"
             className="w-full cursor-pointer"

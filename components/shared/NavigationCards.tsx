@@ -103,6 +103,17 @@ const candidateItems: NavItem[] = [
     ),
     color: 'from-emerald-500 to-green-600',
     hoverColor: 'shadow-emerald-500/20'
+  },
+  {
+    key: 'verify',
+    href: '/candidate/verify',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
+    color: 'from-violet-500 to-purple-600',
+    hoverColor: 'shadow-violet-500/20'
   }
 ];
 
@@ -205,6 +216,17 @@ const employerItems: NavItem[] = [
     ),
     color: 'from-violet-600 to-purple-700',
     hoverColor: 'shadow-violet-600/20'
+  },
+  {
+    key: 'nav.verify',
+    href: '/employer/verify',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    ),
+    color: 'from-amber-500 to-orange-600',
+    hoverColor: 'shadow-amber-500/20'
   }
 ];
 
@@ -219,8 +241,8 @@ export const NavigationCards: React.FC = () => {
   return (
     <div className={`grid gap-2 p-2 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-slate-800/20 shadow-xl
       ${userType === 'employer'
-        ? 'grid-cols-3 md:grid-cols-9'
-        : 'grid-cols-2 md:grid-cols-8'}`}>
+        ? 'grid-cols-3 md:grid-cols-10'
+        : 'grid-cols-2 md:grid-cols-9'}`}>
       {items.map((item, index) => {
         const isActive = pathname === item.href;
         return (

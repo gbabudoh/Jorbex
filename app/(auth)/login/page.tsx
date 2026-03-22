@@ -34,8 +34,9 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        // More specific error messages
-        if (result.error === 'CredentialsSignin') {
+        if (result.error === 'TooManyAttempts') {
+          setError('Too many login attempts. Please wait 15 minutes before trying again.');
+        } else if (result.error === 'CredentialsSignin') {
           setError(t('login.error_invalid'));
         } else {
           setError(result.error || t('login.error_invalid'));
@@ -106,14 +107,24 @@ export default function LoginPage() {
             required
           />
 
-          <Input
-            label={t('login.password')}
-            type="password"
-            placeholder="••••••••"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            required
-          />
+          <div>
+            <Input
+              label={t('login.password')}
+              type="password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              required
+            />
+            <div className="text-right mt-1">
+              <Link
+                href="/forgot-password"
+                className="text-xs text-[#0066FF] hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
+          </div>
 
           {error && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400">

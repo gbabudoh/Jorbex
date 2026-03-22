@@ -20,6 +20,7 @@ interface Candidate {
   expertise: string;
   skills: string[];
   onboardingTestScore?: number;
+  isVerified?: boolean;
   createdAt: string;
 }
 
@@ -491,9 +492,11 @@ export default function SearchPage() {
                             <p className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">{getExpertiseLabel(candidate.expertise)}</p>
                           </div>
                         </div>
-                        <Badge className="bg-emerald-500/10 text-emerald-500 border-none px-3 py-1 font-black text-[10px] uppercase tracking-tighter">
-                          {t('talent_search.verified_badge')}
-                        </Badge>
+                        {candidate.isVerified && (
+                          <Badge className="bg-emerald-500/10 text-emerald-500 border-none px-3 py-1 font-black text-[10px] uppercase tracking-tighter">
+                            {t('talent_search.verified_badge')}
+                          </Badge>
+                        )}
                       </div>
 
                       {/* Aptitude Score Section */}
@@ -586,7 +589,7 @@ export default function SearchPage() {
                             <div className="flex items-center gap-2">
                               <p className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">{getExpertiseLabel(candidate.expertise)}</p>
                               <div className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
-                               <Badge className="bg-emerald-500/10 text-emerald-500 border-none font-black text-[10px] py-0">{t('talent_search.verified_badge').toUpperCase()}</Badge>
+                               {candidate.isVerified && <Badge className="bg-emerald-500/10 text-emerald-500 border-none font-black text-[10px] py-0">{t('talent_search.verified_badge').toUpperCase()}</Badge>}
                             </div>
                           </div>
                         </div>

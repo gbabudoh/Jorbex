@@ -11,6 +11,9 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '20');
   const search = searchParams.get('search') || '';
   const expertise = searchParams.get('expertise') || '';
+  const country = searchParams.get('country') || '';
+  const dateFrom = searchParams.get('dateFrom') || '';
+  const dateTo = searchParams.get('dateTo') || '';
 
   const where: Record<string, unknown> = {};
   if (search) {
@@ -20,6 +23,13 @@ export async function GET(req: NextRequest) {
     ];
   }
   if (expertise) where.expertise = expertise;
+  if (country) where.country = country;
+  if (dateFrom || dateTo) {
+    where.createdAt = {
+      ...(dateFrom && { gte: new Date(dateFrom) }),
+      ...(dateTo && { lte: new Date(new Date(dateTo).setHours(23, 59, 59, 999)) }),
+    };
+  }
 
   const [candidates, total] = await Promise.all([
     prisma.candidate.findMany({

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -74,6 +75,7 @@ export default function EmployerProfilePage() {
     activeJobs: 0,
     applications: 0,
   });
+  const [verifyStatus, setVerifyStatus] = useState<'PENDING' | 'APPROVED' | 'REJECTED' | null>(null);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -107,6 +109,10 @@ export default function EmployerProfilePage() {
 
   useEffect(() => {
     fetchProfile();
+    fetch('/api/verification/company')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.verification) setVerifyStatus(d.verification.status); })
+      .catch(() => {});
   }, [session, fetchProfile]);
 
   const handleSave = async () => {
@@ -181,6 +187,50 @@ export default function EmployerProfilePage() {
               </Button>
           </div>
         </motion.div>
+
+        {/* Verification banner */}
+        {verifyStatus !== 'APPROVED' && (
+          <Link href="/employer/verify" className="block mb-8 group">
+            <div className={`flex items-center justify-between gap-4 rounded-2xl px-5 py-4 border transition-all ${
+              verifyStatus === 'REJECTED'
+                ? 'bg-red-50 border-red-200 hover:border-red-300'
+                : verifyStatus === 'PENDING'
+                ? 'bg-amber-50 border-amber-200 hover:border-amber-300'
+                : 'bg-amber-50 border-amber-200 hover:border-amber-300'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                  verifyStatus === 'REJECTED' ? 'bg-red-100' : 'bg-amber-100'
+                }`}>
+                  <svg className={`w-5 h-5 ${verifyStatus === 'REJECTED' ? 'text-red-600' : 'text-amber-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className={`text-sm font-bold ${verifyStatus === 'REJECTED' ? 'text-red-700' : 'text-amber-700'}`}>
+                    {verifyStatus === 'REJECTED'
+                      ? 'Verification rejected — resubmit your documents'
+                      : verifyStatus === 'PENDING'
+                      ? 'Company verification under review'
+                      : 'Verify your company to build candidate trust'}
+                  </p>
+                  <p className={`text-xs mt-0.5 ${verifyStatus === 'REJECTED' ? 'text-red-500' : 'text-amber-500'}`}>
+                    {verifyStatus === 'PENDING'
+                      ? 'Usually reviewed within 1–2 business days'
+                      : 'Upload your registration certificate or ID + bank statement — takes 2 minutes'}
+                  </p>
+                </div>
+              </div>
+              <div className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl transition-colors ${
+                verifyStatus === 'REJECTED'
+                  ? 'bg-red-100 text-red-700 group-hover:bg-red-200'
+                  : 'bg-amber-100 text-amber-700 group-hover:bg-amber-200'
+              }`}>
+                {verifyStatus === 'REJECTED' ? 'Resubmit →' : verifyStatus === 'PENDING' ? 'View Status →' : 'Get Verified →'}
+              </div>
+            </div>
+          </Link>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
@@ -463,6 +513,27 @@ export default function EmployerProfilePage() {
                </div>
             </Card>
           </motion.div>
+        </div>
+      </div>
+
+      {/* ── Data & Privacy footer strip ─────────────── */}
+      <div className="mt-6 px-4 py-4 bg-white/60 backdrop-blur-sm border border-slate-200/60 rounded-2xl">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span className="text-xs text-slate-500 font-medium">Your data is protected under GDPR · NDPR · POPIA</span>
+          </div>
+          <div className="flex flex-wrap gap-3 text-xs">
+            <Link href="/data-rights" className="text-violet-600 hover:text-violet-800 font-semibold hover:underline transition-colors">Your Data Rights</Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/privacy" className="text-slate-500 hover:text-slate-800 font-medium hover:underline transition-colors">Privacy Policy</Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/cookie-policy" className="text-slate-500 hover:text-slate-800 font-medium hover:underline transition-colors">Cookie Policy</Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/terms" className="text-slate-500 hover:text-slate-800 font-medium hover:underline transition-colors">Terms</Link>
+          </div>
         </div>
       </div>
 

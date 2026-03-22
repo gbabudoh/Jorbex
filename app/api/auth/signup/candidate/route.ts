@@ -1,15 +1,28 @@
 import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import prisma from '@/lib/prisma';
+import { rateLimit, getIp } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
+  // 10 signups per IP per hour
+  if (!rateLimit(`signup:${getIp(request)}`, 10, 60 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await request.json();
-    const { name, email, password, phone, expertise } = body;
+    const { name, email, password, phone, expertise, termsAccepted, privacyAccepted, marketingConsent } = body;
 
     if (!name || !email || !password || !phone || !expertise) {
+      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+    }
+
+    if (!termsAccepted || !privacyAccepted) {
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { error: 'You must accept the Terms of Service and Privacy Policy to register' },
         { status: 400 }
       );
     }
@@ -28,6 +41,10 @@ export async function POST(request: Request) {
     }
 
     const hashedPassword = await hash(password, 12);
+    const consentIp = request.headers.get('x-forwarded-for')?.split(',')[0].trim()
+      || request.headers.get('x-real-ip')
+      || 'unknown';
+    const now = new Date();
 
     const candidate = await prisma.candidate.create({
       data: {
@@ -38,6 +55,10 @@ export async function POST(request: Request) {
         expertise,
         skills: [],
         onboardingTestPassed: false,
+        termsAcceptedAt: now,
+        privacyAcceptedAt: now,
+        marketingConsent: !!marketingConsent,
+        consentIp,
       },
     });
 

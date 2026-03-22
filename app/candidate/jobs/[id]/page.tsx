@@ -7,22 +7,20 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Notification } from '@/components/ui/Notification';
 import { useLanguage } from '@/lib/LanguageContext';
-import Image from 'next/image';
 import { MobilePageHeader } from '@/components/mobile/PageHeader';
 
 interface Job {
-  _id: string;
+  id: string;
   title: string;
   description: string;
   location: string;
   type: string;
   salary: string;
-  employerId: {
-    _id: string;
+  employer: {
     companyName: string;
-    industry: string;
-    logo?: string;
-    description?: string;
+    country?: string;
+    city?: string;
+    isVerified?: boolean;
   };
   createdAt: string;
 }
@@ -100,7 +98,7 @@ export default function JobDetailsPage() {
       {/* Mobile native header with back button */}
       <MobilePageHeader
         title={job.title}
-        subtitle={job.employerId?.companyName}
+        subtitle={job.employer?.companyName}
         backHref="/candidate/jobs"
       />
 
@@ -161,29 +159,25 @@ export default function JobDetailsPage() {
               <div className="mb-6">
                 <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">{t('jobs.about_company')}</h4>
                 <div className="flex items-center gap-4 mb-4">
-                  {job.employerId.logo ? (
-                    <Image 
-                      src={job.employerId.logo} 
-                      alt={job.employerId.companyName} 
-                      width={48}
-                      height={48}
-                      className="rounded-lg object-cover bg-gray-50 border border-gray-100"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xl">
-                      {job.employerId.companyName.charAt(0)}
-                    </div>
-                  )}
+                  <div className="w-12 h-12 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+                    {job.employer.companyName.charAt(0)}
+                  </div>
                   <div>
-                    <h3 className="font-bold text-gray-900 leading-tight">{job.employerId.companyName}</h3>
-                    <p className="text-sm text-gray-500">{job.employerId.industry}</p>
+                    <h3 className="font-bold text-gray-900 leading-tight flex items-center gap-1.5">
+                      {job.employer.companyName}
+                      {job.employer.isVerified && (
+                        <svg className="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </h3>
+                    {(job.employer.city || job.employer.country) && (
+                      <p className="text-sm text-gray-500">
+                        {[job.employer.city, job.employer.country].filter(Boolean).join(', ')}
+                      </p>
+                    )}
                   </div>
                 </div>
-                {job.employerId.description && (
-                  <p className="text-sm text-gray-600 line-clamp-3 mb-4 italic">
-                    &quot;{job.employerId.description}&quot;
-                  </p>
-                )}
               </div>
 
               <div className="pt-6 border-t border-gray-100">

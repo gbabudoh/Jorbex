@@ -17,6 +17,7 @@ model Employer {
   country                  String?
   city                     String?
   isSuspended              Boolean            @default(false)
+  isVerified               Boolean            @default(false)
   subscriptionStatus       SubscriptionStatus @default(TRIAL)
   subscriptionStartDate    DateTime?
   subscriptionEndDate      DateTime?
@@ -27,7 +28,17 @@ model Employer {
   billingPeriod            String?  // "monthly" | "yearly"
   paymentProvider          String?  // "paystack" | "stripe"
   mattermostTeamId         String?
-  
+
+  // Consent & compliance (GDPR / NDPR / POPIA)
+  termsAcceptedAt          DateTime?
+  privacyAcceptedAt        DateTime?
+  marketingConsent         Boolean   @default(false)
+  consentIp                String?
+
+  // Password reset
+  passwordResetToken       String?
+  passwordResetExpiry      DateTime?
+
   // Relations
   jobs                     Job[]
   applications             Application[]
@@ -41,6 +52,7 @@ model Employer {
   notificationLogs         NotificationLog[]  // Generic notification logs for this employer
   notificationPreferences  EmployerNotificationPreference?
   employmentRecords        EmploymentRecord[]
+  companyVerification      CompanyVerification?
 
   createdAt                DateTime           @default(now())
   updatedAt                DateTime           @updatedAt
@@ -80,6 +92,8 @@ model Candidate {
   skills                     String[]  // Max 5 skills handled in app logic or Prisma
   personalStatement          String?   @db.Text
   
+  isVerified                 Boolean   @default(false)
+
   onboardingTestPassed       Boolean   @default(false)
   onboardingTestScore        Float?
   highestQualification       String?
@@ -89,6 +103,16 @@ model Candidate {
   hobbies                    String?
   mattermostUserId           String?
   paystackRecipientCode      String?   // for salary disbursement via Paystack Transfer
+
+  // Consent & compliance (GDPR / NDPR / POPIA)
+  termsAcceptedAt            DateTime?
+  privacyAcceptedAt          DateTime?
+  marketingConsent           Boolean   @default(false)
+  consentIp                  String?
+
+  // Password reset
+  passwordResetToken         String?
+  passwordResetExpiry        DateTime?
 
   // Relations
   workHistory                WorkHistory[]
@@ -106,6 +130,7 @@ model Candidate {
   employmentRecords          EmploymentRecord[]
   payslips                   Payslip[]
   programmeEnrolments        ProgrammeMember[]
+  identityVerification       IdentityVerification?
 
   createdAt                  DateTime  @default(now())
   updatedAt                  DateTime  @updatedAt
@@ -904,4 +929,73 @@ model SiteContent {
   updatedAt DateTime @updatedAt
 
   @@unique([section, key])
+}
+
+// ─── Identity Verification ────────────────────────────────────────────────────
+
+model IdentityVerification {
+  id          String             @id @default(uuid())
+  candidateId String             @unique
+  candidate   Candidate          @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  docType     IdDocType          // PASSPORT | NATIONAL_ID
+  docNumber   String?            // optional self-declared document number
+  country     String             // issuing country
+
+  fileUrl     String             // MinIO URL
+  fileKey     String             // MinIO object key (for deletion/reference)
+
+  status      VerificationStatus @default(PENDING)
+  reviewedAt  DateTime?
+  reviewedBy  String?            // Admin.id
+  reviewNotes String?            @db.Text
+
+  submittedAt DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model CompanyVerification {
+  id         String             @id @default(uuid())
+  employerId String             @unique
+  employer   Employer           @relation(fields: [employerId], references: [id], onDelete: Cascade)
+
+  bizType    BizType            // REGISTERED | INFORMAL
+
+  // Registered company fields
+  regNumber  String?            // self-declared registration number
+  regDocUrl  String?            // company registration certificate URL
+  regDocKey  String?            // MinIO key
+
+  // Informal business fields
+  idDocType  IdDocType?         // PASSPORT | NATIONAL_ID
+  idDocUrl   String?            // ID document URL
+  idDocKey   String?
+  bankName   String?            // bank name
+  bankAccName String?           // account name (as it appears on bank records)
+  bankStmtUrl String?           // bank statement URL
+  bankStmtKey String?
+
+  status      VerificationStatus @default(PENDING)
+  reviewedAt  DateTime?
+  reviewedBy  String?
+  reviewNotes String?            @db.Text
+
+  submittedAt DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum IdDocType {
+  PASSPORT
+  NATIONAL_ID
+}
+
+enum BizType {
+  REGISTERED
+  INFORMAL
 }

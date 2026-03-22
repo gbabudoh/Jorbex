@@ -19,7 +19,8 @@
     "employment": "التوظيف",
     "records": "السجلات",
     "payroll_calc": "الرواتب",
-    "programmes": "البرامج"
+    "programmes": "البرامج",
+    "verify": "التحقق"
   },
   "common": {
     "select": "اختيار",
@@ -193,6 +194,15 @@
     "createAccount": "إنشاء حساب",
     "haveAccount": "هل لديك حساب بالفعل؟",
     "signIn": "تسجيل الدخول",
+    "consent": {
+      "terms_prefix": "لقد قرأت وأوافق على",
+      "terms_link": "شروط الخدمة",
+      "terms_and": "و",
+      "privacy_link": "سياسة الخصوصية",
+      "terms_required": "*",
+      "marketing": "أرغب في تلقي تحديثات المنتج وتنبيهات الوظائف والأخبار ذات الصلة من Jorbex.",
+      "marketing_optional": "(اختياري)"
+    },
     "errors": {
       "passwordMismatch": "كلمات المرور غير متطابقة",
       "passwordLength": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",

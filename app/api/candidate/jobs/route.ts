@@ -23,7 +23,7 @@ export async function GET(request: Request) {
         ...(location && { location: { contains: location, mode: 'insensitive' } }),
       },
       include: {
-        employer: { select: { companyName: true } },
+        employer: { select: { companyName: true, isVerified: true } },
       },
       orderBy: { createdAt: 'desc' },
     });

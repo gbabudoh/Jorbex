@@ -12,6 +12,7 @@ import { Notification } from '@/components/ui/Notification';
 import { AFRICAN_COUNTRIES } from '@/lib/locations';
 import { EXPERTISE_OPTIONS, expertiseKey } from '@/lib/constants';
 import { MobilePageHeader } from '@/components/mobile/PageHeader';
+import Link from 'next/link';
 
 // Icon Components
 const EditIcon = () => (
@@ -102,6 +103,7 @@ export default function ProfilePage() {
   const [notification, setNotification] = useState<{ isOpen: boolean; message: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [deleteWorkConfirm, setDeleteWorkConfirm] = useState<number | null>(null);
   const [deleteRefConfirm, setDeleteRefConfirm] = useState<number | null>(null);
+  const [verifyStatus, setVerifyStatus] = useState<'PENDING' | 'APPROVED' | 'REJECTED' | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -144,6 +146,10 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchProfile();
+    fetch('/api/verification/candidate')
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.verification) setVerifyStatus(d.verification.status); })
+      .catch(() => {});
   }, [session]);
 
   const fetchProfile = async () => {
@@ -300,13 +306,14 @@ export default function ProfilePage() {
 
   const getProfileCompleteness = () => {
     let score = 0;
-    if (formData.personalStatement) score += 15;
+    if (formData.personalStatement) score += 10;
     if (formData.skills.length > 0) score += 15;
-    if (formData.workHistory.length > 0) score += 20;
+    if (formData.workHistory.length > 0) score += 15;
     if (formData.highestQualification) score += 15;
     if (formData.university) score += 10;
     if (formData.references.length > 0) score += 10;
     if (profile?.onboardingTestPassed) score += 15;
+    if (verifyStatus === 'APPROVED') score += 10;
     return Math.min(score, 100);
   };
 
@@ -333,6 +340,59 @@ export default function ProfilePage() {
       />
 
       <div className="container mx-auto px-4 py-4 md:py-8 max-w-7xl">
+
+        {/* Verification banner */}
+        {verifyStatus !== 'APPROVED' && (
+          <Link href="/candidate/verify" className="block mb-6 group">
+            <div className={`flex items-center justify-between gap-4 rounded-2xl px-5 py-4 border transition-all ${
+              verifyStatus === 'REJECTED'
+                ? 'bg-red-50 border-red-200 hover:border-red-300'
+                : verifyStatus === 'PENDING'
+                ? 'bg-amber-50 border-amber-200 hover:border-amber-300'
+                : 'bg-violet-50 border-violet-200 hover:border-violet-300'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                  verifyStatus === 'REJECTED' ? 'bg-red-100' : verifyStatus === 'PENDING' ? 'bg-amber-100' : 'bg-violet-100'
+                }`}>
+                  <svg className={`w-5 h-5 ${
+                    verifyStatus === 'REJECTED' ? 'text-red-600' : verifyStatus === 'PENDING' ? 'text-amber-600' : 'text-violet-600'
+                  }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className={`text-sm font-bold ${
+                    verifyStatus === 'REJECTED' ? 'text-red-700' : verifyStatus === 'PENDING' ? 'text-amber-700' : 'text-violet-700'
+                  }`}>
+                    {verifyStatus === 'REJECTED'
+                      ? 'Verification rejected — resubmit your ID'
+                      : verifyStatus === 'PENDING'
+                      ? 'Identity verification under review'
+                      : 'Verify your identity to stand out'}
+                  </p>
+                  <p className={`text-xs mt-0.5 ${
+                    verifyStatus === 'REJECTED' ? 'text-red-500' : verifyStatus === 'PENDING' ? 'text-amber-500' : 'text-violet-500'
+                  }`}>
+                    {verifyStatus === 'PENDING'
+                      ? 'Usually reviewed within 1–2 business days'
+                      : 'Upload your passport or national ID — takes 2 minutes'}
+                  </p>
+                </div>
+              </div>
+              <div className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl transition-colors ${
+                verifyStatus === 'REJECTED'
+                  ? 'bg-red-100 text-red-700 group-hover:bg-red-200'
+                  : verifyStatus === 'PENDING'
+                  ? 'bg-amber-100 text-amber-700 group-hover:bg-amber-200'
+                  : 'bg-violet-100 text-violet-700 group-hover:bg-violet-200'
+              }`}>
+                {verifyStatus === 'REJECTED' ? 'Resubmit →' : verifyStatus === 'PENDING' ? 'View Status →' : 'Get Verified →'}
+              </div>
+            </div>
+          </Link>
+        )}
+
         {/* Desktop header — hidden on mobile */}
         <div className="hidden md:flex mb-8 flex-row items-center justify-between gap-4">
           <div>
@@ -461,30 +521,35 @@ export default function ProfilePage() {
                 
                 <div className="space-y-2 text-xs">
                   {[
-                    { label: t('candidate_profile.personal_statement'), done: !!formData.personalStatement, tab: 'overview' },
-                    { label: t('candidate_profile.skills'), done: formData.skills.length > 0, count: formData.skills.length > 0 ? `${formData.skills.length}/5` : null, tab: 'overview' },
-                    { label: t('candidate_profile.work_history'), done: formData.workHistory.length > 0, count: formData.workHistory.length > 0 ? String(formData.workHistory.length) : null, tab: 'work' },
-                    { label: t('candidate_profile.education'), done: !!formData.highestQualification, tab: 'overview' },
-                    { label: t('candidate_profile.university'), done: !!formData.university, tab: 'overview' },
-                    { label: t('candidate_profile.references'), done: formData.references.length > 0, count: formData.references.length > 0 ? String(formData.references.length) : null, tab: 'references' },
-                    { label: t('candidate_profile.hobbies'), done: !!formData.hobbies, tab: 'overview' },
-                  ].map(({ label, done, count, tab }) => (
-                    <button
-                      key={label}
-                      onClick={() => setActiveTab(tab)}
-                      className="w-full flex items-center justify-between gap-2 group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg px-1 py-0.5 transition-colors"
-                    >
-                      <span className={`text-left transition-colors ${done ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400'}`}>{label}</span>
-                      <div className="flex items-center gap-1 shrink-0">
-                        {count && <span className="text-[10px] text-green-600 dark:text-green-400 font-semibold">{count}</span>}
-                        {done ? (
-                          <span className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white text-[8px] font-bold shrink-0">✓</span>
-                        ) : (
-                          <span className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 shrink-0" />
-                        )}
-                      </div>
-                    </button>
-                  ))}
+                    { label: t('candidate_profile.personal_statement'), done: !!formData.personalStatement, count: null, tab: 'overview', href: null },
+                    { label: t('candidate_profile.skills'), done: formData.skills.length > 0, count: formData.skills.length > 0 ? `${formData.skills.length}/5` : null, tab: 'overview', href: null },
+                    { label: t('candidate_profile.work_history'), done: formData.workHistory.length > 0, count: formData.workHistory.length > 0 ? String(formData.workHistory.length) : null, tab: 'work', href: null },
+                    { label: t('candidate_profile.education'), done: !!formData.highestQualification, count: null, tab: 'overview', href: null },
+                    { label: t('candidate_profile.university'), done: !!formData.university, count: null, tab: 'overview', href: null },
+                    { label: t('candidate_profile.references'), done: formData.references.length > 0, count: formData.references.length > 0 ? String(formData.references.length) : null, tab: 'references', href: null },
+                    { label: t('candidate_profile.hobbies'), done: !!formData.hobbies, count: null, tab: 'overview', href: null },
+                    { label: 'ID Verified', done: verifyStatus === 'APPROVED', count: verifyStatus === 'PENDING' ? 'pending' : null, tab: null, href: '/candidate/verify' },
+                  ].map(({ label, done, count, tab, href }) => {
+                    const inner = (
+                      <>
+                        <span className={`text-left transition-colors ${done ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400'}`}>{label}</span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {count && <span className={`text-[10px] font-semibold ${count === 'pending' ? 'text-amber-500' : 'text-green-600 dark:text-green-400'}`}>{count}</span>}
+                          {done ? (
+                            <span className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center text-white text-[8px] font-bold shrink-0">✓</span>
+                          ) : (
+                            <span className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600 shrink-0" />
+                          )}
+                        </div>
+                      </>
+                    );
+                    const cls = "w-full flex items-center justify-between gap-2 group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg px-1 py-0.5 transition-colors";
+                    return href ? (
+                      <Link key={label} href={href} className={cls}>{inner}</Link>
+                    ) : (
+                      <button key={label} onClick={() => tab && setActiveTab(tab)} className={cls}>{inner}</button>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -1130,6 +1195,27 @@ export default function ProfilePage() {
             </>
           )}
         </button>
+      </div>
+
+      {/* ── Data & Privacy footer strip ─────────────── */}
+      <div className="mt-6 px-4 py-4 bg-white/60 backdrop-blur-sm border border-slate-200/60 rounded-2xl mx-0">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span className="text-xs text-slate-500 font-medium">Your data is protected under GDPR · NDPR · POPIA</span>
+          </div>
+          <div className="flex flex-wrap gap-3 text-xs">
+            <Link href="/data-rights" className="text-violet-600 hover:text-violet-800 font-semibold hover:underline transition-colors">Your Data Rights</Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/privacy" className="text-slate-500 hover:text-slate-800 font-medium hover:underline transition-colors">Privacy Policy</Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/cookie-policy" className="text-slate-500 hover:text-slate-800 font-medium hover:underline transition-colors">Cookie Policy</Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/terms" className="text-slate-500 hover:text-slate-800 font-medium hover:underline transition-colors">Terms</Link>
+          </div>
+        </div>
       </div>
 
       <Notification

@@ -27,6 +27,7 @@ export async function GET(request: Request) {
         country: true, city: true, expertise: true, skills: true,
         personalStatement: true, onboardingTestScore: true,
         highestQualification: true, university: true, degree: true,
+        isVerified: true,
         createdAt: true,
       },
     });

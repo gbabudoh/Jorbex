@@ -19,7 +19,8 @@
     "employment": "Emploi",
     "records": "Dossiers",
     "payroll_calc": "Paie",
-    "programmes": "Programmes"
+    "programmes": "Programmes",
+    "verify": "Vérifier ID"
   },
   "common": {
     "select": "Sélectionner",
@@ -193,6 +194,15 @@
     "createAccount": "Créer un Compte",
     "haveAccount": "Vous avez déjà un compte?",
     "signIn": "Se connecter",
+    "consent": {
+      "terms_prefix": "J'ai lu et j'accepte les",
+      "terms_link": "Conditions d'utilisation",
+      "terms_and": "et la",
+      "privacy_link": "Politique de confidentialité",
+      "terms_required": "*",
+      "marketing": "Je souhaite recevoir des mises à jour produits, des alertes d'emploi et des actualités pertinentes de Jorbex.",
+      "marketing_optional": "(facultatif)"
+    },
     "errors": {
       "passwordMismatch": "Les mots de passe ne correspondent pas",
       "passwordLength": "Le mot de passe doit contenir au moins 6 caractères",

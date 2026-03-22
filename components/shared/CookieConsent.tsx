@@ -72,7 +72,7 @@ export default function CookieConsent() {
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                 {t('cookies.description')}
-                <Link href="/privacy" className="text-blue-600 dark:text-blue-400 hover:underline font-medium ml-1">
+                <Link href="/cookie-policy" className="text-blue-600 dark:text-blue-400 hover:underline font-medium ml-1">
                   {t('cookies.learn_more')}
                 </Link>
               </p>

@@ -19,7 +19,8 @@
     "employment": "Emprego",
     "records": "Registros",
     "payroll_calc": "Folha",
-    "programmes": "Programas"
+    "programmes": "Programas",
+    "verify": "Verificar ID"
   },
   "common": {
     "select": "Selecionar",
@@ -207,6 +208,15 @@
     "createAccount": "Criar Conta",
     "haveAccount": "Já tem uma conta?",
     "signIn": "Entrar",
+    "consent": {
+      "terms_prefix": "Li e concordo com os",
+      "terms_link": "Termos de Serviço",
+      "terms_and": "e a",
+      "privacy_link": "Política de Privacidade",
+      "terms_required": "*",
+      "marketing": "Gostaria de receber atualizações de produtos, alertas de emprego e notícias relevantes da Jorbex.",
+      "marketing_optional": "(opcional)"
+    },
     "errors": {
       "passwordMismatch": "As senhas não correspondem",
       "passwordLength": "A senha deve ter pelo menos 6 caracteres",
