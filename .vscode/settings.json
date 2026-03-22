@@ -1,2 +1,32 @@
 {
+  "cSpell.words": [
+    "bcryptjs",
+    "billingperiod",
+    "candidateid",
+    "consentip",
+    "datasource",
+    "employerid",
+    "feendesk",
+    "flutterwave",
+    "jorbex",
+    "livekit",
+    "mattermost",
+    "mattermostteamid",
+    "nextauth",
+    "nodemailer",
+    "novu",
+    "paymentprovider",
+    "paystack",
+    "paystackcustomercode",
+    "paystacksubscriptioncode",
+    "popia",
+    "postgresql",
+    "prisma",
+    "resetexpiry",
+    "resettoken",
+    "stripecustomerid",
+    "stripesubscriptionid",
+    "subscriberids",
+    "unilag"
+  ]
 }
