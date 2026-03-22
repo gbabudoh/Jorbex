@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jorbex — Product Presentation</title>
+<style>
+  :root {
+    --blue: #0066FF;
+    --teal: #00D9A5;
+    --dark: #0f172a;
+    --slate: #1e293b;
+    --light: #f8fafc;
+    --text: #334155;
+    --muted: #94a3b8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--dark);
+    color: white;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ── Slide Container ── */
+  #deck {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s ease;
+    overflow: hidden;
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* ── Backgrounds ── */
+  .bg-dark   { background: #0f172a; }
+  .bg-light  { background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf9 100%); color: var(--text); }
+  .bg-blue   { background: linear-gradient(135deg, #0033cc 0%, #0066FF 50%, #0099cc 100%); }
+  .bg-cover  { background: linear-gradient(135deg, #020617 0%, #0f172a 40%, #0c1a3a 100%); }
+
+  /* Animated orbs */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+    pointer-events: none;
+  }
+  .orb-blue  { background: #0066FF; }
+  .orb-teal  { background: #00D9A5; }
+  .orb-purple{ background: #7c3aed; }
+
+  /* ── Layout helpers ── */
+  .slide-inner {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 56px 72px 40px;
+  }
+
+  .slide-inner.centered {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* ── Typography ── */
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .tag-blue  { background: rgba(0,102,255,.18); color: #60a5fa; border: 1px solid rgba(0,102,255,.3); }
+  .tag-teal  { background: rgba(0,217,165,.15); color: #34d399; border: 1px solid rgba(0,217,165,.3); }
+  .tag-dark  { background: rgba(255,255,255,.08); color: #94a3b8; border: 1px solid rgba(255,255,255,.12); }
+
+  h1 { font-size: clamp(36px, 5vw, 64px); font-weight: 800; line-height: 1.1; letter-spacing: -.02em; }
+  h2 { font-size: clamp(26px, 3.5vw, 42px); font-weight: 700; line-height: 1.2; letter-spacing: -.01em; }
+  h3 { font-size: clamp(16px, 2vw, 22px); font-weight: 600; }
+  p  { font-size: clamp(14px, 1.4vw, 17px); line-height: 1.7; }
+
+  .gradient-text {
+    background: linear-gradient(90deg, #0066FF, #00D9A5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Screenshot placeholder ── */
+  .screenshot {
+    background: rgba(255,255,255,.04);
+    border: 2px dashed rgba(255,255,255,.15);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,.3);
+    font-size: 13px;
+    gap: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  .screenshot.light-bg {
+    background: rgba(0,0,0,.04);
+    border-color: rgba(0,0,0,.12);
+    color: rgba(0,0,0,.3);
+  }
+  .screenshot img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+  }
+  .screenshot svg { opacity: .5; }
+
+  /* ── Cards ── */
+  .card {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px;
+    padding: 24px;
+    backdrop-filter: blur(12px);
+  }
+  .card.light {
+    background: white;
+    border-color: rgba(0,0,0,.08);
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+    color: var(--text);
+  }
+
+  /* ── Grid helpers ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-split { display: grid; grid-template-columns: 1fr 1.6fr; gap: 40px; align-items: start; }
+  .grid-split-r { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; align-items: start; }
+
+  /* ── Stat blocks ── */
+  .stat-num {
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 800;
+    background: linear-gradient(90deg, #0066FF, #00D9A5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .stat-label { font-size: 13px; color: rgba(255,255,255,.5); margin-top: 4px; }
+
+  /* ── Feature list ── */
+  .feat-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .feat-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .feat-list li::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0066FF, #00D9A5);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .check-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue), var(--teal));
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ── Pill badges ── */
+  .pill {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 4px;
+  }
+  .pill-blue   { background: rgba(0,102,255,.2);  color: #60a5fa; }
+  .pill-teal   { background: rgba(0,217,165,.2);  color: #34d399; }
+  .pill-purple { background: rgba(124,58,237,.2); color: #a78bfa; }
+  .pill-amber  { background: rgba(245,158,11,.2); color: #fbbf24; }
+  .pill-rose   { background: rgba(244,63,94,.2);  color: #fb7185; }
+  .pill-slate  { background: rgba(148,163,184,.15); color: #cbd5e1; }
+
+  /* ── Slide number / nav ── */
+  #nav {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(15,23,42,.8);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 100px;
+    padding: 8px 20px;
+  }
+  #nav button {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,.6);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all .2s;
+  }
+  #nav button:hover { color: white; background: rgba(255,255,255,.08); }
+  #slide-counter { font-size: 13px; color: rgba(255,255,255,.5); min-width: 52px; text-align: center; }
+
+  /* ── Logo mark ── */
+  .logomark {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #0066FF, #00D9A5);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 22px; color: white;
+    flex-shrink: 0;
+  }
+
+  /* ── Section header rule ── */
+  .section-rule {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 32px;
+  }
+  .section-rule .rule-line {
+    flex: 1; height: 1px; background: rgba(255,255,255,.1);
+  }
+
+  /* ── Timeline ── */
+  .timeline { display: flex; flex-direction: column; gap: 16px; }
+  .tl-item { display: flex; gap: 16px; align-items: flex-start; }
+  .tl-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #0066FF, #00D9A5);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  .tl-dot.future {
+    background: rgba(255,255,255,.1);
+    border: 2px solid rgba(255,255,255,.2);
+    color: rgba(255,255,255,.4);
+  }
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    height: 6px; border-radius: 100px;
+    background: rgba(255,255,255,.08);
+    overflow: hidden; margin-top: 8px;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 100px;
+    background: linear-gradient(90deg, #0066FF, #00D9A5);
+  }
+
+  /* Light slide overrides */
+  .slide.bg-light .card { background: white; border-color: rgba(0,0,0,.08); color: var(--text); }
+  .slide.bg-light .stat-label { color: #64748b; }
+  .slide.bg-light #nav { /* nav stays dark */ }
+
+  /* Screenshot label */
+  .sc-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    opacity: .5;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 1 · COVER                                            -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-cover active">
+    <div class="orb orb-blue"  style="width:500px;height:500px;top:-100px;left:-100px;"></div>
+    <div class="orb orb-teal"  style="width:400px;height:400px;bottom:0;right:-80px;"></div>
+    <div class="orb orb-purple"style="width:300px;height:300px;top:50%;left:55%;"></div>
+
+    <div class="slide-inner centered">
+      <div class="logomark" style="width:80px;height:80px;border-radius:20px;font-size:32px;margin-bottom:32px;">J</div>
+      <div class="tag tag-blue" style="margin-bottom:24px;">Product Presentation · 2026</div>
+      <h1 style="font-size:clamp(48px,7vw,88px);margin-bottom:20px;">
+        <span class="gradient-text">Jorbex</span>
+      </h1>
+      <p style="font-size:clamp(18px,2.2vw,26px);color:rgba(255,255,255,.65);max-width:600px;line-height:1.5;margin-bottom:48px;">
+        Africa's Premier Talent &amp; Employment Platform
+      </p>
+      <div style="display:flex;gap:32px;justify-content:center;flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div class="stat-num">3</div>
+          <div class="stat-label">Portal Types</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,.1);"></div>
+        <div style="text-align:center;">
+          <div class="stat-num">5</div>
+          <div class="stat-label">Languages</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,.1);"></div>
+        <div style="text-align:center;">
+          <div class="stat-num">54</div>
+          <div class="stat-label">African Countries</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,.1);"></div>
+        <div style="text-align:center;">
+          <div class="stat-num">GDPR</div>
+          <div class="stat-label">Compliant</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 2 · PROBLEM & OPPORTUNITY                            -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-blue" style="width:600px;height:600px;top:-200px;right:-150px;opacity:.15;"></div>
+
+    <div class="slide-inner">
+      <div class="tag tag-dark">The Problem</div>
+      <h2 style="margin-bottom:12px;">Africa's talent market is <span class="gradient-text">broken</span></h2>
+      <p style="color:rgba(255,255,255,.5);margin-bottom:40px;max-width:580px;">
+        Millions of qualified professionals remain invisible to employers. Hiring is slow, unverified, and fragmented.
+      </p>
+
+      <div class="grid-2" style="flex:1;">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card" style="border-color:rgba(239,68,68,.2);background:rgba(239,68,68,.06);">
+            <div style="font-size:36px;font-weight:800;color:#f87171;">73%</div>
+            <div style="font-size:14px;color:rgba(255,255,255,.5);margin-top:4px;">of African employers struggle to find qualified candidates in under 60 days</div>
+          </div>
+          <div class="card" style="border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.06);">
+            <div style="font-size:36px;font-weight:800;color:#fbbf24;">60%</div>
+            <div style="font-size:14px;color:rgba(255,255,255,.5);margin-top:4px;">of job applications contain unverifiable credentials — creating costly bad hires</div>
+          </div>
+          <div class="card" style="border-color:rgba(124,58,237,.2);background:rgba(124,58,237,.06);">
+            <div style="font-size:36px;font-weight:800;color:#a78bfa;">$15B+</div>
+            <div style="font-size:14px;color:rgba(255,255,255,.5);margin-top:4px;">addressable market in African HR-tech by 2027</div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:32px;display:flex;flex-direction:column;justify-content:center;">
+          <h3 style="margin-bottom:24px;color:rgba(255,255,255,.8);">Our Solution</h3>
+          <ul class="feat-list">
+            <li>Verified talent marketplace with ID & document checks</li>
+            <li>AI-matched job recommendations for candidates</li>
+            <li>University, Corporate &amp; Government programme portals</li>
+            <li>Real-time interviews, assessments &amp; offers in one platform</li>
+            <li>Dual-currency billing (Paystack for Africa, Stripe globally)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 3 · PLATFORM OVERVIEW                                -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-teal" style="width:500px;height:500px;bottom:-100px;left:-100px;opacity:.18;"></div>
+
+    <div class="slide-inner">
+      <div class="tag tag-teal">Platform Overview</div>
+      <h2 style="margin-bottom:36px;">Three user worlds. <span class="gradient-text">One platform.</span></h2>
+
+      <div class="grid-3" style="flex:1;">
+        <!-- Candidate -->
+        <div class="card" style="border-color:rgba(0,102,255,.25);display:flex;flex-direction:column;gap:12px;">
+          <div style="width:44px;height:44px;background:linear-gradient(135deg,#0066FF,#0099cc);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">👤</div>
+          <h3>Candidate</h3>
+          <div style="height:1px;background:rgba(255,255,255,.08);"></div>
+          <div class="check-item"><div class="check-dot"></div><span>Smart job search &amp; filters</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>One-click apply</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Skills &amp; aptitude tests</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Interview scheduling</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Offer management</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>ID verification badge</span></div>
+          <div style="margin-top:auto;padding-top:12px;">
+            <span class="pill pill-blue">Free to join</span>
+          </div>
+        </div>
+
+        <!-- Employer -->
+        <div class="card" style="border-color:rgba(0,217,165,.25);display:flex;flex-direction:column;gap:12px;">
+          <div style="width:44px;height:44px;background:linear-gradient(135deg,#00D9A5,#0066FF);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">🏢</div>
+          <h3>Employer</h3>
+          <div style="height:1px;background:rgba(255,255,255,.08);"></div>
+          <div class="check-item"><div class="check-dot"></div><span>Post &amp; manage jobs</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Search verified talent</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Custom assessments</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Interview &amp; video calls</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Offer &amp; onboarding flow</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Company verification badge</span></div>
+          <div style="margin-top:auto;padding-top:12px;">
+            <span class="pill pill-teal">Subscription</span>
+            <span class="pill pill-amber">30-day trial</span>
+          </div>
+        </div>
+
+        <!-- Admin -->
+        <div class="card" style="border-color:rgba(124,58,237,.25);display:flex;flex-direction:column;gap:12px;">
+          <div style="width:44px;height:44px;background:linear-gradient(135deg,#7c3aed,#0066FF);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">⚡</div>
+          <h3>Admin</h3>
+          <div style="height:1px;background:rgba(255,255,255,.08);"></div>
+          <div class="check-item"><div class="check-dot"></div><span>Dashboard &amp; analytics</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Verification queue</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>User management</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Subscription health</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Programme portals</span></div>
+          <div class="check-item"><div class="check-dot"></div><span>Compliance oversight</span></div>
+          <div style="margin-top:auto;padding-top:12px;">
+            <span class="pill pill-purple">Internal only</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 4 · CANDIDATE EXPERIENCE                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-blue" style="width:400px;height:400px;top:-80px;right:100px;opacity:.2;"></div>
+    <div class="slide-inner">
+      <div class="tag tag-blue">Candidate Experience</div>
+      <h2 style="margin-bottom:28px;">Find. Apply. <span class="gradient-text">Get hired.</span></h2>
+
+      <div class="grid-split" style="flex:1;align-items:stretch;">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <h3 style="margin-bottom:8px;font-size:16px;">🔍 Smart Job Search</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Filter by location, expertise, type and salary. Grid &amp; list view toggle.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:8px;font-size:16px;">📋 Rich Profile</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Work history, references, qualifications, skills, personal statement and documents.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:8px;font-size:16px;">📝 Aptitude Tests</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Onboarding test gates access. Custom employer assessments with timed questions.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:8px;font-size:16px;">🎯 End-to-end Flow</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Apply → Interview → Offer → Onboarding all within the platform.</p>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <p class="sc-label" style="color:rgba(255,255,255,.3);">Screenshot — Job Search</p>
+          <div class="screenshot" style="flex:1;min-height:200px;">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Drop screenshot of /candidate/jobs</span>
+          </div>
+          <p class="sc-label" style="color:rgba(255,255,255,.3);">Screenshot — Job Detail</p>
+          <div class="screenshot" style="flex:1;min-height:120px;">
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Drop screenshot of /candidate/jobs/[id]</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 5 · EMPLOYER EXPERIENCE                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-teal" style="width:400px;height:400px;bottom:-80px;left:50px;opacity:.2;"></div>
+    <div class="slide-inner">
+      <div class="tag tag-teal">Employer Experience</div>
+      <h2 style="margin-bottom:28px;">Search. Verify. <span class="gradient-text">Hire smarter.</span></h2>
+
+      <div class="grid-split-r" style="flex:1;align-items:stretch;">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <p class="sc-label" style="color:rgba(255,255,255,.3);">Screenshot — Talent Search</p>
+          <div class="screenshot" style="flex:1;min-height:200px;">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Drop screenshot of /employer/search</span>
+          </div>
+          <p class="sc-label" style="color:rgba(255,255,255,.3);">Screenshot — Candidate Profile</p>
+          <div class="screenshot" style="flex:1;min-height:120px;">
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Drop screenshot of /employer/candidates/[id]</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card">
+            <h3 style="margin-bottom:8px;font-size:16px;">🔎 Talent Search</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Filter by expertise, country, verification status. See ID-verified badges instantly.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:8px;font-size:16px;">📌 Job Management</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Post jobs with rich descriptions. Track applications, shortlist, reject or advance candidates.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:8px;font-size:16px;">🎥 Interviews</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Schedule &amp; conduct video interviews powered by LiveKit. Send reminders via Novu.</p>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:8px;font-size:16px;">✅ Verified Hiring</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Company verification badge signals trust to candidates. See candidate ID-verified shield.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 6 · ADMIN DASHBOARD                                  -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-purple" style="width:450px;height:450px;top:-80px;left:-80px;opacity:.18;"></div>
+    <div class="slide-inner">
+      <div class="tag tag-dark">Admin Control Centre</div>
+      <h2 style="margin-bottom:28px;">Complete <span class="gradient-text">operational visibility.</span></h2>
+
+      <div class="grid-split" style="flex:1;align-items:stretch;">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card" style="border-color:rgba(0,102,255,.2);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:18px;">📊</span>
+              <h3 style="font-size:15px;">Live Dashboard</h3>
+            </div>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">6 KPI cards, subscription health bars, recent users, and pending verification alerts.</p>
+          </div>
+          <div class="card" style="border-color:rgba(245,158,11,.2);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:18px;">🛡️</span>
+              <h3 style="font-size:15px;">Verification Queue</h3>
+            </div>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Tabbed queue: Pending / Approved / Rejected. Document preview. Inline approve/reject with notes.</p>
+          </div>
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:18px;">👥</span>
+              <h3 style="font-size:15px;">User Management</h3>
+            </div>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Filter candidates &amp; employers by country, date joined, expertise. Suspend or verify accounts.</p>
+          </div>
+          <div class="card" style="border-color:rgba(0,217,165,.2);">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-size:18px;">💳</span>
+              <h3 style="font-size:15px;">Subscription Management</h3>
+            </div>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">View Active, Trial &amp; Cancelled subscriptions. Monitor Paystack &amp; Stripe billing health.</p>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <p class="sc-label" style="color:rgba(255,255,255,.3);">Screenshot — Admin Dashboard</p>
+          <div class="screenshot" style="flex:1;">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Drop screenshot of /admin/dashboard</span>
+          </div>
+          <p class="sc-label" style="color:rgba(255,255,255,.3);">Screenshot — Verifications</p>
+          <div class="screenshot" style="flex:1;max-height:160px;">
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Drop screenshot of /admin/verifications</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 7 · PROGRAMMES PORTAL                                -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-blue" style="width:400px;height:400px;bottom:-100px;right:-80px;opacity:.2;"></div>
+    <div class="slide-inner">
+      <div class="tag tag-blue">Programmes Portal</div>
+      <h2 style="margin-bottom:28px;">Institutional talent <span class="gradient-text">at scale.</span></h2>
+
+      <div class="grid-3" style="margin-bottom:24px;">
+        <div class="card" style="border-color:rgba(0,102,255,.3);text-align:center;padding:28px 20px;">
+          <div style="font-size:40px;margin-bottom:12px;">🎓</div>
+          <h3 style="margin-bottom:8px;">University</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.5;">Manage student cohorts, track internship placements, and report outcomes to faculty.</p>
+          <div style="margin-top:16px;"><span class="pill pill-blue">Email login</span></div>
+        </div>
+        <div class="card" style="border-color:rgba(0,217,165,.3);text-align:center;padding:28px 20px;">
+          <div style="font-size:40px;margin-bottom:12px;">🏭</div>
+          <h3 style="margin-bottom:8px;">Corporate</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.5;">Run graduate schemes, internal mobility programmes, and structured talent pipelines.</p>
+          <div style="margin-top:16px;"><span class="pill pill-teal">Email login</span></div>
+        </div>
+        <div class="card" style="border-color:rgba(245,158,11,.3);text-align:center;padding:28px 20px;">
+          <div style="font-size:40px;margin-bottom:12px;">🏛️</div>
+          <h3 style="margin-bottom:8px;">Government</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.5;">Deploy national workforce schemes with access-code login for secure bulk enrolment.</p>
+          <div style="margin-top:16px;"><span class="pill pill-amber">Access code</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="display:flex;align-items:center;gap:24px;padding:20px 28px;">
+        <div style="flex:1;">
+          <h3 style="font-size:15px;margin-bottom:6px;">Multi-tenant portal management</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.5);">Each institution gets a branded sub-portal with custom logo, colours, welcome message and slug URL. Admins approve, configure billing (flat, per-seat, per-placement) and monitor from the central dashboard.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;min-width:200px;">
+          <span class="pill pill-blue">i18n (4 langs)</span>
+          <span class="pill pill-teal">Custom branding</span>
+          <span class="pill pill-purple">RBAC</span>
+          <span class="pill pill-amber">Enquiry flow</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 8 · NOTIFICATIONS & COMMS                            -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-teal"  style="width:350px;height:350px;top:-60px;left:-60px;opacity:.18;"></div>
+    <div class="slide-inner">
+      <div class="tag tag-teal">Notifications & Communications</div>
+      <h2 style="margin-bottom:28px;">Always-on <span class="gradient-text">candidate &amp; employer comms.</span></h2>
+
+      <div class="grid-2" style="flex:1;gap:20px;">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card" style="border-color:rgba(0,217,165,.2);">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+              <div style="width:36px;height:36px;background:rgba(0,217,165,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🔔</div>
+              <h3 style="font-size:15px;">Novu (Self-hosted)</h3>
+            </div>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:10px;">Single trigger routes to all channels: Email, SMS, Push, In-App &amp; Chat.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <span class="pill pill-teal" style="font-size:11px;">Email</span>
+              <span class="pill pill-blue" style="font-size:11px;">SMS</span>
+              <span class="pill pill-purple" style="font-size:11px;">Push</span>
+              <span class="pill pill-amber" style="font-size:11px;">In-App</span>
+              <span class="pill pill-slate" style="font-size:11px;">Mattermost</span>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="font-size:15px;margin-bottom:8px;">📧 Transactional Emails</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">SMTP-powered branded emails: password reset, application received, interview scheduled, offer sent, onboarding sequences (Day 1 / 30 / 90 / Month 6).</p>
+          </div>
+          <div class="card">
+            <h3 style="font-size:15px;margin-bottom:8px;">🌐 Web Push</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Browser push notifications via web-push library. Candidates subscribe on profile. Real-time job alerts and application updates.</p>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="card" style="flex:1;">
+            <h3 style="font-size:15px;margin-bottom:16px;">Notification Workflows</h3>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;color:rgba(255,255,255,.4);width:180px;">New Application</span>
+                <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:100%;"></div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;color:rgba(255,255,255,.4);width:180px;">Interview Scheduled</span>
+                <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:100%;"></div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;color:rgba(255,255,255,.4);width:180px;">Offer Received</span>
+                <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:100%;"></div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;color:rgba(255,255,255,.4);width:180px;">Assessment Assigned</span>
+                <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:100%;"></div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;color:rgba(255,255,255,.4);width:180px;">Hire Day 1 / 30 / 90</span>
+                <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:100%;"></div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;color:rgba(255,255,255,.4);width:180px;">Password Reset</span>
+                <div class="progress-bar" style="flex:1;"><div class="progress-fill" style="width:100%;"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="border-color:rgba(0,217,165,.2);">
+            <h3 style="font-size:15px;margin-bottom:6px;">🎥 Video Interviews</h3>
+            <p style="font-size:13px;color:rgba(255,255,255,.5);">Real-time video calls via LiveKit. Employer creates room, candidate joins from browser. No download required.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 9 · BILLING & PAYMENTS                               -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-blue" style="width:400px;height:400px;top:50%;right:-100px;opacity:.18;"></div>
+    <div class="slide-inner">
+      <div class="tag tag-blue">Billing & Payments</div>
+      <h2 style="margin-bottom:28px;">Dual-currency billing. <span class="gradient-text">Africa-first.</span></h2>
+
+      <div class="grid-2" style="flex:1;gap:24px;">
+        <div class="card" style="border-color:rgba(0,102,255,.3);display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:48px;height:48px;background:rgba(0,102,255,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#60a5fa;">P</div>
+            <div>
+              <h3>Paystack</h3>
+              <p style="font-size:12px;color:rgba(255,255,255,.4);">African currencies</p>
+            </div>
+          </div>
+          <div style="height:1px;background:rgba(255,255,255,.08);"></div>
+          <div class="check-item"><div class="check-dot"></div><span style="font-size:14px;">NGN · ZAR · KES · GHS · EGP and more</span></div>
+          <div class="check-item"><div class="check-dot"></div><span style="font-size:14px;">Subscription plans with recurring billing</span></div>
+          <div class="check-item"><div class="check-dot"></div><span style="font-size:14px;">HMAC-SHA512 webhook verification</span></div>
+          <div class="check-item"><div class="check-dot"></div><span style="font-size:14px;">Graceful cancellation at period end</span></div>
+          <div class="check-item"><div class="check-dot"></div><span style="font-size:14px;">Candidate salary disbursement via Transfer</span></div>
+        </div>
+
+        <div class="card" style="border-color:rgba(0,217,165,.3);display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:48px;height:48px;background:rgba(0,217,165,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#34d399;">S</div>
+            <div>
+              <h3>Stripe</h3>
+              <p style="font-size:12px;color:rgba(255,255,255,.4);">International currencies</p>
+            </div>
+          </div>
+          <div style="height:1px;background:rgba(255,255,255,.08);"></div>
+          <div class="check-item"><div class="check-dot"></div><span style="font-size:14px;">USD · EUR · GBP · CAD · AUD · AED · SGD</span></div>
+          <div class="check-item"><div class="check-dot"></div><span style="font-size:14px;">Checkout sessions for monthly &amp; yearly plans</span></div>
+          <div class="check-item"><div class="check-dot"></div><span style="font-size:14px;">Webhook: payment succeeded &amp; subscription deleted</span></div>
+          <div class="check-item"><div class="check-dot"></div><span style="font-size:14px;">cancel_at_period_end for smooth offboarding</span></div>
+          <div class="check-item"><div class="check-dot"></div><span style="font-size:14px;">Automatic currency routing at checkout</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-color:rgba(245,158,11,.2);">
+        <div>
+          <h3 style="font-size:15px;margin-bottom:4px;">30-day free trial on all employer plans</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.4);">No card required to start. Monthly &amp; yearly billing. Instant activation on payment.</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <span class="pill pill-amber">Trial</span>
+          <span class="pill pill-blue">Active</span>
+          <span class="pill pill-slate">Cancelled</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 10 · LEGAL & COMPLIANCE                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-teal"  style="width:350px;height:350px;bottom:-80px;right:-80px;opacity:.2;"></div>
+    <div class="slide-inner">
+      <div class="tag tag-teal">Legal & Compliance</div>
+      <h2 style="margin-bottom:8px;">Built for <span class="gradient-text">African &amp; global regulations.</span></h2>
+      <p style="color:rgba(255,255,255,.4);margin-bottom:32px;font-size:15px;">Full compliance with GDPR · NDPR (Nigeria) · POPIA (South Africa)</p>
+
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div class="card" style="border-color:rgba(0,217,165,.2);">
+          <div style="font-size:24px;margin-bottom:8px;">🔐</div>
+          <h3 style="font-size:15px;margin-bottom:6px;">Consent at Signup</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.5);">Terms + Privacy consent required. Optional marketing consent. Timestamp &amp; IP stored server-side.</p>
+        </div>
+        <div class="card" style="border-color:rgba(0,102,255,.2);">
+          <div style="font-size:24px;margin-bottom:8px;">📤</div>
+          <h3 style="font-size:15px;margin-bottom:6px;">Right to Portability</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.5);">GDPR Art. 20 — one-click download of all personal data as a JSON file. Payment tokens stripped.</p>
+        </div>
+        <div class="card" style="border-color:rgba(239,68,68,.2);">
+          <div style="font-size:24px;margin-bottom:8px;">🗑️</div>
+          <h3 style="font-size:15px;margin-bottom:6px;">Right to Erasure</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.5);">GDPR Art. 17 — typed confirmation triggers permanent account deletion. Cascades all related data.</p>
+        </div>
+      </div>
+
+      <div class="grid-2" style="gap:20px;">
+        <div class="card">
+          <h3 style="font-size:15px;margin-bottom:10px;">🍪 Cookie Policy</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.5);">Full /cookie-policy page. Cookie consent banner with accept/decline. 4 cookie categories with legal basis per category.</p>
+        </div>
+        <div class="card">
+          <h3 style="font-size:15px;margin-bottom:10px;">🛡️ Security</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,.5);">Rate limiting on all auth endpoints (login, signup, password reset). bcrypt password hashing. JWT sessions. Webhook HMAC verification.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 11 · TECH STACK                                      -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-blue"  style="width:400px;height:400px;top:-80px;right:100px;opacity:.18;"></div>
+    <div class="slide-inner">
+      <div class="tag tag-dark">Technology Stack</div>
+      <h2 style="margin-bottom:32px;">Production-grade. <span class="gradient-text">Modern. Scalable.</span></h2>
+
+      <div class="grid-3" style="gap:16px;flex:1;">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase;">Frontend</p>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">⚡ Next.js 16 (App Router)</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">🎨 Tailwind CSS v4</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">🌀 Framer Motion</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">🌍 next-intl (i18n)</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">📱 Capacitor (iOS/Android)</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase;">Backend & Data</p>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">🔷 TypeScript throughout</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">🗄️ Prisma + PostgreSQL</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">🔐 NextAuth.js (JWT)</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">☁️ AWS S3 (documents)</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">🧪 Jest + ts-jest (tests)</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase;">Services & Infra</p>
+          <div class="card" style="padding:16px;border-color:rgba(0,217,165,.2);"><span style="font-size:13px;">🔔 Novu (self-hosted)</span></div>
+          <div class="card" style="padding:16px;border-color:rgba(0,102,255,.2);"><span style="font-size:13px;">💳 Paystack + Stripe</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">🎥 LiveKit (video)</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">💬 Mattermost (chat)</span></div>
+          <div class="card" style="padding:16px;"><span style="font-size:13px;">📧 SMTP (nodemailer)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 12 · SIGNUP & ONBOARDING                            -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-purple" style="width:400px;height:400px;bottom:-80px;left:-80px;opacity:.18;"></div>
+    <div class="slide-inner">
+      <div class="tag tag-blue">Signup & Onboarding</div>
+      <h2 style="margin-bottom:28px;">From signup to <span class="gradient-text">first application in minutes.</span></h2>
+
+      <div class="grid-split-r" style="flex:1;align-items:stretch;">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <p class="sc-label" style="color:rgba(255,255,255,.3);">Screenshot — Signup Page</p>
+          <div class="screenshot" style="flex:1;">
+            <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Drop screenshot of /signup</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;justify-content:center;gap:16px;">
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot">1</div>
+              <div>
+                <h3 style="font-size:15px;margin-bottom:4px;">Choose role</h3>
+                <p style="font-size:13px;color:rgba(255,255,255,.5);">Candidate or Employer. Single form, role-specific fields.</p>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot">2</div>
+              <div>
+                <h3 style="font-size:15px;margin-bottom:4px;">Accept consents</h3>
+                <p style="font-size:13px;color:rgba(255,255,255,.5);">Terms + Privacy required. Optional marketing consent. Timestamp &amp; IP captured server-side.</p>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot">3</div>
+              <div>
+                <h3 style="font-size:15px;margin-bottom:4px;">Complete profile</h3>
+                <p style="font-size:13px;color:rgba(255,255,255,.5);">Candidates add skills, work history, qualifications. Employers add company details.</p>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot">4</div>
+              <div>
+                <h3 style="font-size:15px;margin-bottom:4px;">Pass onboarding test</h3>
+                <p style="font-size:13px;color:rgba(255,255,255,.5);">Candidates take aptitude test before applying to jobs. Ensures quality.</p>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot">5</div>
+              <div>
+                <h3 style="font-size:15px;margin-bottom:4px;">Get verified</h3>
+                <p style="font-size:13px;color:rgba(255,255,255,.5);">Submit ID / company docs. Admin approves. Verified badge appears on profile.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 13 · ROADMAP                                         -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-dark">
+    <div class="orb orb-blue"  style="width:400px;height:400px;bottom:-80px;right:-80px;opacity:.18;"></div>
+    <div class="slide-inner">
+      <div class="tag tag-dark">Roadmap</div>
+      <h2 style="margin-bottom:32px;">What's <span class="gradient-text">next.</span></h2>
+
+      <div class="grid-3" style="flex:1;gap:16px;">
+        <!-- Now -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <span class="pill pill-teal" style="font-size:11px;">✓ Complete</span>
+            <span style="font-size:14px;font-weight:600;">Now — Core Platform</span>
+          </div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;">✅ Candidate &amp; Employer portals</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;">✅ Admin dashboard &amp; verification</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;">✅ Paystack + Stripe billing</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;">✅ Novu notifications (all channels)</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;">✅ University / Corporate / Gov portals</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;">✅ GDPR / NDPR / POPIA compliance</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;">✅ Password reset + Rate limiting</div>
+        </div>
+
+        <!-- Soon -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <span class="pill pill-blue" style="font-size:11px;">Q3 2026</span>
+            <span style="font-size:14px;font-weight:600;">Next — Growth</span>
+          </div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;border-color:rgba(0,102,255,.2);">📊 Employer analytics dashboard</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;border-color:rgba(0,102,255,.2);">🤖 AI candidate matching &amp; ranking</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;border-color:rgba(0,102,255,.2);">📱 iOS &amp; Android apps (Capacitor)</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;border-color:rgba(0,102,255,.2);">🌍 Expand to 10 more African markets</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.6);padding:14px;border-color:rgba(0,102,255,.2);">💼 Job board SEO &amp; public listings</div>
+        </div>
+
+        <!-- Future -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <span class="pill pill-purple" style="font-size:11px;">2027</span>
+            <span style="font-size:14px;font-weight:600;">Future — Scale</span>
+          </div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.4);padding:14px;border-color:rgba(124,58,237,.15);">🧠 AI CV builder &amp; cover letters</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.4);padding:14px;border-color:rgba(124,58,237,.15);">💰 Salary benchmarking data</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.4);padding:14px;border-color:rgba(124,58,237,.15);">🏦 Earned wage access integration</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.4);padding:14px;border-color:rgba(124,58,237,.15);">🌐 Pan-African background checks API</div>
+          <div class="card" style="font-size:13px;color:rgba(255,255,255,.4);padding:14px;border-color:rgba(124,58,237,.15);">🤝 Recruitment agency white-label</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 14 · CLOSING                                         -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="slide bg-cover">
+    <div class="orb orb-blue"  style="width:600px;height:600px;top:-150px;left:-150px;opacity:.2;"></div>
+    <div class="orb orb-teal"  style="width:500px;height:500px;bottom:-100px;right:-100px;opacity:.2;"></div>
+    <div class="orb orb-purple"style="width:300px;height:300px;top:40%;left:40%;opacity:.15;"></div>
+
+    <div class="slide-inner centered">
+      <div class="logomark" style="width:80px;height:80px;border-radius:20px;font-size:32px;margin-bottom:32px;">J</div>
+      <h1 style="font-size:clamp(40px,6vw,72px);margin-bottom:16px;">
+        Built for <span class="gradient-text">Africa.</span><br/>Ready for the <span class="gradient-text">world.</span>
+      </h1>
+      <p style="font-size:clamp(15px,1.8vw,20px);color:rgba(255,255,255,.55);max-width:560px;margin-bottom:48px;line-height:1.6;">
+        Jorbex connects verified talent with great employers across Africa — with the infrastructure, compliance, and scale to grow globally.
+      </p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:48px;">
+        <span class="pill pill-blue" style="font-size:14px;padding:8px 20px;">jorbex.com</span>
+        <span class="pill pill-teal" style="font-size:14px;padding:8px 20px;">hello@jorbex.com</span>
+      </div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;">
+        <div style="text-align:center;">
+          <div class="stat-num" style="font-size:36px;">Next.js 16</div>
+          <div class="stat-label">Frontend</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,.1);"></div>
+        <div style="text-align:center;">
+          <div class="stat-num" style="font-size:36px;">PostgreSQL</div>
+          <div class="stat-label">Database</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,.1);"></div>
+        <div style="text-align:center;">
+          <div class="stat-num" style="font-size:36px;">22</div>
+          <div class="stat-label">Tests passing</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,.1);"></div>
+        <div style="text-align:center;">
+          <div class="stat-num" style="font-size:36px;">GDPR</div>
+          <div class="stat-label">Compliant</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- Navigation bar -->
+<div id="nav">
+  <button onclick="prev()" title="Previous (←)">&#8592;</button>
+  <span id="slide-counter">1 / 14</span>
+  <button onclick="next()" title="Next (→)">&#8594;</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    document.getElementById('slide-counter').textContent = `${current + 1} / ${slides.length}`;
+  }
+
+  function next() { show(current + 1); }
+  function prev() { show(current - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
+    if (e.key === 'f' || e.key === 'F') { document.documentElement.requestFullscreen?.(); }
+  });
+
+  // Touch swipe support
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend',   e => {
+    const dx = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) dx > 0 ? next() : prev();
+  });
+</script>
+</body>
+</html>
