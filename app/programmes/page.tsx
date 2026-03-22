@@ -40,6 +40,7 @@ const PROGRAMME_TYPES = [
     ),
     type: 'GOVERNMENT',
     tKey: 'gov',
+    registerHref: '/programmes/gov/register',
     gradient: 'from-blue-600 to-indigo-700',
     glow: 'shadow-blue-600/30',
     orbColour: 'bg-blue-400/15 dark:bg-blue-500/8',
@@ -54,6 +55,7 @@ const PROGRAMME_TYPES = [
     ),
     type: 'UNIVERSITY',
     tKey: 'uni',
+    registerHref: '/programmes/university/register',
     gradient: 'from-violet-600 to-purple-700',
     glow: 'shadow-violet-600/30',
     orbColour: 'bg-violet-400/15 dark:bg-violet-500/8',
@@ -68,6 +70,7 @@ const PROGRAMME_TYPES = [
     ),
     type: 'CORPORATE',
     tKey: 'corp',
+    registerHref: '/programmes/corporate/register',
     gradient: 'from-amber-500 to-orange-600',
     glow: 'shadow-amber-500/30',
     orbColour: 'bg-amber-400/15 dark:bg-amber-500/8',
@@ -284,7 +287,7 @@ export default function ProgrammesLandingPage() {
                     {[0,1,2,3,4,5,6,7].map(row =>
                       [0,1,2].map(col => (
                         <rect key={`${row}-${col}`} x={100+col*15} y={24+row*13} width="10" height="8"
-                          fill="white" fillOpacity={Math.random()>0.4?0.40:0.15} rx="1" />
+                          fill="white" fillOpacity={(row*3+col)%3===0?0.15:0.40} rx="1" />
                       ))
                     )}
                     {/* Antenna */}
@@ -472,12 +475,12 @@ export default function ProgrammesLandingPage() {
                     </div>
 
                     {/* CTA */}
-                    <button
-                      onClick={handleCTA}
-                      className={`w-full py-3.5 rounded-xl font-bold text-white bg-linear-to-r ${pt.gradient} hover:opacity-90 hover:scale-[1.02] active:scale-95 transition-all shadow-lg ${pt.glow} cursor-pointer text-sm`}
+                    <Link
+                      href={pt.registerHref}
+                      className={`block w-full py-3.5 rounded-xl font-bold text-white text-center bg-linear-to-r ${pt.gradient} hover:opacity-90 hover:scale-[1.02] active:scale-95 transition-all shadow-lg ${pt.glow} text-sm`}
                     >
                       {t(`programmes.${pt.tKey}_cta`)} →
-                    </button>
+                    </Link>
                   </div>
                 </GlassCard>
               </div>

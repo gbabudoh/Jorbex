@@ -42,6 +42,7 @@ export default function EmployerApplicationsPage() {
   const [all, setAll]                   = useState<Application[]>([]);
   const [loading, setLoading]           = useState(true);
   const [activeTab, setActiveTab]       = useState<string>('all');
+  const [viewMode, setViewMode]         = useState<'grid' | 'list'>('list');
 
   const fetchApplications = useCallback(async () => {
     setLoading(true);
@@ -131,7 +132,36 @@ export default function EmployerApplicationsPage() {
           </p>
         </div>
 
+        {/* View toggle */}
+        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-1">
+          <button
+            onClick={() => setViewMode('list')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              viewMode === 'list'
+                ? 'bg-white dark:bg-gray-800 text-blue-600 shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+            List
+          </button>
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+              viewMode === 'grid'
+                ? 'bg-white dark:bg-gray-800 text-blue-600 shadow-sm'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            Grid
+          </button>
         </div>
+      </div>
 
       {/* Tabs */}
       <div className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-none">
@@ -176,62 +206,127 @@ export default function EmployerApplicationsPage() {
             <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto">{t('employer_applications.no_applications')}</p>
           </CardContent>
         </Card>
-      ) : (
-        <div className="grid gap-4">
+      ) : viewMode === 'grid' ? (
+        /* ── GRID VIEW: 3 columns ── */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {applications.map((app) => (
             <Card
               key={app.id}
-              className={`border-l-4 ${getStatusBorderColor(app.status)} shadow-lg hover:shadow-xl transition-shadow duration-200 rounded-3xl cursor-pointer group`}
+              className={`border-t-4 ${getStatusBorderColor(app.status).replace('border-l-', 'border-t-')} shadow-md hover:shadow-xl transition-all duration-200 rounded-2xl cursor-pointer group hover:-translate-y-0.5`}
               onClick={() => router.push(`/employer/candidates/${app.candidateId}`)}
             >
-              <CardContent className="p-6 md:p-8">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <CardContent className="p-5">
+                {/* Avatar + name */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-11 h-11 rounded-xl bg-linear-to-br from-blue-500 to-indigo-500 flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
+                    <span className="text-base font-black text-white">
+                      {app.candidate?.name?.charAt(0)?.toUpperCase() ?? '?'}
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate text-sm">
+                      {app.candidate?.name ?? '—'}
+                    </h3>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{app.candidate?.email ?? '—'}</p>
+                  </div>
+                </div>
 
-                  {/* Candidate info */}
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-blue-500 to-blue-400 flex items-center justify-center overflow-hidden shrink-0 shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
-                      <span className="text-xl font-black text-white">
-                        {app.candidate?.name?.charAt(0)?.toUpperCase() ?? '?'}
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
-                        {app.candidate?.name ?? '—'}
-                      </h3>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
-                        {t('employer_applications.applied_for')}{' '}
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">{app.job?.title ?? '—'}</span>
-                      </p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                        {new Date(app.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
+                {/* Job */}
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1 truncate">
+                  {t('employer_applications.applied_for')}{' '}
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">{app.job?.title ?? '—'}</span>
+                </p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">
+                  {new Date(app.createdAt).toLocaleDateString()}
+                </p>
+
+                {/* Status row */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${getStatusStyle(app.status)}`}>
+                    {getStatusLabel(app.status)}
+                  </span>
+                  {app.testResult && (
+                    <Badge className="text-xs border border-purple-200 bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800">
+                      {app.testResult.score}%
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Action */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full mt-4 rounded-xl font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-100 dark:border-blue-800 cursor-pointer text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/employer/candidates/${app.candidateId}`);
+                  }}
+                >
+                  {t('employer_applications.review_profile')}
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        /* ── LIST VIEW: single tight row per card ── */
+        <div className="flex flex-col gap-3">
+          {applications.map((app) => (
+            <Card
+              key={app.id}
+              className={`border-l-4 ${getStatusBorderColor(app.status)} shadow-sm hover:shadow-md transition-all duration-200 rounded-2xl cursor-pointer group`}
+              onClick={() => router.push(`/employer/candidates/${app.candidateId}`)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+
+                  {/* Avatar */}
+                  <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-500 to-indigo-500 flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
+                    <span className="text-sm font-black text-white">
+                      {app.candidate?.name?.charAt(0)?.toUpperCase() ?? '?'}
+                    </span>
                   </div>
 
-                  {/* Status & actions */}
-                  <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(app.status)}`}>
-                        {getStatusLabel(app.status)}
-                      </span>
-                      {app.testResult && (
-                        <Badge className="text-xs border border-purple-200 bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800">
-                          {t('employer_applications.test_score')}: {app.testResult.score}%
-                        </Badge>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="rounded-xl font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-100 dark:border-blue-800 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/employer/candidates/${app.candidateId}`);
-                      }}
-                    >
-                      {t('employer_applications.review_profile')}
-                    </Button>
+                  {/* Name + job — grows */}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                      {app.candidate?.name ?? '—'}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                      {t('employer_applications.applied_for')}{' '}
+                      <span className="font-semibold text-slate-700 dark:text-slate-300">{app.job?.title ?? '—'}</span>
+                    </p>
                   </div>
+
+                  {/* Date */}
+                  <span className="text-xs text-slate-400 dark:text-slate-500 shrink-0 hidden sm:block">
+                    {new Date(app.createdAt).toLocaleDateString()}
+                  </span>
+
+                  {/* Status */}
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${getStatusStyle(app.status)}`}>
+                    {getStatusLabel(app.status)}
+                  </span>
+
+                  {/* Score */}
+                  {app.testResult ? (
+                    <Badge className="text-xs border border-purple-200 bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800 shrink-0">
+                      {app.testResult.score}%
+                    </Badge>
+                  ) : <span className="w-12 shrink-0" />}
+
+                  {/* Action */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-xl font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-blue-100 dark:border-blue-800 cursor-pointer shrink-0 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/employer/candidates/${app.candidateId}`);
+                    }}
+                  >
+                    {t('employer_applications.review_profile')}
+                  </Button>
                 </div>
               </CardContent>
             </Card>

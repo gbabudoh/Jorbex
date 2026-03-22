@@ -9,6 +9,9 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const isInterviewPage = pathname?.startsWith('/interview');
   const isAdminPage = pathname?.startsWith('/admin');
+  const isProgrammesPortal = pathname?.startsWith('/programmes/gov') ||
+    pathname?.startsWith('/programmes/university') ||
+    pathname?.startsWith('/programmes/corporate');
   const isProfilePage = pathname?.startsWith('/candidate') || pathname?.startsWith('/employer');
 
   if (isInterviewPage) {
@@ -16,6 +19,10 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   }
 
   if (isAdminPage) {
+    return <>{children}</>;
+  }
+
+  if (isProgrammesPortal) {
     return <>{children}</>;
   }
 

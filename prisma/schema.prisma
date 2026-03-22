@@ -30,7 +30,6 @@ model Employer {
   
   // Relations
   jobs                     Job[]
-  programmes               Programme[]
   applications             Application[]
   interviews               Interview[]
   offers                   Offer[]
@@ -636,17 +635,134 @@ enum PayslipStatus {
 }
 
 // ─── Programmes ───────────────────────────────────────────────────────────────
+//
+// Architecture:
+//   ProgrammeEnquiry   — captures register form submissions; reviewed by Jorbex admin
+//   ProgrammePortal    — the approved institutional account (Gov / Uni / Corp)
+//   ProgrammeUser      — portal managers/admins with their own login (separate from Employer/Candidate)
+//   ProgrammeAccessCode — Jorbex-provisioned login codes for Government portals (no password auth)
+//   Programme          — an individual scheme/cohort inside a portal
+//   ProgrammeMember    — candidates enrolled in a programme
+//   ProgrammeInviteCode — codes that let candidates join a specific programme
+//   ProgrammeJob       — jobs attached to a programme
+
+// ── Enquiry (from /programmes/register) ─────────────────────────────────────
+
+model ProgrammeEnquiry {
+  id              String         @id @default(uuid())
+  type            ProgrammeType
+  institutionName String
+  country         String
+  city            String?
+  contactName     String?
+  contactTitle    String?
+  email           String
+  phone           String?
+  website         String?
+  estimatedSize   String?
+  notes           String?        @db.Text
+
+  status          EnquiryStatus  @default(PENDING)
+  reviewedAt      DateTime?
+  reviewedBy      String?        // Admin.id who actioned it
+  reviewNotes     String?        @db.Text
+
+  // Set once Jorbex approves and creates the portal
+  portalId        String?        @unique
+  portal          ProgrammePortal? @relation(fields: [portalId], references: [id])
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+// ── Portal (the institutional account) ──────────────────────────────────────
+
+model ProgrammePortal {
+  id              String              @id @default(uuid())
+  type            ProgrammeType
+
+  // Institution details
+  institutionName String
+  country         String
+  city            String?
+  website         String?
+  slug            String              @unique  // e.g. "unilag", "shell-ng", "fmol-gov"
+
+  // Branding
+  logoUrl         String?
+  bannerUrl       String?
+  primaryColour   String              @default("#2563eb")
+  welcomeMessage  String?             @db.Text
+
+  // Billing
+  billingModel    String              @default("FLAT")  // "FLAT" | "PER_SEAT" | "PER_PLACEMENT"
+  billingAmount   Float?
+  billingCurrency String              @default("NGN")
+  subscriptionStatus PortalSubStatus  @default(TRIAL)
+  subscriptionEndDate DateTime?
+
+  status          PortalStatus        @default(PENDING)  // PENDING until Jorbex approves
+  approvedAt      DateTime?
+  approvedBy      String?             // Admin.id
+
+  // Relations
+  users           ProgrammeUser[]
+  accessCodes     ProgrammeAccessCode[]
+  programmes      Programme[]
+  enquiry         ProgrammeEnquiry?   // originating enquiry (nullable — admin may create directly)
+
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+// ── Portal Users (managers/admins for University & Corporate) ────────────────
+
+model ProgrammeUser {
+  id          String          @id @default(uuid())
+  portalId    String
+  portal      ProgrammePortal @relation(fields: [portalId], references: [id], onDelete: Cascade)
+
+  name        String
+  email       String          @unique
+  password    String          // bcrypt hash; null only for Government (uses access codes instead)
+  role        PortalUserRole  @default(MANAGER)
+
+  isActive    Boolean         @default(true)
+  lastLoginAt DateTime?
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+// ── Government Access Codes (provisioned by Jorbex admin) ───────────────────
+
+model ProgrammeAccessCode {
+  id          String          @id @default(uuid())
+  portalId    String
+  portal      ProgrammePortal @relation(fields: [portalId], references: [id], onDelete: Cascade)
+
+  code        String          @unique
+  label       String?         // e.g. "Director of Placement — Federal Ministry of Labour"
+  isActive    Boolean         @default(true)
+  expiresAt   DateTime?
+  lastUsedAt  DateTime?
+  usedCount   Int             @default(0)
+
+  createdAt   DateTime        @default(now())
+}
+
+// ── Programme (a single scheme/cohort inside a portal) ───────────────────────
 
 model Programme {
   id              String                @id @default(uuid())
-  slug            String                @unique   // URL slug e.g. "nysc-2026"
+  slug            String                @unique  // e.g. "nysc-2026-batch-a"
   name            String
   description     String?               @db.Text
   type            ProgrammeType
 
-  // Institution managing this programme (registered as an Employer)
-  ownerId         String
-  owner           Employer              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  // Owned by a portal, not an Employer
+  portalId        String
+  portal          ProgrammePortal       @relation(fields: [portalId], references: [id], onDelete: Cascade)
 
   // Programme details
   country         String?
@@ -659,16 +775,11 @@ model Programme {
   inviteOnly      Boolean               @default(true)
   allowedDomains  String[]              // e.g. ["unilag.edu.ng"] restricts by email domain
 
-  // Branding
+  // Branding (inherits from portal, can override)
   logoUrl         String?
   bannerUrl       String?
-  primaryColour   String                @default("#10b981")
+  primaryColour   String?
   welcomeMessage  String?               @db.Text
-
-  // Billing
-  billingModel    String                @default("FLAT")   // "FLAT" | "PER_SEAT" | "PER_PLACEMENT"
-  billingAmount   Float?
-  billingCurrency String                @default("NGN")
 
   status          ProgrammeStatus       @default(DRAFT)
 
@@ -680,6 +791,8 @@ model Programme {
   createdAt       DateTime              @default(now())
   updatedAt       DateTime              @updatedAt
 }
+
+// ── Programme Members (candidates enrolled in a programme) ───────────────────
 
 model ProgrammeMember {
   id          String                @id @default(uuid())
@@ -694,16 +807,21 @@ model ProgrammeMember {
   @@unique([programmeId, candidateId])
 }
 
+// ── Invite Codes (for candidates to join a programme) ────────────────────────
+
 model ProgrammeInviteCode {
   id          String    @id @default(uuid())
   programmeId String
   programme   Programme @relation(fields: [programmeId], references: [id], onDelete: Cascade)
   code        String    @unique
+  label       String?
   maxUses     Int?      // null = unlimited
   usedCount   Int       @default(0)
   expiresAt   DateTime?
   createdAt   DateTime  @default(now())
 }
+
+// ── Programme Jobs (jobs attached to a programme) ────────────────────────────
 
 model ProgrammeJob {
   id          String    @id @default(uuid())
@@ -715,6 +833,8 @@ model ProgrammeJob {
 
   @@unique([programmeId, jobId])
 }
+
+// ── Enums ────────────────────────────────────────────────────────────────────
 
 enum ProgrammeType {
   GOVERNMENT
@@ -734,6 +854,34 @@ enum ProgrammeMemberStatus {
   ACTIVE
   COMPLETED
   REMOVED
+}
+
+enum PortalStatus {
+  PENDING     // awaiting Jorbex admin approval
+  ACTIVE      // live and accessible
+  SUSPENDED   // temporarily disabled
+  REJECTED    // application declined
+}
+
+enum PortalSubStatus {
+  TRIAL
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum PortalUserRole {
+  OWNER       // institution's primary admin (created at approval)
+  MANAGER     // can manage programmes and members
+  VIEWER      // read-only reporting access
+}
+
+enum EnquiryStatus {
+  PENDING     // submitted, not yet reviewed
+  REVIEWING   // Jorbex team is reviewing
+  APPROVED    // portal has been created
+  REJECTED    // declined
+  MORE_INFO   // team requested more information
 }
 
 model Admin {

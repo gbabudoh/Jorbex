@@ -3,11 +3,22 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signIn } from 'next-auth/react';
+import Link from 'next/link';
 import { AFRICAN_COUNTRIES } from '@/lib/constants';
 
 type InstitutionType = 'GOVERNMENT' | 'UNIVERSITY' | 'CORPORATE';
 
-const INSTITUTION_TYPES: { value: InstitutionType; icon: string; label: string; sub: string; colour: string; border: string }[] = [
+const INSTITUTION_TYPES: {
+  value: InstitutionType;
+  icon: string;
+  label: string;
+  sub: string;
+  colour: string;
+  border: string;
+  action: string;       // what clicking Continue actually does
+  actionLabel: string;  // label on the Continue button
+  actionNote: string;   // small note shown under the card when selected
+}[] = [
   {
     value: 'GOVERNMENT',
     icon: '🏛️',
@@ -15,6 +26,9 @@ const INSTITUTION_TYPES: { value: InstitutionType; icon: string; label: string; 
     sub: 'Ministries, agencies, and government-funded internship schemes',
     colour: 'from-blue-600 to-indigo-700',
     border: 'border-blue-500 bg-blue-50 dark:bg-blue-900/20',
+    action: 'enquiry',
+    actionLabel: 'Submit Enquiry →',
+    actionNote: 'Our team will contact you within 2 business days to set up your dedicated portal and custom contract.',
   },
   {
     value: 'UNIVERSITY',
@@ -23,6 +37,9 @@ const INSTITUTION_TYPES: { value: InstitutionType; icon: string; label: string; 
     sub: 'Universities, polytechnics, and higher education careers offices',
     colour: 'from-violet-600 to-purple-700',
     border: 'border-violet-500 bg-violet-50 dark:bg-violet-900/20',
+    action: 'enquiry',
+    actionLabel: 'Register Institution →',
+    actionNote: 'We\'ll set up a branded university careers portal and employer partnership network for your students.',
   },
   {
     value: 'CORPORATE',
@@ -31,6 +48,9 @@ const INSTITUTION_TYPES: { value: InstitutionType; icon: string; label: string; 
     sub: 'Companies and HR teams running graduate schemes or managed hiring',
     colour: 'from-amber-500 to-orange-600',
     border: 'border-amber-500 bg-amber-50 dark:bg-amber-900/20',
+    action: 'signup',
+    actionLabel: 'Create Account →',
+    actionNote: 'Corporates sign up directly and get instant access to post jobs, search verified candidates, and run assessments.',
   },
 ];
 
@@ -158,39 +178,76 @@ export default function ProgrammesRegisterPage() {
 
               {/* Step 1 — institution type */}
               {step === 1 && (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-black text-gray-900 dark:text-white mb-6">What type of institution are you?</h2>
-                  {INSTITUTION_TYPES.map(t => (
-                    <button
-                      key={t.value}
-                      type="button"
-                      onClick={() => setType(t.value)}
-                      className={`w-full flex items-start gap-4 p-5 rounded-xl border-2 text-left transition-all cursor-pointer ${type === t.value ? t.border + ' border-2' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'}`}
-                    >
-                      <span className="text-3xl shrink-0">{t.icon}</span>
-                      <div>
-                        <div className="font-bold text-gray-900 dark:text-white">{t.label}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t.sub}</div>
-                      </div>
-                      {type === t.value && (
-                        <div className="ml-auto shrink-0 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                          </svg>
+                <div className="space-y-3">
+                  <h2 className="text-lg font-black text-gray-900 dark:text-white mb-5">What type of institution are you?</h2>
+                  {INSTITUTION_TYPES.map(it => (
+                    <div key={it.value}>
+                      <button
+                        type="button"
+                        onClick={() => setType(it.value)}
+                        className={`w-full flex items-start gap-4 p-5 rounded-xl border-2 text-left transition-all cursor-pointer ${type === it.value ? it.border + ' border-2' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'}`}
+                      >
+                        <span className="text-3xl shrink-0">{it.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900 dark:text-white">{it.label}</span>
+                            {it.action === 'signup' && (
+                              <span className="text-[10px] font-black bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full uppercase tracking-wide">Self-serve</span>
+                            )}
+                            {it.action === 'enquiry' && (
+                              <span className="text-[10px] font-black bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full uppercase tracking-wide">Managed setup</span>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{it.sub}</div>
+                        </div>
+                        {type === it.value && (
+                          <div className="ml-auto shrink-0 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        )}
+                      </button>
+
+                      {/* Action note shown when selected */}
+                      {type === it.value && (
+                        <div className="mx-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-b-xl -mt-1 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                          {it.actionNote}
                         </div>
                       )}
-                    </button>
+                    </div>
                   ))}
 
-                  <button
-                    onClick={() => type && setStep(2)}
-                    disabled={!type}
-                    className="w-full mt-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white py-3.5 rounded-xl font-bold transition-colors cursor-pointer"
-                  >
-                    Continue →
-                  </button>
+                  {/* CTA — different per type */}
+                  {(() => {
+                    const selected = INSTITUTION_TYPES.find(it => it.value === type);
+                    if (!type || !selected) {
+                      return (
+                        <button disabled className="w-full mt-3 bg-blue-600 disabled:opacity-40 text-white py-3.5 rounded-xl font-bold cursor-not-allowed">
+                          Select a type to continue
+                        </button>
+                      );
+                    }
+                    if (selected.action === 'signup') {
+                      return (
+                        <Link href="/signup?type=employer&programme=corporate" className="block w-full mt-3">
+                          <button className="w-full bg-linear-to-r from-amber-500 to-orange-600 hover:opacity-90 text-white py-3.5 rounded-xl font-bold transition-all cursor-pointer shadow-lg shadow-amber-500/20">
+                            {selected.actionLabel}
+                          </button>
+                        </Link>
+                      );
+                    }
+                    return (
+                      <button
+                        onClick={() => setStep(2)}
+                        className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold transition-colors cursor-pointer"
+                      >
+                        {selected.actionLabel}
+                      </button>
+                    );
+                  })()}
 
-                  <p className="text-center text-sm text-gray-400 dark:text-gray-500 pt-2">
+                  <p className="text-center text-sm text-gray-400 dark:text-gray-500 pt-1">
                     Already have an account?{' '}
                     <button onClick={() => signIn()} className="text-blue-600 dark:text-blue-400 underline cursor-pointer">Sign in</button>
                   </p>
@@ -281,7 +338,7 @@ export default function ProgrammesRegisterPage() {
                       ← Back
                     </button>
                     <button onClick={handleSubmit} disabled={loading} className="flex-2 flex-grow bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-3 rounded-xl font-bold transition-colors cursor-pointer">
-                      {loading ? 'Submitting…' : 'Submit Enquiry'}
+                      {loading ? 'Submitting…' : (typeMeta?.actionLabel ?? 'Submit →')}
                     </button>
                   </div>
                 </div>

@@ -7,6 +7,10 @@ declare module 'next-auth' {
       email: string;
       name: string;
       userType: string;
+      portalId?: string;
+      portalType?: string;
+      portalSlug?: string;
+      portalName?: string;
     };
   }
 
@@ -15,6 +19,10 @@ declare module 'next-auth' {
     email: string;
     name: string;
     userType: string;
+    portalId?: string;
+    portalType?: string;
+    portalSlug?: string;
+    portalName?: string;
   }
 }
 
@@ -22,6 +30,9 @@ declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
     userType: string;
+    portalId?: string;
+    portalType?: string;
+    portalSlug?: string;
+    portalName?: string;
   }
 }
-
