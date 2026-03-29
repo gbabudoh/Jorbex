@@ -1,7 +1,7 @@
 /**
- * LiveKit utility for generating access tokens and room names
+ * LiveKit utility for generating access tokens, room names, and egress (recording)
  */
-import { AccessToken } from 'livekit-server-sdk';
+import { AccessToken, EgressClient, EncodedFileOutput, EncodedFileType, S3Upload } from 'livekit-server-sdk';
 
 export interface InterviewMeeting {
   meetingUrl: string;
@@ -61,3 +61,53 @@ export function createInterviewMeeting(
 }
 
 export { LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET };
+
+// ─── Egress (Recording) ───────────────────────────────────────────────────────
+
+const MINIO_ENDPOINT  = process.env.MINIO_ENDPOINT  || '';
+const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY || '';
+const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY || '';
+const MINIO_BUCKET    = process.env.MINIO_BUCKET    || 'jorbex';
+
+/** Derives the predictable MinIO URL for a recording given the interview ID */
+export function getRecordingUrl(interviewId: string): string {
+  return `${MINIO_ENDPOINT}/${MINIO_BUCKET}/recordings/interview-${interviewId}.mp4`;
+}
+
+/**
+ * Start a RoomComposite egress that records the interview to MinIO.
+ * Returns the LiveKit egressId — store this on the Interview record.
+ */
+export async function startRoomRecording(roomName: string, interviewId: string): Promise<string> {
+  const client = new EgressClient(LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
+
+  const output = new EncodedFileOutput({
+    fileType: EncodedFileType.DEFAULT_FILETYPE,
+    filepath: `recordings/interview-${interviewId}.mp4`,
+    output: {
+      case: 's3',
+      value: new S3Upload({
+        accessKey: MINIO_ACCESS_KEY,
+        secret: MINIO_SECRET_KEY,
+        bucket: MINIO_BUCKET,
+        endpoint: MINIO_ENDPOINT,
+        forcePathStyle: true,
+        region: 'us-east-1',
+      }),
+    },
+  });
+
+  const info = await client.startRoomCompositeEgress(roomName, { file: output }, {
+    layout: 'speaker-dark',
+  });
+
+  return info.egressId;
+}
+
+/**
+ * Stop an active egress. LiveKit will finalise and upload the file to MinIO.
+ */
+export async function stopRoomRecording(egressId: string): Promise<void> {
+  const client = new EgressClient(LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
+  await client.stopEgress(egressId);
+}

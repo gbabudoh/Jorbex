@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { scheduleInterview as notifyScheduleInterview } from '@/lib/notifications';
+import { scheduleInterview as notifyScheduleInterview, notifyPanelInterviewer } from '@/lib/notifications';
 import { mattermost } from '@/lib/mattermost';
 
 export async function POST(request: Request) {
@@ -110,18 +110,54 @@ export async function POST(request: Request) {
       });
     }
 
-    // 6. Notifications
+    // 6. Notifications — candidate
     await notifyScheduleInterview({
-      interviewId:    interview.id,
-      candidateId:    candidate.id,
-      candidateEmail: candidate.email,
-      candidateName:  candidate.name,
-      employerName:   employer.name,
-      companyName:    employer.companyName,
-      position:       positionTitle,
-      interviewDate:  scheduledDate,
+      interviewId:     interview.id,
+      candidateId:     candidate.id,
+      candidateEmail:  candidate.email,
+      candidateName:   candidate.name,
+      employerId:      employer.id,
+      employerEmail:   employer.email,
+      employerName:    employer.name,
+      companyName:     employer.companyName,
+      position:        positionTitle,
+      interviewDate:   scheduledDate,
       interviewerName: interviewerName || employer.name,
-    }).catch((err: unknown) => console.error('[Schedule] Notification error:', err));
+    }).catch((err: unknown) => console.error('[Schedule] Candidate notification error:', err));
+
+    // 6b. PanelInvites — create a signed token for each additional interviewer
+    //     and email them their personal join link
+    const panelMembers = (interviewers as { name: string; email: string }[] | undefined)
+      ?.filter((i) => i.name?.trim() && i.email?.trim()) ?? [];
+
+    if (type === 'virtual' && panelMembers.length > 0) {
+      const panelExpiresAt = new Date(scheduledDate.getTime() + 4 * 60 * 60 * 1000); // +4 h
+
+      await Promise.all(
+        panelMembers.map(async (inv) => {
+          const invite = await prisma.panelInvite.create({
+            data: {
+              interviewId: interview.id,
+              name:        inv.name,
+              email:       inv.email,
+              expiresAt:   panelExpiresAt,
+            },
+          });
+
+          const joinUrl = `${baseAppUrl}/interview/${interview.id}?token=${invite.token}`;
+
+          await notifyPanelInterviewer({
+            interviewerName:  inv.name,
+            interviewerEmail: inv.email,
+            companyName:      employer.companyName,
+            candidateName:    candidate.name,
+            position:         positionTitle,
+            interviewDate:    scheduledDate,
+            joinUrl,
+          }).catch((err: unknown) => console.error(`[Schedule] Panel invite error for ${inv.email}:`, err));
+        })
+      );
+    }
 
     // Update Application Status
     if (applicationId) {

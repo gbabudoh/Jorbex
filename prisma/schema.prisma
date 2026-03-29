@@ -293,6 +293,9 @@ model Interview {
   notes               String?         @db.Text
   feedback            String?         @db.Text
   rating              Int?
+  recordingUrl        String?         // MinIO URL — set when recording is READY
+  egressId            String?         // LiveKit Egress ID for active/completed recording
+  recordingStatus     RecordingStatus @default(NONE)
   status              InterviewStatus @default(PENDING)
   cancelledAt              DateTime?
   cancelReason             String?
@@ -302,9 +305,22 @@ model Interview {
   
   // Relations
   reminders           Reminder[]
-  
+  panelInvites        PanelInvite[]
+
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
+}
+
+model PanelInvite {
+  id          String    @id @default(uuid())
+  interviewId String
+  interview   Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  token       String    @unique @default(uuid())
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
 }
 
 model Reminder {
@@ -500,7 +516,9 @@ model EmploymentRecord {
 
   // Employment details
   country             String    // ISO2 country code e.g. NG, KE
-  grossSalary         Float
+  payType             PayType   @default(SALARY)      // SALARY | HOURLY — determines payroll calculation path
+  grossSalary         Float                           // used when payType = SALARY
+  hourlyRate          Float?                          // used when payType = HOURLY (Phase 2: clocking system)
   currency            String
   payrollCycle        String    @default("monthly")  // "monthly" | "biweekly"
   startDate           DateTime
@@ -657,6 +675,19 @@ enum PayslipStatus {
   GENERATED     // salary slip created in Frappe
   DISBURSED     // salary transferred via Paystack
   FAILED        // disbursement failed
+}
+
+enum PayType {
+  SALARY        // fixed monthly/biweekly gross salary
+  HOURLY        // rate × hours worked; requires clocking system (Phase 2)
+}
+
+enum RecordingStatus {
+  NONE          // interview was not recorded
+  RECORDING     // LiveKit Egress is actively recording
+  PROCESSING    // egress stopped; LiveKit is finalising the file
+  READY         // recording available at recordingUrl
+  FAILED        // egress or upload error
 }
 
 // ─── Programmes ───────────────────────────────────────────────────────────────

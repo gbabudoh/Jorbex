@@ -18,15 +18,25 @@ interface InterviewRoomProps {
   roomName: string;
   displayName: string;
   serverUrl: string;
+  duration?: number;
+  scheduledAt?: string;
+  isEmployer?: boolean;
+  interviewId?: string;
+  panelToken?: string;
 }
 
-export default function InterviewRoom({ roomName, displayName, serverUrl }: InterviewRoomProps) {
+export default function InterviewRoom({ roomName, displayName, serverUrl, duration, scheduledAt, isEmployer, interviewId, panelToken }: InterviewRoomProps) {
   return (
     <div className="flex-1 flex flex-col min-h-0 w-full">
       <LiveKitMeeting
         roomName={roomName}
         displayName={displayName}
         serverUrl={serverUrl}
+        duration={duration}
+        scheduledAt={scheduledAt}
+        isEmployer={isEmployer}
+        interviewId={interviewId}
+        panelToken={panelToken}
       />
     </div>
   );

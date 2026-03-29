@@ -128,6 +128,51 @@ async function sendViaNovu(params: {
   }
 }
 
+// ─── Panel Interviewer Invite ────────────────────────────────────────────────
+/**
+ * Send a personalised invite email to each panel interviewer with their
+ * signed join link. Uses their email as the Novu subscriber ID so no
+ * Jorbex account is required.
+ */
+export async function notifyPanelInterviewer(params: {
+  interviewerName:  string;
+  interviewerEmail: string;
+  companyName:      string;
+  candidateName:    string;
+  position:         string;
+  interviewDate:    Date;
+  joinUrl:          string;   // /interview/{id}?token={panelToken}
+}) {
+  const { interviewerName, interviewerEmail, companyName, candidateName, position, interviewDate, joinUrl } = params;
+
+  const formattedDate = interviewDate.toLocaleString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric',
+    year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short',
+  });
+
+  // Use email as subscriber ID — creates a Novu subscriber for external people
+  const subscriberId = `panel-${interviewerEmail.replace(/[^a-z0-9]/gi, '-')}`;
+
+  try {
+    await syncSubscriber({ subscriberId, name: interviewerName, email: interviewerEmail });
+    await triggerNotification({
+      workflowId:   WORKFLOWS.PANEL_INTERVIEWER_INVITED,
+      subscriberId,
+      to:           { email: interviewerEmail, firstName: interviewerName.split(' ')[0] },
+      payload: {
+        interviewerName,
+        companyName,
+        candidateName,
+        position,
+        interviewDate: formattedDate,
+        joinUrl,
+      },
+    });
+  } catch (err) {
+    console.error('[Notification] panel interviewer invite failed:', err);
+  }
+}
+
 // ─── Interview Scheduling ────────────────────────────────────────────────────
 export async function scheduleInterview({
   interviewId,
