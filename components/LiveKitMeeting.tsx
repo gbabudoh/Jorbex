@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, Component } from 'react';
+import type { ReactNode } from 'react';
 import {
   LiveKitRoom,
   VideoConference,
@@ -24,6 +25,27 @@ interface LiveKitMeetingProps {
   /** Panel invite token — resolves external interviewer identity server-side */
   panelToken?: string;
   onLeave?: () => void;
+}
+
+// Catches the LiveKit "Element not part of the array" race condition on disconnect
+class LiveKitErrorBoundary extends Component<
+  { children: ReactNode; fallback?: ReactNode },
+  { caught: boolean }
+> {
+  state = { caught: false };
+  static getDerivedStateFromError() {
+    return { caught: true };
+  }
+  componentDidCatch(err: Error) {
+    // Only suppress known LiveKit internal track-array mismatch errors
+    if (!err.message?.includes('not part of the array') && !err.message?.includes('not in')) {
+      throw err;
+    }
+  }
+  render() {
+    if (this.state.caught) return this.props.fallback ?? null;
+    return this.props.children;
+  }
 }
 
 function JorbexBranding() {
@@ -445,39 +467,42 @@ export default function LiveKitMeeting({
         </div>
       )}
 
-      <LiveKitRoom
-        key={token}
-        token={token}
-        serverUrl={effectiveServerUrl}
-        data-lk-theme="default"
-        onDisconnected={handleDisconnected}
-        onConnected={handleConnected}
-        onError={handleError}
-        className="h-full"
-        connect={true}
-        options={{
-          adaptiveStream: true,
-          dynacast: true,
-        }}
-        style={{ height: '100%', flex: '1 1 0%', minHeight: 0 }}
-      >
-        <VideoConference />
-        <RoomAudioRenderer />
-        {connectionStatus === 'disconnected' && (
-          <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-60">
-            <div className="text-center px-4">
-              <p className="text-red-400 font-bold mb-2">Room Disconnected</p>
-              <p className="text-gray-400 text-sm mb-4">The connection to the interview room was lost.</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
-              >
-                Try Reconnecting
-              </button>
-            </div>
+      {connectionStatus === 'disconnected' ? (
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-60">
+          <div className="text-center px-4">
+            <p className="text-red-400 font-bold mb-2">Room Disconnected</p>
+            <p className="text-gray-400 text-sm mb-4">The connection to the interview room was lost.</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+            >
+              Try Reconnecting
+            </button>
           </div>
-        )}
-      </LiveKitRoom>
+        </div>
+      ) : (
+        <LiveKitRoom
+          key={token}
+          token={token}
+          serverUrl={effectiveServerUrl}
+          data-lk-theme="default"
+          onDisconnected={handleDisconnected}
+          onConnected={handleConnected}
+          onError={handleError}
+          className="h-full"
+          connect={true}
+          options={{
+            adaptiveStream: true,
+            dynacast: true,
+          }}
+          style={{ height: '100%', flex: '1 1 0%', minHeight: 0 }}
+        >
+          <LiveKitErrorBoundary>
+            <VideoConference />
+          </LiveKitErrorBoundary>
+          <RoomAudioRenderer />
+        </LiveKitRoom>
+      )}
     </div>
   );
 }

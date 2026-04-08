@@ -302,6 +302,8 @@ model Interview {
   mattermostChannelId      String?
   candidateArchivedAt      DateTime?   // set when candidate archives — auto-deleted after 30 days
   candidateRemovedAt       DateTime?   // set when candidate removes — hidden permanently
+  employerArchivedAt       DateTime?   // set when employer archives — moves to Archive tab
+  employerDeletedAt        DateTime?   // set when employer deletes — hidden permanently
   
   // Relations
   reminders           Reminder[]

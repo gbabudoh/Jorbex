@@ -28,20 +28,31 @@ interface Interview {
   meetingUrl?: string;
   notes?: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show' | 'rescheduled';
+  employerArchivedAt?: string | null;
 }
+
+type Tab = 'upcoming' | 'past' | 'archive';
 
 export default function EmployerInterviewsPage() {
   const { t } = useLanguage();
   const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [archivedInterviews, setArchivedInterviews] = useState<Interview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [activeTab, setActiveTab] = useState<Tab>('upcoming');
 
   const fetchInterviews = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/interviews');
-      if (response.ok) {
-        const data = await response.json();
+      const [activeRes, archiveRes] = await Promise.all([
+        fetch('/api/v1/interviews'),
+        fetch('/api/v1/interviews?archived=true'),
+      ]);
+      if (activeRes.ok) {
+        const data = await activeRes.json();
         setInterviews(data.interviews || []);
+      }
+      if (archiveRes.ok) {
+        const data = await archiveRes.json();
+        setArchivedInterviews(data.interviews || []);
       }
     } catch (error) {
       console.error('Failed to fetch interviews:', error);
@@ -62,7 +73,23 @@ export default function EmployerInterviewsPage() {
     i => new Date(i.dateTime) <= now || ['cancelled', 'completed', 'no_show'].includes(i.status)
   );
 
-  const displayedInterviews = activeTab === 'upcoming' ? upcomingInterviews : pastInterviews;
+  const displayedInterviews =
+    activeTab === 'upcoming' ? upcomingInterviews
+    : activeTab === 'past'   ? pastInterviews
+    :                          archivedInterviews;
+
+  const handleAction = useCallback(async (interviewId: string, action: 'archive' | 'delete' | 'unarchive') => {
+    try {
+      const res = await fetch(`/api/v1/interviews/${interviewId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      if (res.ok) await fetchInterviews();
+    } catch (err) {
+      console.error(`Action ${action} failed:`, err);
+    }
+  }, [fetchInterviews]);
 
   if (isLoading) {
     return (
@@ -102,26 +129,18 @@ export default function EmployerInterviewsPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6 border-b border-gray-200 dark:border-gray-800">
-        <button
-          onClick={() => setActiveTab('upcoming')}
-          className={`px-4 py-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'upcoming'
-              ? 'border-[#0066FF] text-[#0066FF]'
-              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
-        >
+        <TabButton active={activeTab === 'upcoming'} onClick={() => setActiveTab('upcoming')}>
           {t('interviews.upcoming')} ({upcomingInterviews.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('past')}
-          className={`px-4 py-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'past'
-              ? 'border-[#0066FF] text-[#0066FF]'
-              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-          }`}
-        >
+        </TabButton>
+        <TabButton active={activeTab === 'past'} onClick={() => setActiveTab('past')}>
           {t('interviews.past')} ({pastInterviews.length})
-        </button>
+        </TabButton>
+        <TabButton active={activeTab === 'archive'} onClick={() => setActiveTab('archive')}>
+          <svg className="w-3.5 h-3.5 inline-block mr-1 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12" />
+          </svg>
+          Archive ({archivedInterviews.length})
+        </TabButton>
       </div>
 
       {/* Interview Grid */}
@@ -129,12 +148,20 @@ export default function EmployerInterviewsPage() {
         <Card className="border-dashed border-2 rounded-3xl shadow-none">
           <CardContent className="py-20 text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              {activeTab === 'archive' ? (
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12" />
+                </svg>
+              ) : (
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              )}
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-              {activeTab === 'upcoming' ? t('interviews.no_upcoming') : t('interviews.no_past')}
+              {activeTab === 'upcoming' ? t('interviews.no_upcoming')
+               : activeTab === 'past' ? t('interviews.no_past')
+               : 'No archived interviews'}
             </h3>
             {activeTab === 'upcoming' && (
               <Link href="/employer/search" className="mt-4 inline-block">
@@ -148,11 +175,32 @@ export default function EmployerInterviewsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayedInterviews.map((interview) => (
-            <InterviewCard key={interview._id} interview={interview} isUpcoming={activeTab === 'upcoming'} />
+            <InterviewCard
+              key={interview._id}
+              interview={interview}
+              isUpcoming={activeTab === 'upcoming'}
+              isArchive={activeTab === 'archive'}
+              onAction={handleAction}
+            />
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
+        active
+          ? 'border-[#0066FF] text-[#0066FF]'
+          : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -172,37 +220,136 @@ function StatCard({ label, value, color }: { label: string; value: number; color
   );
 }
 
-function InterviewCard({ interview, isUpcoming }: { interview: Interview; isUpcoming: boolean }) {
+function InterviewCard({
+  interview,
+  isUpcoming,
+  isArchive,
+  onAction,
+}: {
+  interview: Interview;
+  isUpcoming: boolean;
+  isArchive: boolean;
+  onAction: (id: string, action: 'archive' | 'delete' | 'unarchive') => void;
+}) {
   const { t } = useLanguage();
+  const [busy, setBusy] = useState<'archive' | 'delete' | 'unarchive' | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   const date = new Date(interview.dateTime);
   const isVirtual = interview.type?.toLowerCase() === 'virtual' || interview.location?.toLowerCase().includes('video interview');
   const positionTitle = interview.jobId?.title || interview.jobTitle || t('interviews.general_interview');
 
   const statusConfig: Record<string, { variant: 'success' | 'error' | 'warning' | 'info'; label: string }> = {
-    pending:              { variant: 'warning', label: t('interviews.status_pending') },
-    confirmed:            { variant: 'info',    label: t('interviews.status_confirmed') },
-    in_progress:          { variant: 'info',    label: t('interviews.status_in_progress') },
-    completed:            { variant: 'success', label: t('interviews.status_completed') },
-    cancelled:            { variant: 'error',   label: t('interviews.status_cancelled') },
-    no_show:              { variant: 'error',   label: t('interviews.status_no_show') },
-    rescheduled:          { variant: 'warning', label: t('interviews.status_rescheduled') },
+    pending:     { variant: 'warning', label: t('interviews.status_pending') },
+    confirmed:   { variant: 'info',    label: t('interviews.status_confirmed') },
+    in_progress: { variant: 'info',    label: t('interviews.status_in_progress') },
+    completed:   { variant: 'success', label: t('interviews.status_completed') },
+    cancelled:   { variant: 'error',   label: t('interviews.status_cancelled') },
+    no_show:     { variant: 'error',   label: t('interviews.status_no_show') },
+    rescheduled: { variant: 'warning', label: t('interviews.status_rescheduled') },
   };
 
   const { variant, label } = statusConfig[interview.status] || { variant: 'info', label: interview.status };
 
+  const handleAction = async (action: 'archive' | 'delete' | 'unarchive') => {
+    setBusy(action);
+    await onAction(interview._id, action);
+    setBusy(null);
+    setConfirmDelete(false);
+  };
+
+  // Show action icons on past and archive tabs
+  const showActions = !isUpcoming;
+
   return (
-    <Card className={`overflow-hidden transition-shadow duration-200 rounded-3xl shadow-lg hover:shadow-xl ${!isUpcoming ? 'opacity-60' : ''}`}>
+    <Card className={`overflow-hidden transition-shadow duration-200 rounded-3xl shadow-lg hover:shadow-xl ${!isUpcoming && !isArchive ? 'opacity-70' : ''}`}>
       <div className={`h-1.5 w-full ${isVirtual ? 'bg-purple-500' : 'bg-emerald-500'}`} />
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <Badge variant={variant}>{label}</Badge>
-          <div className="text-right">
-            <p className="text-sm font-bold text-gray-900 dark:text-white">
-              {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
-            </p>
+          <div className="flex items-center gap-2">
+            {/* Date */}
+            <div className="text-right">
+              <p className="text-sm font-bold text-gray-900 dark:text-white">
+                {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+              </p>
+            </div>
+
+            {/* Action icons — archive & delete (past + archive tabs) */}
+            {showActions && (
+              <div className="flex items-center gap-1 ml-1">
+                {isArchive ? (
+                  /* In archive tab: show unarchive button */
+                  <button
+                    onClick={() => handleAction('unarchive')}
+                    disabled={!!busy}
+                    title="Unarchive"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors disabled:opacity-40"
+                  >
+                    {busy === 'unarchive' ? (
+                      <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                      </svg>
+                    )}
+                  </button>
+                ) : (
+                  /* In past tab: show archive button */
+                  <button
+                    onClick={() => handleAction('archive')}
+                    disabled={!!busy}
+                    title="Archive"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950 transition-colors disabled:opacity-40"
+                  >
+                    {busy === 'archive' ? (
+                      <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12" />
+                      </svg>
+                    )}
+                  </button>
+                )}
+
+                {/* Delete — always shown on past + archive tabs */}
+                {confirmDelete ? (
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleAction('delete')}
+                      disabled={!!busy}
+                      title="Confirm delete"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors disabled:opacity-40 text-[10px] font-bold"
+                    >
+                      {busy === 'delete' ? (
+                        <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : '✓'}
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete(false)}
+                      title="Cancel"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-[10px] font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmDelete(true)}
+                    disabled={!!busy}
+                    title="Delete"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors disabled:opacity-40"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </CardHeader>

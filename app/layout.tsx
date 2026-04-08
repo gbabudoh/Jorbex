@@ -4,6 +4,7 @@ import "./globals.css";
 import LayoutShell from "@/components/shared/LayoutShell";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { LanguageProvider } from "@/lib/LanguageContext";
+import PWAInstallPrompt from "@/components/shared/PWAInstallPrompt";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -66,6 +67,7 @@ export default function RootLayout({
             <LayoutShell>
               {children}
             </LayoutShell>
+            <PWAInstallPrompt />
           </SessionProvider>
         </LanguageProvider>
       </body>

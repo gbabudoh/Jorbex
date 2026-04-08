@@ -3,15 +3,24 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const archived = searchParams.get('archived') === 'true';
+
     const where = session.user.userType === 'employer'
-      ? { employerId: session.user.id }
+      ? {
+          employerId: session.user.id,
+          employerDeletedAt: null,
+          ...(archived
+            ? { employerArchivedAt: { not: null } }
+            : { employerArchivedAt: null }),
+        }
       : { candidateId: session.user.id, candidateRemovedAt: null };
 
     const interviews = await prisma.interview.findMany({

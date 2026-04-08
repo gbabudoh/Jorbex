@@ -3,23 +3,64 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
-// PATCH /api/v1/interviews/[id]  body: { action: 'archive' | 'remove' }
+// PATCH /api/v1/interviews/[id]  body: { action: 'archive' | 'remove' | 'delete' }
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user?.userType !== 'candidate') {
+  if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const { id } = await params;
   const { action } = await request.json();
 
+  const interview = await prisma.interview.findUnique({ where: { id } });
+  if (!interview) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  // ── Employer actions ────────────────────────────────────────────────────────
+  if (session.user?.userType === 'employer') {
+    if (interview.employerId !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+
+    if (action === 'archive') {
+      await prisma.interview.update({
+        where: { id },
+        data: { employerArchivedAt: new Date(), employerDeletedAt: null },
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    if (action === 'delete') {
+      await prisma.interview.update({
+        where: { id },
+        data: { employerDeletedAt: new Date(), employerArchivedAt: null },
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    if (action === 'unarchive') {
+      await prisma.interview.update({
+        where: { id },
+        data: { employerArchivedAt: null },
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  }
+
+  // ── Candidate actions ───────────────────────────────────────────────────────
+  if (session.user?.userType !== 'candidate') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   if (action !== 'archive' && action !== 'remove') {
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   }
 
-  // Verify the interview belongs to this candidate and is past/cancelled
-  const interview = await prisma.interview.findUnique({ where: { id } });
-  if (!interview || interview.candidateId !== session.user.id) {
+  if (interview.candidateId !== session.user.id) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 

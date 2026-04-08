@@ -136,6 +136,16 @@ export default function OfferPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 flex items-start justify-center">
       <div className="w-full max-w-3xl space-y-4">
 
+        <Link
+          href="/candidate/jobs"
+          className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#0066FF] dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Dashboard
+        </Link>
+
         <Card className="border-0 shadow-2xl overflow-hidden">
           {/* Header banner */}
           <div className="bg-linear-to-r from-[#0066FF] to-[#0052CC] p-8 text-white relative overflow-hidden">

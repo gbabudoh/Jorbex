@@ -1,11 +1,17 @@
 import type { NextConfig } from "next";
-import withPWA from "next-pwa";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const withPWA = require('next-pwa');
 
+// next-pwa v5 types are incomplete — customWorkerDir and fallbacks exist at runtime
 const pwaConfig = withPWA({
   dest: 'public',
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
+  customWorkerDir: 'worker',
+  fallbacks: {
+    document: '/offline',
+  },
 });
 
 const nextConfig: NextConfig = {

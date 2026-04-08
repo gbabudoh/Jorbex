@@ -439,10 +439,7 @@ export default function ProfilePage() {
                     <span className="text-gray-600 dark:text-gray-400 shrink-0">{t('candidate_profile.email')}</span>
                     <span className="font-medium truncate text-right">{profile?.email}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">{t('candidate_profile.phone')}</span>
-                    <span className="font-medium text-right">{formData.phone || t('candidate_profile.not_set')}</span>
-                  </div>
+                  {/* phone hidden */}
                   {(formData.city || formData.country) && (
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-gray-600 dark:text-gray-400 shrink-0">Location</span>
@@ -636,12 +633,7 @@ export default function ProfilePage() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     />
-                    <Input
-                      label={t('candidate_profile.phone_number')}
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    />
+                    {/* phone input hidden */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{t('candidate_profile.country') || 'Country'}</label>
