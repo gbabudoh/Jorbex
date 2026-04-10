@@ -32,6 +32,7 @@
     "@novu/node": "^2.6.6",
     "@novu/react": "^3.14.1",
     "@prisma/client": "^6.9.0",
+    "@react-pdf/renderer": "^4.4.0",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
