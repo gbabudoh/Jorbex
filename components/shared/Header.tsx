@@ -128,15 +128,15 @@ export const Header: React.FC = () => {
               </NavLink>
               
               {session?.user?.userType === 'employer' ? (
-                <div className="flex items-center space-x-2 px-4 py-1.5 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/20">
+                <Link href="/employer/search" className="flex items-center space-x-2 px-4 py-1.5 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/20 hover:bg-blue-100/50 dark:hover:bg-blue-800/30 transition-colors">
                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                   <span className="text-[11px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">{t('nav.dashboard')}</span>
-                </div>
+                </Link>
               ) : session?.user?.userType === 'candidate' ? (
-                <div className="flex items-center space-x-2 px-4 py-1.5 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/20">
+                <Link href="/candidate/profile" className="flex items-center space-x-2 px-4 py-1.5 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/20 hover:bg-blue-100/50 dark:hover:bg-blue-800/30 transition-colors">
                   <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
                   <span className="text-[11px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">{t('nav.dashboard')}</span>
-                </div>
+                </Link>
               ) : null}
             </div>
 
