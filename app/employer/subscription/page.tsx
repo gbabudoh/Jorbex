@@ -82,9 +82,8 @@ export default function SubscriptionPage() {
   }, []);
 
   useEffect(() => {
-    if (status === 'unauthenticated') router.replace('/login');
-    if (status === 'authenticated')   fetchSubscription();
-  }, [status, router, fetchSubscription]);
+    if (status === 'authenticated') fetchSubscription();
+  }, [status, fetchSubscription]);
 
   const handleSubscribe = async (period: 'monthly' | 'yearly') => {
     if (!session) { router.push('/signup?type=employer'); return; }
