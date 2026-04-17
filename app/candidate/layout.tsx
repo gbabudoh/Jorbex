@@ -51,8 +51,8 @@ export default function CandidateLayout({
         </div>
 
         {/* Main content */}
-        {/* Desktop: pt-24 clears header + fixed nav. Mobile: pt-2, pb-20 clears bottom nav */}
-        <div className="container mx-auto px-4 max-w-7xl pt-2 pb-24 md:pt-24 md:pb-6">
+        {/* Desktop: pt-24 clears header + fixed nav. Mobile: pt-24 clears fixed header. pb-24 clears bottom nav */}
+        <div className="container mx-auto px-4 max-w-7xl pt-24 pb-24 md:pt-24 md:pb-6">
           <main className="relative">
             {children}
           </main>

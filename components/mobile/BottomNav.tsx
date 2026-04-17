@@ -59,6 +59,15 @@ const tabs = [
       </svg>
     ),
   },
+  {
+    href: '/candidate/office',
+    key: 'office',
+    icon: (active: boolean) => (
+      <svg className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? 0 : 1.8} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  },
 ];
 
 export function BottomNav() {

@@ -66,6 +66,9 @@ Jorbex facilitates a seamless transition from learning to earning:
 ---
 
 ## 🚀 Future Vision: The Workforce Operating System
-Jorbex is not just a job board; it is the **infrastructure layer** for 1.4 billion people. By 2030, a Jorbex profile will be the standard professional identity for African workers, integrated with payroll, training, and financial services.
+Jorbex is not just a job board; it is the **infrastructure layer** for 1.4 billion people. By 2030, a Jorbex profile will be the standard professional identity for African workers, integrated with:
+- **Jorbex Office (JO)**: Every remote worker in Africa will "Clock-in" to the global economy through our proprietary management and visibility infrastructure.
+- **Micro-Payroll**: Automated, instant disbursements based on real-time activity logs.
+- **Institutional Scale**: Serving as the national system of record for government employment initiatives and university graduate transitions.
 
 *Jorbex — Where Africa's Talent Meets Opportunity.*

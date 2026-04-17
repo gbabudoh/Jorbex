@@ -534,6 +534,7 @@ model EmploymentRecord {
   lastDisbursementRef String?
 
   payslips            Payslip[]
+  attendanceSessions  AttendanceSession[]
 
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
@@ -1031,4 +1032,38 @@ enum IdDocType {
 enum BizType {
   REGISTERED
   INFORMAL
+}
+
+// ─── Jorbex Office (JO) Models ────────────────────────────────────────────────
+// Milestone 1: The Foundation
+
+model AttendanceSession {
+  id                  String           @id @default(uuid())
+  employmentRecordId  String
+  employmentRecord    EmploymentRecord @relation(fields: [employmentRecordId], references: [id], onDelete: Cascade)
+  
+  clockIn             DateTime         @default(now())
+  clockOut            DateTime?
+  
+  // Geolocation (Optional/Enterprise - Milestone 1: Basic IP logging)
+  ipAddress           String?
+  lat                 Float?
+  lng                 Float?
+  
+  // Activity Metadata
+  status              WorkStatus       @default(ACTIVE)
+  totalActiveMinutes  Int              @default(0)
+  totalIdleMinutes    Int              @default(0)
+  
+  overtimeMinutes     Int              @default(0)
+  
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+}
+
+enum WorkStatus {
+  ACTIVE
+  IDLE
+  ON_BREAK
+  OFFLINE
 }

@@ -114,6 +114,17 @@ const candidateItems: NavItem[] = [
     ),
     color: 'from-violet-500 to-purple-600',
     hoverColor: 'shadow-violet-500/20'
+  },
+  {
+    key: 'office',
+    href: '/candidate/office',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    color: 'from-blue-600 to-indigo-700',
+    hoverColor: 'shadow-blue-600/20'
   }
 ];
 
@@ -205,6 +216,17 @@ const employerItems: NavItem[] = [
     ),
     color: 'from-teal-600 to-emerald-700',
     hoverColor: 'shadow-teal-600/20'
+  },
+  {
+    key: 'office',
+    href: '/employer/office',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    color: 'from-blue-600 to-cyan-700',
+    hoverColor: 'shadow-blue-600/20'
   },
   {
     key: 'nav.payroll_calc',

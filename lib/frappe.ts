@@ -16,7 +16,7 @@
  * Base URL: https://{FRAPPE_HOST}/api/resource/{DocType}
  */
 
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, isAxiosError } from 'axios';
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -127,9 +127,12 @@ export async function createEmployee(data: FrappeEmployee): Promise<string> {
     const employeeName: string = res.data?.data?.name;
     if (!employeeName) throw new Error('Employee created but no name returned');
     return employeeName;
-  } catch (err: any) {
-    console.error('[Frappe] createEmployee failed:', err.response?.data || err.message);
-    throw new Error(err.response?.data?.exc_type || 'Failed to create employee in Frappe HR');
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      console.error('[Frappe] createEmployee failed:', err.response?.data || err.message);
+      throw new Error(err.response?.data?.exc_type || 'Failed to create employee in Frappe HR');
+    }
+    throw err;
   }
 }
 
@@ -141,8 +144,11 @@ export async function getEmployee(frappeEmployeeName: string): Promise<FrappeEmp
   try {
     const res = await client.get(`/api/resource/Employee/${frappeEmployeeName}`);
     return res.data?.data;
-  } catch (err: any) {
-    throw new Error(err.response?.data?.exc_type || 'Failed to fetch employee');
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      throw new Error(err.response?.data?.exc_type || 'Failed to fetch employee');
+    }
+    throw err;
   }
 }
 
@@ -156,8 +162,11 @@ export async function updateEmployee(
   const client = getClient();
   try {
     await client.put(`/api/resource/Employee/${frappeEmployeeName}`, updates);
-  } catch (err: any) {
-    throw new Error(err.response?.data?.exc_type || 'Failed to update employee');
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      throw new Error(err.response?.data?.exc_type || 'Failed to update employee');
+    }
+    throw err;
   }
 }
 
@@ -179,9 +188,12 @@ export async function assignSalaryStructure(data: SalaryStructureAssignment): Pr
       currency:         data.currency,
       docstatus:        1,   // submit immediately
     });
-  } catch (err: any) {
-    console.error('[Frappe] assignSalaryStructure failed:', err.response?.data || err.message);
-    throw new Error(err.response?.data?.exc_type || 'Failed to assign salary structure');
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      console.error('[Frappe] assignSalaryStructure failed:', err.response?.data || err.message);
+      throw new Error(err.response?.data?.exc_type || 'Failed to assign salary structure');
+    }
+    throw err;
   }
 }
 
@@ -234,9 +246,53 @@ export async function generateSalarySlip(
     await client.put(`/api/resource/Salary Slip/${slipName}`, { docstatus: 1 });
 
     return slipName;
-  } catch (err: any) {
-    console.error('[Frappe] generateSalarySlip failed:', err.response?.data || err.message);
-    throw new Error(err.response?.data?.exc_type || 'Failed to generate salary slip');
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      const errorBody = err.response?.data || err.message;
+      console.error('[Frappe] generateSalarySlip failed:', errorBody);
+      throw new Error(err.response?.data?.exc_type || 'Failed to generate salary slip');
+    }
+    throw err;
+  }
+}
+
+/**
+ * Generate a salary slip with custom Jorbex Office earnings (Hourly + OT).
+ */
+export async function generateSalarySlipWithEarnings(params: {
+  frappeEmployeeName: string;
+  year: number;
+  month: number;
+  earnings: SalaryComponent[];
+}): Promise<string> {
+  const client = getClient();
+  const startDate = getMonthStart(params.year, params.month);
+  const endDate   = getMonthEnd(params.year, params.month);
+
+  try {
+    // 1 — Create draft salary slip with injected earnings
+    const createRes = await client.post('/api/resource/Salary Slip', {
+      employee:   params.frappeEmployeeName,
+      start_date: startDate,
+      end_date:   endDate,
+      docstatus:  0,
+      earnings:   params.earnings, // Direct injection into the earnings table
+    });
+
+    const slipName = createRes.data?.data?.name;
+    if (!slipName) throw new Error('Salary slip creation failed');
+
+    // 2 — Submit the slip
+    await client.put(`/api/resource/Salary Slip/${slipName}`, { docstatus: 1 });
+
+    return slipName;
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      const errorBody = err.response?.data || err.message;
+      console.error('[Frappe] generateSalarySlipWithEarnings failed:', errorBody);
+      throw new Error(err.response?.data?.exc_type || 'Failed to generate hourly salary slip');
+    }
+    throw err;
   }
 }
 
@@ -248,8 +304,11 @@ export async function getSalarySlip(slipName: string): Promise<SalarySlip> {
   try {
     const res = await client.get(`/api/resource/Salary Slip/${slipName}`);
     return res.data?.data;
-  } catch (err: any) {
-    throw new Error(err.response?.data?.exc_type || 'Failed to fetch salary slip');
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      throw new Error(err.response?.data?.exc_type || 'Failed to fetch salary slip');
+    }
+    throw err;
   }
 }
 
@@ -288,8 +347,11 @@ export async function getEmployeeSalarySlips(
       },
     });
     return res.data?.data ?? [];
-  } catch (err: any) {
-    throw new Error(err.response?.data?.exc_type || 'Failed to fetch salary slips');
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      throw new Error(err.response?.data?.exc_type || 'Failed to fetch salary slips');
+    }
+    throw err;
   }
 }
 
@@ -310,7 +372,7 @@ export async function getSalarySlipPDF(slipName: string): Promise<Buffer> {
       responseType: 'arraybuffer',
     });
     return Buffer.from(res.data);
-  } catch (err: any) {
+  } catch {
     throw new Error('Failed to download salary slip PDF');
   }
 }
@@ -536,9 +598,12 @@ export async function disburseSalary(params: {
       }
     );
     return res.data?.data?.transfer_code;
-  } catch (err: any) {
-    console.error('[Frappe/Paystack] disburseSalary failed:', err.response?.data || err.message);
-    throw new Error(err.response?.data?.message || 'Salary disbursement failed');
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
+      console.error('[Frappe/Paystack] disburseSalary failed:', err.response?.data || err.message);
+      throw new Error(err.response?.data?.message || 'Salary disbursement failed');
+    }
+    throw err;
   }
 }
 
