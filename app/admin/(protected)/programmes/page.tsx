@@ -156,7 +156,7 @@ export default function AdminProgrammesPage() {
       <div className="flex gap-2 mb-6">
         <button
           onClick={() => setTab('enquiries')}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
             tab === 'enquiries'
               ? 'bg-blue-600 text-white'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -166,7 +166,7 @@ export default function AdminProgrammesPage() {
         </button>
         <button
           onClick={() => setTab('portals')}
-          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
             tab === 'portals'
               ? 'bg-blue-600 text-white'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -228,7 +228,7 @@ export default function AdminProgrammesPage() {
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => setSelectedEnquiry(e)}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium cursor-pointer"
                       >
                         Review
                       </button>
@@ -309,7 +309,7 @@ export default function AdminProgrammesPage() {
                 </div>
                 <button
                   onClick={() => setSelectedEnquiry(null)}
-                  className="text-slate-400 hover:text-slate-600"
+                  className="text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -363,7 +363,7 @@ export default function AdminProgrammesPage() {
                   <button
                     onClick={() => handleAction(selectedEnquiry.id, 'reviewing')}
                     disabled={actionLoading}
-                    className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl transition-all disabled:opacity-50"
+                    className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm rounded-xl transition-all disabled:opacity-50 cursor-pointer"
                   >
                     Mark Reviewing
                   </button>
@@ -374,14 +374,14 @@ export default function AdminProgrammesPage() {
                     handleAction(selectedEnquiry.id, 'reject', reason || undefined);
                   }}
                   disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-sm rounded-xl transition-all disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-red-100 hover:bg-red-200 text-red-700 font-semibold text-sm rounded-xl transition-all disabled:opacity-50 cursor-pointer"
                 >
                   Reject
                 </button>
                 <button
                   onClick={() => handleAction(selectedEnquiry.id, 'approve')}
                   disabled={actionLoading}
-                  className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all disabled:opacity-50"
+                  className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {actionLoading ? 'Processing...' : 'Approve & Create Portal'}
                 </button>
